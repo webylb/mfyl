@@ -15,7 +15,3 @@ new Vue({
   store,
   render: h => h(App)
 }).$mount('#app')
-
-
-//原型 https://6yw6v6.axshare.com/
-//接口 https://prev-bea.guijitech.com/swagger-ui.html#/
