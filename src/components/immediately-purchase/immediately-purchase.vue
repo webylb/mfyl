@@ -322,7 +322,7 @@ export default {
           this.form.payPassword = ''
           this.dialogPwdVisible = false
           this.dialogPwdSuccessVisible = true
-          const timer = null
+          let timer = null
           clearTimeout(timer)
           timer = setTimeout(res=>{
             this.form.camInfo = [{
