@@ -83,7 +83,7 @@
         <el-input v-model="form.sort" clearable placeholder="首页排序" style="width: 200px;"></el-input>
       </el-form-item>
       <el-form-item label="商品详情*:" class="ueditor-wrap">
-        <vue-editor id="editor" useCustomImageHandler @image-added="handleImageAdded" v-model="form.itemContent" :editor-toolbar="customToolbar"/>
+        <vue-ueditor-wrap @ready="ready" v-model="form.itemContent" :config="myConfig" :destroy="true"></vue-ueditor-wrap>
       </el-form-item>
       <el-form-item>
         <!-- <el-button>清空</el-button> -->
@@ -95,13 +95,12 @@
 <script>
 import CONGIF from "../../api/config"
 import * as core from "../../api/mall"
-import { VueEditor } from "vue2-editor"
-import axios from "axios"
+import VueUeditorWrap from 'vue-ueditor-wrap'
 
 export default {
   name: 'physicalMarketEdit',
   components: {
-    VueEditor
+    VueUeditorWrap
   },
   data() {
     return {
@@ -154,7 +153,19 @@ export default {
       },
       firstCategoryOptions:[],
       secondCategoryOptions:[],
-      customToolbar: [],
+      myConfig: {
+        // 编辑器不自动被内容撑高
+        autoHeightEnabled: false,
+        // 初始容器高度
+        initialFrameHeight: 800,
+        // 初始容器宽度
+        initialFrameWidth: '100%',
+        // 上传文件接口
+        serverUrl: '/admin/picture/upload/forEditor',
+        // UEditor 资源文件的存放路径，如果你使用的是 vue-cli 生成的项目，通常不需要设置该选项，vue-ueditor-wrap 会自动处理常见的情况，如果需要特殊配置，参考下方的常见问题2
+        UEDITOR_HOME_URL: process.env.NODE_ENV === 'production' ?  (process.env.VUE_APP_TITLE==='MFYL_PRODUCTION' ? 'http://admin.cubegift.cn/static/' : 'http://prev-admin.cubegift.cn/static/') : '/UEditor/',
+
+      },
       dialogImageUrl: '', //图片预览
       dialogVisible: false, //图片预览
       initData: null
@@ -172,23 +183,8 @@ export default {
 
   },
   methods: {
-    handleImageAdded(file, Editor, cursorLocation, resetUploader) {
-      var formData = new FormData();
-      formData.append("image", file);
-      axios({
-        url: "/admin/picture/uploadImage",
-        method: "POST",
-        data: formData
-      })
-      .then(result => {
-        console.log(result)
-        let url = result.data.data; // Get url from response
-        Editor.insertEmbed(cursorLocation, "image", url);
-        resetUploader();
-      })
-      .catch(err => {
-        console.log(err);
-      });
+    ready (editorInstance) {
+      //console.log(`编辑器实例${editorInstance.key}: `, editorInstance)
     },
     searchGoodsDetail(id){
       core.searchGoodsDetail({itemId: id}).then(res => {

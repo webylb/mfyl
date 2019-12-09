@@ -68,7 +68,7 @@
           background
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
-          :current-page="1"
+          :current-page.sync="currentPage"
           :page-sizes="[10, 20, 30, 40, 50]"
           :page-size="10"
           layout="sizes, prev, pager, next, jumper"
@@ -301,7 +301,7 @@ export default {
 }
 
 </script>
-<style lang='less'>
+<style lang='less' scope>
 .category-recommend {
 
    .category-recommend-title {

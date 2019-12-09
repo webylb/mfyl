@@ -1,11 +1,11 @@
 <template>
   <div class="merchant-management">
     <el-form ref="form" :model="form" :inline="true" label-position="center" label-width="120px">
-     
+
       <el-form-item label="商户名称:">
         <el-input style="width: 120px" v-model="form.merchantName" clearable></el-input>
       </el-form-item>
-    
+
       <el-form-item label="与员工绑定字段:">
         <el-select v-model="form.bindStrategyCode" clearable placeholder="请选择" style="width: 145px;margin-right:10px">
           <el-option
@@ -16,7 +16,7 @@
           </el-option>
         </el-select>
       </el-form-item>
-  
+
       <el-form-item label="采购模式:">
         <el-select v-model="form.purchaseMode" clearable placeholder="请选择" style="width: 120px;margin-right:10px">
           <el-option
@@ -27,7 +27,7 @@
           </el-option>
         </el-select>
       </el-form-item>
-  
+
       <el-form-item label="商户状态:">
         <el-select v-model="form.isLock" clearable placeholder="请选择" style="width: 120px">
           <el-option
@@ -38,7 +38,7 @@
           </el-option>
         </el-select>
       </el-form-item>
-       
+
       <el-form-item style='float:right;'>
         <el-button type="primary" @click="search()">立即查询</el-button>
           <el-button @click="downloadMerchantList()">导 出</el-button>
@@ -139,7 +139,7 @@
           align="center"
           width="100">
           <template slot-scope="scope">
-            <!-- <el-button @click="handleClick(scope.row)" type="text" size="small">编辑</el-button> -->
+            <el-button @click="changePwd(scope.row.id,scope.$index)" type="text" size="small">修改密码</el-button> <br/>
             <el-button @click="lockMerchant(scope.row.id,scope.$index)" v-if="scope.row.isLock == 'N'" type="text" size="small">冻结</el-button>
             <el-button @click="unlockMerchant(scope.row.id,scope.$index)" v-else type="text" size="small">取消冻结</el-button>
           </template>
@@ -151,7 +151,7 @@
           background
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
-          :current-page="1"
+          :current-page.sync="currentPage"
           :page-sizes="[10, 20, 30, 40, 50]"
           :page-size="10"
           layout="sizes, prev, pager, next, jumper"
@@ -200,11 +200,28 @@
               :value="item.value">
             </el-option>
           </el-select>
-        </el-form-item>     
+        </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取  消</el-button>
         <el-button type="primary" @click="submitForm('dialogForm')">确  认</el-button>
+      </span>
+    </el-dialog>
+    <el-dialog
+      title="修改商户密码"
+      :visible.sync="dialogVisible2"
+      width="422px"
+      @close="dialogClose()" center>
+      <el-form :model="dialogForm2" label-position="right" label-width="120px" ref="dialogForm">
+        <el-form-item label="新密码*:" prop="password">
+          <el-input style="width: 270px" v-model="dialogForm2.password"
+                    auto-complete="off"
+                    placeholder="请输入新密码"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible2 = false">取  消</el-button>
+        <el-button type="primary" @click="submitPwd()">确  认</el-button>
       </span>
     </el-dialog>
   </div>
@@ -254,6 +271,7 @@ export default {
     return {
       loading: true,
       dialogVisible: false,
+      dialogVisible2: false,
       form: {
         merchantName: null,
         bindStrategyCode: null,
@@ -267,6 +285,9 @@ export default {
         password: null,
         purchaseMode: null,
         bandStrategy: null
+      },
+      dialogForm2: {
+        password: null
       },
       rules: {
         username: [
@@ -363,7 +384,7 @@ export default {
       this.pageSize = val
       this.loading = true
       let data = {
-        currentPage: 1, 
+        currentPage: 1,
         pageSize: val
       }
       this.search(data)
@@ -372,7 +393,7 @@ export default {
       this.currentPage = val
       this.loading = true
       let data = {
-        currentPage: val, 
+        currentPage: val,
         pageSize: this.pageSize
       }
       this.search(data)
@@ -383,6 +404,7 @@ export default {
       if(opts){
         data = opts
       }else{
+        this.currentPage = 1
         data = {currentPage: 1, pageSize: this.pageSize}
       }
       if(this.form.merchantName){
@@ -412,6 +434,18 @@ export default {
           return false;
         }
       });
+    },
+    changePwd(id){
+      this.editId = id
+      this.dialogVisible2 = true
+    },
+    submitPwd() {
+      if(this.dialogForm2.password && this.dialogForm2.password.length > 5) {
+        this.changeMerchantPassword({merchantId: this.editId, newPasswd: this.dialogForm2.password})
+      }else{
+        this.$message.closeAll();
+        this.$message.info('密码长度最小为6位');
+      }
     },
     registerMerchant(opts){
       core.registerMerchant(opts).then(res => {
@@ -468,6 +502,21 @@ export default {
         this.$message.info(err);
       })
     },
+    changeMerchantPassword(opts) {
+      core.changeMerchantPassword(opts).then(res => {
+        if(res.code && res.code == '00'){
+          this.dialogClose()
+          this.$message.closeAll();
+          this.$message.success("密码修改成功");
+        }else{
+          this.$message.closeAll();
+          this.$message.info(res.message);
+        }
+      }).catch(err => {
+        this.$message.closeAll();
+        this.$message.info(err);
+      })
+    },
     goSettings(id){
       this.$router.push({path:'/merchant-management/shop-settings',query:{id: id}})
     },
@@ -476,6 +525,9 @@ export default {
     },
     dialogClose(){
       this.dialogVisible = false
+      this.dialogVisible2 = false
+      this.dialogForm2.password = null
+      this.editId = null
     },
     downloadMerchantList(){
       let data = { }
@@ -497,7 +549,7 @@ export default {
           this.$message.closeAll();
           this.$message.info(res.message);
         }else{
-          const blob = new Blob([res],{type: 'application/vnd.ms-excel'}); 
+          const blob = new Blob([res],{type: 'application/vnd.ms-excel'});
           const fileName = '商户导出列表.xls';
           const linkNode = document.createElement('a');
 
@@ -523,16 +575,16 @@ export default {
 }
 
 </script>
-<style lang='less'>
+<style lang='less' scope>
 .merchant-management {
   .page-content {
-    margin-top: 16px;  
+    margin-top: 16px;
 
     .pagination-box {
       text-align: right;
       margin-top: 10px;
     }
-  
+
   }
   .el-dialog__body {
     padding: 0px 16px;

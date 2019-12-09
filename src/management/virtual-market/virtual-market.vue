@@ -44,7 +44,7 @@
         </el-select>
       </el-form-item>
 
-     
+
       <el-form-item label="上下架状态:">
         <el-select v-model="value" clearable placeholder="请选择" style="width: 120px;">
           <el-option
@@ -55,8 +55,8 @@
           </el-option>
         </el-select>
       </el-form-item>
-      
-  
+
+
       <el-form-item style='float:right;'>
         <el-button type="primary">立即查询</el-button>
         <el-button type="primary">导  出</el-button>
@@ -127,15 +127,15 @@
           align="center"
           >
         </el-table-column>
-       
+
         <el-table-column
           prop="province"
           label="首页排序"
           align="center"
          >
-        
+
         </el-table-column>
-        
+
         <el-table-column
           fixed="right"
           label="操作"
@@ -156,7 +156,7 @@
           background
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
-          :current-page="1"
+          :current-page.sync="currentPage"
           :page-sizes="[20, 30, 40, 50]"
           :page-size="10"
           layout="sizes, prev, pager, next, jumper"
@@ -230,7 +230,7 @@ export default {
     }
   },
   created(){
-    
+
   },
   methods: {
     getData(){
@@ -261,7 +261,7 @@ export default {
 }
 
 </script>
-<style lang='less'>
+<style lang='less' scope>
 .virtual-market {
 
    .virtual-market-title {
@@ -293,13 +293,13 @@ export default {
 
   }
   .page-content {
-    margin-top: 16px;  
+    margin-top: 16px;
 
     .pagination-box {
       text-align: right;
       margin-top: 10px;
     }
-  
+
   }
 
   .el-dialog__body {

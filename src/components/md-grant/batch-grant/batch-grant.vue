@@ -1,8 +1,8 @@
 <template>
   <div class="batch-grant">
-    
+
     <div class="bulk-option">
-      <span class="bulk-option-text">导入发放信息*:</span> 
+      <span class="bulk-option-text">导入发放信息*:</span>
       <el-button size="small" type="primary" @click="uploadClick" style="margin-left:20px;">上传excel</el-button>
       <el-button type="text" class="bulk-text-btn" @click="importExamples">导入格式示例</el-button>
     </div>
@@ -67,7 +67,7 @@
           align="center"
           >
         </el-table-column>
-        <el-table-column  
+        <el-table-column
           prop="grantMoney"
           label="发放金额(元)"
           align="center"
@@ -84,7 +84,7 @@
           background
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
-          :current-page="1"
+          :current-page.sync="currentPage"
           :page-sizes="[10, 20, 30, 40, 50]"
           :page-size="10"
           layout="sizes, prev, pager, next, jumper"
@@ -200,7 +200,7 @@
       :before-close="dialogClose"
       center>
       <div class="margin:20px auto;text-align:center;font-size;16px;">
-        <div style="text-align:center;"> 
+        <div style="text-align:center;">
           <i class="el-icon-success" style="color: #67c23a;fontSize: 80px"></i>
         </div>
         <div style="text-align:center;margin:10px 25px;font-size:16px;">
@@ -255,7 +255,7 @@ export default {
     }
   },
   created(){
-    
+
   },
   methods:{
     ...mapMutations([
@@ -268,6 +268,19 @@ export default {
           this.merchantId = res.data.merchantId
           this.accountBalance = res.data.accountBalance
           this.havePayPassword = res.data.havePayPassword
+          this.UPDATA_ACCOUNT_BALANCE(res.data.accountBalance || 0)
+        }else{
+          this.$message.closeAll();
+          this.$message.info(res.message);
+        }
+      }).catch(err => {
+        this.$message.closeAll();
+        this.$message.info(err);
+      })
+    },
+    updateBalance(){
+      merchantCore.getMerchantDetail().then(res => {
+        if(res.code && res.code == '00'){
           this.UPDATA_ACCOUNT_BALANCE(res.data.accountBalance || 0)
         }else{
           this.$message.closeAll();
@@ -317,10 +330,18 @@ export default {
       this.dialogInfoVisible = false
       this.dialogHintVisible = false
       this.dialogPwdNoVisible = false
-      this.dialogPwdVisible = false 
-      this.dialogPwdHintVisible = false 
+      this.dialogPwdVisible = false
+      this.dialogPwdHintVisible = false
       this.dialogPwdSuccessVisible = false
       this.fileList = []
+      this.pwd1 = ''
+      this.pwd2 = ''
+      this.pwd3 = ''
+      this.pwd4 = ''
+      this.pwd5 = ''
+      this.pwd6 = ''
+      this.form.payPassword = ''
+      this.$refs.upload.clearFiles()
     },
     handleRemove(file, fileList) {
       console.log(file, fileList);
@@ -359,6 +380,7 @@ export default {
       core.uploadGrantInfo(form).then(res => {
         if(res.code && res.code === "00"){
           this.dialogInfoVisible = false
+          this.$refs.upload.clearFiles()
           this.dialogInfoForm = {
             excelFile: null
           }
@@ -373,6 +395,7 @@ export default {
           this.loading = false
         }else{
           this.dialogInfoVisible = false
+          this.$refs.upload.clearFiles()
           this.$message.closeAll();
           this.$message.warning(res.message);
           this.loading = false
@@ -391,7 +414,7 @@ export default {
           this.$message.closeAll();
           this.$message.info(res.message);
         }else{
-          const blob = new Blob([res],{type: 'application/vnd.ms-excel'}); 
+          const blob = new Blob([res],{type: 'application/vnd.ms-excel'});
           const fileName = '导入格式示例.xls';
           const linkNode = document.createElement('a');
 
@@ -442,6 +465,7 @@ export default {
           timer = setTimeout(res => {
             this.dialogPwdSuccessVisible = false
           },2000)
+          this.updateBalance()
         }else{
           this.$message.closeAll();
           this.$message.info(res.message);
@@ -507,7 +531,7 @@ export default {
     }
   }
 
-  
+
   .bulk-content {
     margin-top: 15px;
 
@@ -516,7 +540,7 @@ export default {
       margin-bottom: 10px;
       color: #8B98AB;
     }
-    
+
     .tabs-last {
       width: 100%;
       height: 70px;
@@ -549,7 +573,7 @@ export default {
       overflow:hidden;
       margin: 0 auto;
   }
-  
+
 	.pwd-box .el-input {
 		  width: 100%;
 	    height: 45Px;
@@ -562,7 +586,7 @@ export default {
 	    opacity: 0;
 	    z-index: 1;
       letter-spacing: 35Px;
-      
+
       input {
         width: 100%;
         height: 100%;
@@ -570,12 +594,12 @@ export default {
         margin: 0;
       }
   }
-  
+
   .fake-box {
     width: 270px;
     display: flex;
     justify-content: flex-start;
-  
+
     input{
         flex-grow: 1;
         width: 0;
@@ -590,7 +614,7 @@ export default {
           border:none;
         }
     }
-  
+
   }
 }
 

@@ -23,8 +23,8 @@
           </el-option>
         </el-select>
       </el-form-item>
-      
-  
+
+
       <el-form-item style='float:right;'>
         <el-button type="primary" @click="search()">立即查询</el-button>
         <el-button @click="downloadOrderList()">导  出</el-button>
@@ -65,7 +65,7 @@
           align="center"
          >
         </el-table-column>
-       
+
         <el-table-column
           label="订单状态"
           align="center"
@@ -94,7 +94,7 @@
             <el-button type="text" size="small" @click="orderDetail(scope.row.id)">查看</el-button>
           </template>
         </el-table-column>
-        
+
         <el-table-column
           fixed="right"
           label="操作"
@@ -126,7 +126,7 @@
           background
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
-          :current-page="1"
+          :current-page.sync="currentPage"
           :page-sizes="[10, 20, 30, 40, 50]"
           :page-size="pageSize"
           layout="sizes, prev, pager, next, jumper"
@@ -134,12 +134,12 @@
         </el-pagination>
       </div>
     </div>
-    
+
     <el-dialog
       :title="title"
       :visible.sync="dialogInfoVisible"
       width="420px"
-      :before-close="dialogClose"
+      @close="dialogClose"
       center>
       <el-form v-if="sendStatus == 1" ref="dialogform" :model="dialogInfoForm" label-width="100px">
         <el-form-item label="快递公司:">
@@ -173,7 +173,7 @@
       :title="title"
       :visible.sync="dialogHintVisible"
       width="400px"
-      :before-close="dialogClose"
+      @close="dialogClose"
       center>
       <div style="margin:20px auto;text-align:center;font-size;16px;">
         {{ hintText }}
@@ -315,6 +315,7 @@ export default {
       if(opts){
         data = opts
       }else{
+        this.currentPage = 1
         data = { currentPage:1, pageSize:this.pageSize }
       }
       if(this.form.userId){
@@ -329,8 +330,11 @@ export default {
       this.getUserOrderList(data)
     },
     dialogClose(){
-      this.dialogHintVisible = false;
+      this.dialogHintVisible = false
       this.dialogInfoVisible = false
+      this.dialogInfoForm.expressCompany = null
+      this.dialogInfoForm.expressCompanyNumber = null
+      this.dialogInfoForm.expressOrderId = null
     },
     editLogistics(row, status, index){
       this.dialogInfoVisible = true
@@ -387,7 +391,7 @@ export default {
           this.$message.closeAll();
           this.$message.info(err);
         })
-        
+
       }else{
         //console.log("查看物流信息")
         this.dialogInfoVisible = false
@@ -421,7 +425,7 @@ export default {
           this.$message.closeAll();
           this.$message.info(res.message);
         }else{
-          const blob = new Blob([res],{type: 'application/vnd.ms-excel'}); 
+          const blob = new Blob([res],{type: 'application/vnd.ms-excel'});
           const fileName = '订单导出列表.xls';
           const linkNode = document.createElement('a');
 
@@ -440,7 +444,7 @@ export default {
 }
 
 </script>
-<style lang='less'>
+<style lang='less' scope>
 .physical-order-list {
 
    .physical-order-list-title {
@@ -472,13 +476,13 @@ export default {
 
   }
   .page-content {
-    margin-top: 16px;  
+    margin-top: 16px;
 
     .pagination-box {
       text-align: right;
       margin-top: 10px;
     }
-  
+
   }
 
   .el-dialog__body {

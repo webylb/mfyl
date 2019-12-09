@@ -42,8 +42,8 @@
     <div class="page-content">
       <el-table
         :data="tableData"
-        border
-        style="width: 100%"
+        stripe
+        style="width: 100%;border:1px solid #EBEEF5;"
         v-loading="loading">
         <el-table-column
           type="index"
@@ -66,7 +66,7 @@
           align='center'
          >
           <template slot-scope="scope">
-            <div v-if="scope.row.orderDetails"> 
+            <div v-if="scope.row.orderDetails">
               <span v-for="(item,index) in scope.row.orderDetails" :key="index" style="display:block;">{{item.camFaceValue}} * {{item.buyAmount}}</span>
             </div>
             <!-- <span v-if="scope.row.orderDetails.length > 0">{{scope.row.orderDetails[0].camFaceValue}} * {{scope.row.orderDetails[0].buyAmount}}</span> -->
@@ -97,7 +97,7 @@
             <span v-else>{{ scope.row.deliveryAddress }}</span>
           </template>
         </el-table-column>
-        
+
         <el-table-column
           fixed="right"
           label="发货状态"
@@ -116,7 +116,7 @@
           background
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
-          :current-page="1"
+          :current-page.sync="currentPage"
           :page-sizes="[10, 20, 30, 40, 50]"
           :page-size="10"
           layout="sizes, prev, pager, next, jumper"
@@ -224,6 +224,7 @@ export default {
     },
     search(){
       this.loading = true
+      this.currentPage = 1
       let data = { currentPage:1, pageSize:this.pageSize }
       if(this.form.startTime){
         data.startTime = this.form.startTime
@@ -235,7 +236,7 @@ export default {
         data.orderStatus = this.form.orderStatus
       }
       this.getCamOrderList(data)
-      
+
     },
     handleClick(row) {
       this.$router.push("/grant-record/grant-detail")
@@ -292,7 +293,7 @@ export default {
 }
 
 </script>
-<style lang='less'>
+<style lang='less' scope>
 .pwd-purchase {
   .form-date {
     .el-form-item__label {
@@ -300,13 +301,13 @@ export default {
     }
   }
   .page-content {
-    margin-top: 16px;  
+    margin-top: 16px;
 
     .pagination-box {
       text-align: right;
       margin-top: 10px;
     }
-  
+
   }
   .el-dialog__body {
     padding: 0px 16px;

@@ -1,20 +1,20 @@
 <template>
   <div class="single-grant">
-   
+
     <div class="bulk-option-single">
       <div class="bulk-option-single-wrap">
-        <span class="bulk-option-text">选择发放对象*:</span> 
-        
+        <span class="bulk-option-text">选择发放对象*:</span>
+
         <el-form ref="form" :model="form" :inline="true" label-position="center" label-width="80px" class="bulk-option-form">
 
           <el-form-item label="员工姓名">
             <el-input style="width: 120px" v-model="form.staffName" clearable></el-input>
           </el-form-item>
-        
+
           <el-form-item label="工号">
             <el-input style="width: 120px" v-model="form.staffJobNumber" clearable></el-input>
           </el-form-item>
-      
+
           <el-form-item label="手机号">
             <el-input style="width: 120px" v-model="form.staffMobile" clearable></el-input>
           </el-form-item>
@@ -35,7 +35,7 @@
               :picker-options="pickerOptions">
             </el-date-picker>
           </el-form-item>
-        
+
           <el-form-item label="部门">
             <el-select v-model="form.staffDepartmentName" clearable placeholder="请选择部门" style="width: 120px">
               <el-option
@@ -46,7 +46,7 @@
               </el-option>
             </el-select>
           </el-form-item>
-        
+
           <el-form-item label="职务">
             <el-select v-model="form.staffJob" clearable placeholder="请选择职务" style="width: 120px">
               <el-option
@@ -60,9 +60,9 @@
           <el-form-item style="float:right;">
             <el-button type="primary" @click="search">立即查询</el-button>
           </el-form-item>
-      
+
         </el-form>
-      </div> 
+      </div>
       <div class="page-content">
         <el-table
           :data="tableData"
@@ -144,12 +144,12 @@
         </el-table>
       </div>
       <div class="bulk-option-single-wrap" style="margin-top:20px;">
-        <span class="bulk-option-text">发放面值*:</span> 
+        <span class="bulk-option-text">发放面值*:</span>
         <el-form ref="grantForm" :model="grantForm" :inline="true" label-position="center" label-width="80px" class="bulk-option-form">
           <el-form-item>
-            <el-input style="width: 120px" v-model="grantForm.grantMoney" clearable></el-input>
+            <el-input style="width: 120px" v-model="grantForm.grantMoney" @input="grantMoneyInput" clearable></el-input>
           </el-form-item>
-        </el-form>  
+        </el-form>
       </div>
       <el-row>
         <el-col :span="24" style="text-align: center">
@@ -219,7 +219,7 @@
           align="center"
           min-width="80">
         </el-table-column>
-        <el-table-column  
+        <el-table-column
           prop="grantMoney"
           label="发放金额(元)"
           align="center"
@@ -312,7 +312,7 @@
       :before-close="dialogClose"
       center>
       <div class="margin:20px auto;text-align:center;font-size;16px;">
-        <div style="text-align:center;"> 
+        <div style="text-align:center;">
           <i class="el-icon-success" style="color: #67c23a;fontSize: 80px"></i>
         </div>
         <div style="text-align:center;margin:10px 25px;font-size:16px;">
@@ -351,7 +351,7 @@ export default {
         staffJob: ''//职位
       },
       value: [],
-      options: { 
+      options: {
         departmentsOptions: [],
         jobsOptions: []
       },
@@ -392,6 +392,15 @@ export default {
     ...mapMutations([
       'UPDATA_ACCOUNT_BALANCE'
     ]),
+    grantMoneyInput (val) {
+      let reg = /^\d{1,}$/
+      if(!reg.test(val)){
+        this.$message.closeAll();
+        this.$message.info('请输入正整数');
+        this.grantForm.grantMoney = null
+        return false
+      }
+    },
     getMerchantDetail(){
       merchantCore.getMerchantDetail().then(res => {
         if(res.code && res.code == '00'){
@@ -399,6 +408,19 @@ export default {
           this.merchantId = res.data.merchantId
           this.accountBalance = res.data.accountBalance
           this.havePayPassword = res.data.havePayPassword
+          this.UPDATA_ACCOUNT_BALANCE(res.data.accountBalance || 0)
+        }else{
+          this.$message.closeAll();
+          this.$message.info(res.message);
+        }
+      }).catch(err => {
+        this.$message.closeAll();
+        this.$message.info(err);
+      })
+    },
+    updateBalance(){
+      merchantCore.getMerchantDetail().then(res => {
+        if(res.code && res.code == '00'){
           this.UPDATA_ACCOUNT_BALANCE(res.data.accountBalance || 0)
         }else{
           this.$message.closeAll();
@@ -482,9 +504,9 @@ export default {
           this.tableData2 = this.tableData2.concat(this.addData)
           this.totalGrantMoney = 0
           this.tableData2.forEach((item,index) => {
-            this.totalGrantMoney += parseInt(item.grantMoney)
+            this.totalGrantMoney += Number(item.grantMoney)
           })
-          
+
           this.grantStaffCount = this.tableData2.length,//总钱数
           this.getMerchantDetail()
           this.loading2 = false
@@ -545,9 +567,16 @@ export default {
     dialogClose(){
       this.dialogHintVisible = false
       this.dialogPwdNoVisible = false
-      this.dialogPwdVisible = false 
-      this.dialogPwdHintVisible = false 
+      this.dialogPwdVisible = false
+      this.dialogPwdHintVisible = false
       this.dialogPwdSuccessVisible = false
+      this.pwd1 = ''
+      this.pwd2 = ''
+      this.pwd3 = ''
+      this.pwd4 = ''
+      this.pwd5 = ''
+      this.pwd6 = ''
+      this.dialogform.payPassword = ''
     },
     setPwd(){
       this.$router.push('/account-settings')
@@ -571,12 +600,12 @@ export default {
       data.payPassword = this.dialogform.payPassword
       core.sendToStaff(data).then(res => {
         if(res.code && res.code == '00'){
-          this.pwd1 = '',
-          this.pwd2 = '',
-          this.pwd3 = '',
-          this.pwd4 = '',
-          this.pwd5 = '',
-          this.pwd6 = '',
+          this.pwd1 = ''
+          this.pwd2 = ''
+          this.pwd3 = ''
+          this.pwd4 = ''
+          this.pwd5 = ''
+          this.pwd6 = ''
           this.dialogform.payPassword = ''
 
           this.dialogPwdVisible = false
@@ -586,6 +615,7 @@ export default {
           timer = setTimeout(res => {
             this.dialogPwdSuccessVisible = false
           },2000)
+          this.updateBalance()
         }else{
           this.$message.closeAll();
           this.$message.info(res.message);
@@ -656,7 +686,7 @@ export default {
       }
     }
 
-    
+
   }
   .bulk-content {
     margin-top: 15px;
@@ -666,7 +696,7 @@ export default {
       margin-bottom: 10px;
       color: #8B98AB;
     }
-    
+
     .tabs-last {
       width: 100%;
       height: 70px;
@@ -699,7 +729,7 @@ export default {
       overflow:hidden;
       margin: 0 auto;
   }
-  
+
 	.pwd-box .el-input {
 		  width: 100%;
 	    height: 45Px;
@@ -712,7 +742,7 @@ export default {
 	    opacity: 0;
 	    z-index: 1;
       letter-spacing: 35Px;
-      
+
       input {
         width: 100%;
         height: 100%;
@@ -720,12 +750,12 @@ export default {
         margin: 0;
       }
   }
-  
+
   .fake-box {
     width: 270px;
     display: flex;
     justify-content: flex-start;
-  
+
     input{
         flex-grow: 1;
         width: 0;
@@ -740,10 +770,10 @@ export default {
           border:none;
         }
     }
-  
+
   }
 
-  .el-message-box { 
+  .el-message-box {
     width: 400PX;
   }
 }

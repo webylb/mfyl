@@ -11,13 +11,13 @@
       <el-step title="验证身份">1</el-step>
       <el-step title="设置密码">2</el-step>
       <el-step title="修改成功">3</el-step>
-    </el-steps> 
+    </el-steps>
     <el-form ref="form" :validate-on-rule-change='false' v-if="actived == 1" :model="form" :inline="false" label-position="center" label-width="100px" class="form" style="width: 500px; margin: 50px auto;">
       <el-form-item label="手机号：" prop="phone">
         {{ form.phone }}
       </el-form-item>
       <el-form-item label="验证码：" prop="code">
-        <div class="btn-group"> 
+        <div class="btn-group">
           <el-input v-model="form.code" placeholder="请输入验证码" clearable></el-input><el-button @click="getPvc(actived)">{{ btnText }}</el-button>
         </div>
       </el-form-item>
@@ -38,7 +38,7 @@
     </el-form>
     <div v-else style="text-align:center;margin-top:50px;">
       <div class="margin:20px auto;text-align:center;font-size;16px;">
-        <div style="text-align:center;"> 
+        <div style="text-align:center;">
           <i class="el-icon-success" style="color:#67c23a;fontSize: 80px"></i>
         </div>
         <div style="text-align:center;font-size: 18px;margin: 10px 0;margin-bottom:50px;">恭喜你，支付密码修改成功</div>
@@ -221,7 +221,7 @@ export default {
             this.$message.closeAll();
             this.$message.info(err);
           })
-          
+
         } else {
           console.log('error submit!!');
           return false;
@@ -232,7 +232,7 @@ export default {
 }
 
 </script>
-<style lang='less'>
+<style lang='less' scope>
 .change-paypwd {
 
    .change-paypwd-title {
@@ -250,7 +250,7 @@ export default {
     margin: 0 auto;
     margin-bottom: 20px;
     border-bottom: none;
-    .el-form-item__label { 
+    .el-form-item__label {
       font-size: 16px;
     }
     .el-form-item__content {

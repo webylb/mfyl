@@ -67,8 +67,8 @@
           </el-option>
         </el-select>
       </el-form-item>
-      
-  
+
+
       <el-form-item style='float:right;'>
         <el-button type="primary">立即查询</el-button>
         <el-button type="primary">导  出</el-button>
@@ -146,7 +146,7 @@
           align="center"
           >
         </el-table-column>
-       
+
         <el-table-column
           label="订单状态"
           align="center"
@@ -156,7 +156,7 @@
             <el-button type="text" size="small" v-else>待发货</el-button>
           </template>
         </el-table-column>
-        
+
         <el-table-column
           fixed="right"
           label="操作"
@@ -175,7 +175,7 @@
           background
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
-          :current-page="1"
+          :current-page.sync="currentPage"
           :page-sizes="[20, 30, 40, 50]"
           :page-size="10"
           layout="sizes, prev, pager, next, jumper"
@@ -183,7 +183,7 @@
         </el-pagination>
       </div>
     </div>
-    
+
     <el-dialog
       :title="title"
       :visible.sync="dialogHintVisible"
@@ -267,7 +267,7 @@ export default {
     }
   },
   created(){
-    
+
   },
   methods: {
     getData(){
@@ -309,7 +309,7 @@ export default {
 }
 
 </script>
-<style lang='less'>
+<style lang='less' scope>
 .virtual-order-list {
 
    .virtual-order-list-title {
@@ -341,13 +341,13 @@ export default {
 
   }
   .page-content {
-    margin-top: 16px;  
+    margin-top: 16px;
 
     .pagination-box {
       text-align: right;
       margin-top: 10px;
     }
-  
+
   }
 
   .el-dialog__body {

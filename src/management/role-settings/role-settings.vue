@@ -5,7 +5,7 @@
         <el-button type="primary" icon="el-icon-plus" @click="editName('1')" >添加角色</el-button>
       </el-col>
     </el-row>
-    
+
     <div class="page-content">
       <el-table
         :data="tableData"
@@ -39,24 +39,26 @@
          >
           <template slot-scope="scope">
             <!-- <el-button @click="editName('2',scope.row.id,scope.row)" type="text" size="small">编辑角色名称</el-button> -->
-            <el-button @click="editRule(scope.row.id)" type="text" size="small">编辑角色权限</el-button>
-            <el-button @click="deleteClick(scope.row.id,scope.$index)"  type="text" size="small">删除</el-button>
+            <span v-if="scope.row.roleAlias !== 'admin'">
+              <el-button @click="editRule(scope.row.id)" type="text" size="small">编辑角色权限</el-button>
+              <el-button @click="deleteClick(scope.row.id,scope.$index)"  type="text" size="small">删除</el-button>
+            </span>
           </template>
         </el-table-column>
       </el-table>
 
-      <div v-show="pageTotal>10" class="pagination-box">
+      <!-- <div v-show="pageTotal>10" class="pagination-box">
         <el-pagination
           background
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
-          :current-page="1"
+          :current-page.sync="currentPage"
           :page-sizes="[10, 20, 30, 40, 50]"
           :page-size="10"
           layout="sizes, prev, pager, next, jumper"
           :total="pageTotal">
         </el-pagination>
-      </div>
+      </div> -->
     </div>
     <el-dialog
       title="添加角色"
@@ -150,7 +152,7 @@ export default {
             this.$message.info(err);
           })
         }).catch(() => {
-          // this.$message.info('已取消删除');          
+          // this.$message.info('已取消删除');
         });
       }
     },
@@ -205,7 +207,7 @@ export default {
         //   //console.log(res)
         //   if(res.code && res.code == '00'){
         //     this.dialogVisible = false
-        //           this.$message.success("操作成功");;
+        //           this.$message.success("操作成功");
 ;
         //     this.loading = true
         //     this.getAllRoleList()
@@ -218,10 +220,10 @@ export default {
         //   this.$message.info(err);
         // })
       }
-      
+
     },
     editRule(id) {
-      console.log(id);
+      // console.log(id);
       this.$router.push({path: "/role-settings/edit-authority",query: {id: id}})
     },
     handleSizeChange(val) {
@@ -237,16 +239,16 @@ export default {
 }
 
 </script>
-<style lang='less'>
+<style lang='less' scope>
 .role-settings {
   .page-content {
-    margin-top: 16px;  
+    margin-top: 16px;
 
     .pagination-box {
       text-align: right;
       margin-top: 10px;
     }
-  
+
   }
   .el-dialog__body {
     padding: 0px 16px;

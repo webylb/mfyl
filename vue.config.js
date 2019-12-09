@@ -13,7 +13,7 @@ const CompressionWebpackPlugin = require('compression-webpack-plugin')
 const productionGzipExtensions = ['js', 'css']
 
 module.exports = {
-  
+
   publicPath: process.env.NODE_ENV === 'production' ?  (process.env.VUE_APP_TITLE==='MFYL_PRODUCTION' ? 'https://c1.51jujibao.com/static/mod/mfylERP' : 'https://prev-c1.51jujibao.com/static/mod/mfylERP') : '/',
 
   outputDir: process.env.VUE_APP_TITLE==='MFYL_PRODUCTION' ? 'dist' : 'dev',
@@ -21,18 +21,18 @@ module.exports = {
   assetsDir: 'static',
 
   lintOnSave: process.env.NODE_ENV == 'production',
- 
+
   productionSourceMap: false,
-  
+
   devServer: {
     // disableHostCheck: true, // 禁用webpack热重载检查 解决热更新失效问题
     port: 8087, // 端口号
-    host: '0.0.0.0',
+    host: 'test.cubegift.cn',
     https: false, // https:{type:Boolean}
     open: false, //配置自动启动浏览器
     proxy: {
         '/': {
-            target: 'https://prev-bea.guijitech.com',
+            target: 'http://prev-admin.cubegift.cn',
             ws: false,
             changeOrigin: true
         },
@@ -71,7 +71,7 @@ module.exports = {
       .use('url-loader')
       .loader('url-loader')
       .tap(options => {
-        options = { 
+        options = {
           limit: 300000,
           fallback: {
             loader: 'file-loader',

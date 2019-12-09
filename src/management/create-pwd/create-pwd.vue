@@ -16,7 +16,7 @@
             :picker-options="pickerOptions">
           </el-date-picker>
       </el-form-item>
-  
+
       <el-form-item style='float:right;'>
         <el-button type="primary" @click="search">立即查询</el-button>
       </el-form-item>
@@ -53,7 +53,7 @@
           align="center"
           >
           <template slot-scope="scope">
-            <div v-if="scope.row.details"> 
+            <div v-if="scope.row.details">
               <span v-for="(item,index) in scope.row.details" :key="index" style="display:block;">{{item.faceValue}} * {{item.amount}}</span>
             </div>
             <span v-else>0*0</span>
@@ -65,7 +65,7 @@
           align="center"
           >
           <template slot-scope="scope">
-            <el-button @click="dowloadCam(scope.row.details[0].id)" type="text" size="small">下载</el-button>
+            <el-button @click="dowloadCam(scope.row.details[0].generateRecordId)" type="text" size="small">下载</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -75,7 +75,7 @@
           background
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
-          :current-page="1"
+          :current-page.sync="currentPage"
           :page-sizes="[10, 20, 30, 40, 50]"
           :page-size="10"
           layout="sizes, prev, pager, next, jumper"
@@ -83,7 +83,7 @@
         </el-pagination>
       </div>
     </div>
-    
+
     <el-dialog
       title="卡密生成"
       :visible.sync="dialogInfoVisible"
@@ -102,11 +102,11 @@
                 :value="item.value">
               </el-option>
             </el-select>
-            <el-input clearable  placeholder="请填写采购数量" style="width: 150px;margin:0 10px;" v-model="item.amount"></el-input> 
+            <el-input clearable  placeholder="请填写采购数量" style="width: 150px;margin:0 10px;" v-model="item.amount"></el-input>
             <el-button v-if="index == dialogInfoForm.listValue.length - 1" @click.prevent="addItemValue()">添加</el-button>
             <el-button v-else @click.prevent="removeItemValue(item)" icon="el-icon-delete"></el-button>
           </div>
-        </el-form-item>  
+        </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogClose">取 消</el-button>
@@ -215,7 +215,7 @@ export default {
       this.pageSize = val
       this.loading = true
       let data = {
-        currentPage: 1, 
+        currentPage: 1,
         pageSize: val
       }
       if(this.form.startTime){
@@ -227,7 +227,7 @@ export default {
       this.currentPage = val
       this.loading = true
       let data = {
-        currentPage: val, 
+        currentPage: val,
         pageSize: this.pageSize
       }
       if(this.form.startTime){
@@ -238,9 +238,10 @@ export default {
     search(){
       this.loading = true
       let data = {
-        currentPage: 1, 
+        currentPage: 1,
         pageSize: this.pageSize
       }
+      this.currentPage = 1
       if(this.form.startTime){
         data.startTime = this.form.startTime
       }
@@ -253,21 +254,21 @@ export default {
       this.dialogInfoVisible = true
     },
     subInfo(){
-      
+
       this.dialogInfoForm.listValue.forEach((item,index) => {
         if(item.faceValue == ""){
           this.dialogInfoForm.listValue.splice(index,1)
         }
       })
       if(this.dialogInfoForm.listValue.length > 0){
-        
+
       }else{
         this.dialogInfoForm = {
           listValue: [{
             amount: '',
             faceValue: ''
           }]
-        }  
+        }
         this.$message.closeAll();
         this.$message.warning('请选择生成面额');
         return false
@@ -282,7 +283,7 @@ export default {
               amount: '',
               faceValue: ''
             }]
-          }  
+          }
           this.loading = false
           this.getCreateCamList({currentPage: this.currentPage,pageSize: this.pageSize})
         }else{
@@ -299,7 +300,7 @@ export default {
         if(res.code){
           this.$message.warning(res.message);
         }else{
-          const blob = new Blob([res],{type: 'application/vnd.ms-excel'}); 
+          const blob = new Blob([res],{type: 'application/vnd.ms-excel'});
           const fileName = '生成卡密列表.xls';
           const linkNode = document.createElement('a');
 
@@ -333,7 +334,7 @@ export default {
 }
 
 </script>
-<style lang='less'>
+<style lang='less' scope>
 .creat-pwd {
 
    .creat-pwd-title {
@@ -365,13 +366,13 @@ export default {
 
   }
   .page-content {
-    margin-top: 16px;  
+    margin-top: 16px;
 
     .pagination-box {
       text-align: right;
       margin-top: 10px;
     }
-  
+
   }
 
   .el-dialog__body {

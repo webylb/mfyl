@@ -1,15 +1,15 @@
 <template>
   <div class="user-management">
     <el-form ref="form" :model="form" :inline="true" label-position="center" label-width="100px">
-     
+
       <el-form-item label="用户ID:">
         <el-input style="width: 120px" v-model="form.userId" clearable></el-input>
       </el-form-item>
-    
+
       <el-form-item label="绑定手机号:">
         <el-input style="width: 120px" v-model="form.userMobilePhone" clearable></el-input>
       </el-form-item>
-    
+
       <el-form-item label="是否绑定公司:">
         <el-select v-model="form.isBindMerchant" clearable placeholder="请选择" style="width: 150px;margin-right:10px">
           <el-option
@@ -31,7 +31,7 @@
           </el-option>
         </el-select>
       </el-form-item>
-    
+
       <el-form-item label="部门:">
         <el-select v-model="form.staffDepartment" clearable @focus="getDepartments" placeholder="请选择部门" style="width: 150px;margin-right:10px">
           <el-option
@@ -42,7 +42,7 @@
           </el-option>
         </el-select>
       </el-form-item>
-    
+
       <el-form-item label="职务:">
         <el-select v-model="form.staffJob" clearable @focus="getJobs" placeholder="请选择职务" style="width: 150px">
           <el-option
@@ -66,7 +66,7 @@
         <el-button type="primary" @click="search()">查 询</el-button>
           <el-button @click="downloadUserList()">导 出</el-button>
       </el-form-item>
-  
+
     </el-form>
     <div class="page-content">
       <el-table
@@ -243,7 +243,7 @@
           background
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
-          :current-page="1"
+          :current-page.sync="currentPage"
           :page-sizes="[10, 20, 30, 40, 50]"
           :page-size="pageSize"
           layout="sizes, prev, pager, next, jumper"
@@ -327,7 +327,7 @@ export default {
           if(res.data.data.length > 0){
             let arr = []
             res.data.data.map((item,index) => {
-              arr[index] = { value: item.id, label: item.companyName }    
+              arr[index] = { value: item.id, label: item.companyName }
             })
             this.options.staffCompanyNameOptions = arr
           }
@@ -393,10 +393,11 @@ export default {
     },
     search(opts){
       this.loading = true
-      let data = null 
+      let data = null
       if(opts){
         data = opts
       }else{
+        this.currentPage = 1
         data = { currentPage:1, pageSize:this.pageSize }
       }
       if(this.form.userId){
@@ -499,7 +500,7 @@ export default {
           this.$message.closeAll();
           this.$message.info(res.message);
         }else{
-          const blob = new Blob([res],{type: 'application/vnd.ms-excel'}); 
+          const blob = new Blob([res],{type: 'application/vnd.ms-excel'});
           const fileName = '用户导出列表.xls';
           const linkNode = document.createElement('a');
 
@@ -518,16 +519,16 @@ export default {
 }
 
 </script>
-<style lang='less'>
+<style lang='less' scope>
 .user-management{
   .page-content {
-    margin-top: 16px;  
+    margin-top: 16px;
 
     .pagination-box {
       text-align: right;
       margin-top: 10px;
     }
-  
+
   }
   .el-dialog__body {
     padding: 0px 16px;

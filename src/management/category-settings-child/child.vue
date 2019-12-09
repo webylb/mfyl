@@ -63,7 +63,7 @@
           background
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
-          :current-page="1"
+          :current-page.sync="currentPage"
           :page-sizes="[10, 20, 30, 40, 50]"
           :page-size="10"
           layout="sizes, prev, pager, next, jumper"
@@ -206,12 +206,13 @@ export default {
         if(this.categoryItemStatus === 1){
           core.createSecondCategory({firstCategoryId: this.firstCategoryId,categoryName: this.dialogInfoForm.categoryName,icon:this.dialogInfoForm.icon,jumpUrl:this.dialogInfoForm.jumpUrl,sort: this.dialogInfoForm.sort}).then(res => {
             if(res.code && res.code === "00"){
-              this.tableData.unshift({
-                categoryName: this.dialogInfoForm.categoryName,
-                sort: this.dialogInfoForm.sort,
-                icon: this.dialogInfoForm.icon,
-                jumpUrl: this.dialogInfoForm.jumpUrl
-              })
+              // this.tableData.unshift({
+              //   categoryName: this.dialogInfoForm.categoryName,
+              //   sort: this.dialogInfoForm.sort,
+              //   icon: this.dialogInfoForm.icon,
+              //   jumpUrl: this.dialogInfoForm.jumpUrl
+              // })
+              this.getSecondCategoryList(this.firstCategoryId)
               this.dialogClose()
               this.$message.closeAll();
           this.$message.success("操作成功");
@@ -232,7 +233,7 @@ export default {
               this.tableData[this.editIndex].jumpUrl = this.dialogInfoForm.jumpUrl
               this.dialogClose()
               this.$message.closeAll();
-          this.$message.success("操作成功");
+              this.$message.success("操作成功");
             }else{
               this.$message.closeAll();
               this.$message.info(res.message);
@@ -257,6 +258,7 @@ export default {
           core.deleteSecondCategory({secondCategoryId: id}).then(res => {
             if(res.code && res.code === "00"){
               this.tableData.splice(index,1)
+              this.$message.closeAll();
               this.$message({
                 type: 'success',
                 message: '删除成功!'
@@ -265,10 +267,10 @@ export default {
               this.$message.info(res.message)
             }
           }).catch(err => {
-            this.$message.info(err)       
+            this.$message.info(err)
           })
         }).catch(() => {
-          // this.$message.info('已取消删除');          
+          // this.$message.info('已取消删除');
         });
       }
     },
@@ -288,7 +290,7 @@ export default {
 }
 
 </script>
-<style lang='less'>
+<style lang='less' scope>
 .category-setttings-child {
 
    .category-setttings-child-title {
@@ -320,13 +322,13 @@ export default {
 
   }
   .page-content {
-    margin-top: 16px;  
+    margin-top: 16px;
 
     .pagination-box {
       text-align: right;
       margin-top: 10px;
     }
-  
+
   }
 
   .el-dialog__body {

@@ -8,7 +8,7 @@
     </div> -->
     <el-form ref="form" :model="form" :inline="true" label-position="center" label-width="80px">
       <el-form-item label="创建时间:">
-         <el-date-picker style="width: 120px;padding-right:0"
+         <el-date-picker style="width: 140px;padding-right:0"
             v-model="form.startTime"
             type="date"
             placeholder="选择日期"
@@ -22,11 +22,11 @@
       </el-form-item>
 
       <el-form-item label="手机号:">
-        <el-input style="width: 120px" v-model="form.userMobile" clearable></el-input>
+        <el-input style="width: 140px" v-model="form.userMobile" clearable></el-input>
       </el-form-item>
 
       <el-form-item label="企业名称:">
-        <el-select v-model="form.merchantCompanyName" clearable placeholder="请选择" style="width: 120px;">
+        <el-select v-model="form.merchantCompanyName" clearable placeholder="请选择" style="width: 140px;">
           <el-option
             v-for="item in options.staffCompanyNameOptions"
             :key="item.value"
@@ -46,7 +46,7 @@
           </el-option>
         </el-select>
       </el-form-item>
-  
+
       <el-form-item style='float:right;'>
         <el-button type="primary" @click="search">立即查询</el-button>
       </el-form-item>
@@ -114,7 +114,7 @@
           background
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
-          :current-page="1"
+          :current-page.sync="currentPage"
           :page-sizes="[10,20, 30, 40, 50]"
           :page-size="pageSize"
           layout="sizes, prev, pager, next, jumper"
@@ -209,7 +209,7 @@ export default {
           if(res.data.data.length > 0){
             let arr = []
             res.data.data.map((item,index) => {
-              arr[index] = { value: item.id, label: item.companyName }    
+              arr[index] = { value: item.id, label: item.companyName }
             })
             this.options.staffCompanyNameOptions = arr
           }
@@ -229,16 +229,16 @@ export default {
       if(this.form.userId){
         data.userId = this.form.userId
       }
-      if(this.form.userMobilePhone){
-        data.userMobilePhone = this.form.userMobilePhone
+      if(this.form.userMobile){
+        data.userMobile = this.form.userMobile
       }
       if(this.form.startTime){
         data.startTime = this.form.startTime
       }
-      if(this.form.staffCompanyName){
+      if(this.form.merchantCompanyName){
         this.options.staffCompanyNameOptions.forEach((item,index) => {
-          if(item.value == this.form.staffCompanyName){
-            data.staffCompanyName = item.label
+          if(item.value == this.form.merchantCompanyName){
+            data.merchantCompanyName = item.label
           }
         })
       }
@@ -254,16 +254,16 @@ export default {
       if(this.form.userId){
         data.userId = this.form.userId
       }
-      if(this.form.userMobilePhone){
-        data.userMobilePhone = this.form.userMobilePhone
+      if(this.form.userMobile){
+        data.userMobile = this.form.userMobile
       }
       if(this.form.startTime){
         data.startTime = this.form.startTime
       }
-      if(this.form.staffCompanyName){
+      if(this.form.merchantCompanyName){
         this.options.staffCompanyNameOptions.forEach((item,index) => {
-          if(item.value == this.form.staffCompanyName){
-            data.staffCompanyName = item.label
+          if(item.value == this.form.merchantCompanyName){
+            data.merchantCompanyName = item.label
           }
         })
       }
@@ -274,20 +274,21 @@ export default {
     },
     search(){
       this.loading = true
+      this.currentPage = 1
       let data = { currentPage:1, pageSize:this.pageSize }
       if(this.form.userId){
         data.userId = this.form.userId
       }
-      if(this.form.userMobilePhone){
-        data.userMobilePhone = this.form.userMobilePhone
+      if(this.form.userMobile){
+        data.userMobile = this.form.userMobile
       }
       if(this.form.startTime){
         data.startTime = this.form.startTime
       }
-      if(this.form.staffCompanyName){
+      if(this.form.merchantCompanyName){
         this.options.staffCompanyNameOptions.forEach((item,index) => {
-          if(item.value == this.form.staffCompanyName){
-            data.staffCompanyName = item.label
+          if(item.value == this.form.merchantCompanyName){
+            data.merchantCompanyName = item.label
           }
         })
       }
@@ -300,7 +301,7 @@ export default {
 }
 
 </script>
-<style lang='less'>
+<style lang='less' scope>
 .recharge-record {
 
   .text-wrap {
@@ -323,13 +324,13 @@ export default {
 
   }
   .page-content {
-    margin-top: 16px;  
+    margin-top: 16px;
 
     .pagination-box {
       text-align: right;
       margin-top: 10px;
     }
-  
+
   }
 
   .el-dialog__body {

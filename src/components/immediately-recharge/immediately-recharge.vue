@@ -10,13 +10,13 @@
       <el-form-item label="充值金额">
         <el-input v-model="form.rechargeNum" clearable style="width:150px" placeholder="请输入充值金额"></el-input>
       </el-form-item>
-    
+
       <el-form-item label="充值渠道">
           <el-radio-group v-model="form.type">
             <el-radio label="BankTransfer">银行卡</el-radio>
             <el-radio label="Alipay">支付宝</el-radio>
           </el-radio-group>
-       
+
       </el-form-item>
       <el-form-item label="付款信息" v-if="form.type == 'Alipay'">
         <div>
@@ -55,7 +55,7 @@
         <el-button @click.prevent="submitForm(form)" type="primary">提交申请</el-button>
       </el-form-item>
     </el-form>
-    
+
     <el-dialog
       title="确认充值信息"
       :visible.sync="dialogHintVisible"
@@ -77,7 +77,7 @@
       :before-close="dialogClose"
       center>
       <div class="margin:20px auto;text-align:center;font-size;16px;">
-        <div style="text-align:center;"> 
+        <div style="text-align:center;">
           <i class="el-icon-success" style="color: #67c23a;fontSize: 80px"></i>
         </div>
         <div style="text-align:center;margin:10px 25px;font-size:16px;">
@@ -147,7 +147,7 @@ export default {
         this.$message.closeAll();
         this.$message.info(err);
       })
-  
+
     },
     dialogClose(){
       this.dialogHintVisible = false
@@ -162,7 +162,7 @@ export default {
     },
     subRecharge(){
       this.dialogHintVisible = false
-      
+
       if(this.form.type == 'BankTransfer'){
         this.receiveMoneyAccountId = this.bankInfo.id
       }else{
@@ -174,7 +174,7 @@ export default {
         receiveMoneyAccountId: this.receiveMoneyAccountId,
         transferVouchers: this.transferVouchers
       }
-      
+
       core.subRecharge(data).then(res => {
         console.log(res)
         if(res.code && res.code == '00'){
@@ -214,7 +214,7 @@ export default {
 }
 
 </script>
-<style lang='less'>
+<style lang='less' scope>
 .immediately-recharge {
 
    .immediately-recharge-title{
@@ -233,13 +233,13 @@ export default {
   }
 
   .page-content {
-    margin-top: 16px;  
+    margin-top: 16px;
 
     .pagination-box {
       text-align: right;
       margin-top: 10px;
     }
-  
+
   }
   .el-dialog__body {
     padding: 0px 16px;
@@ -256,7 +256,7 @@ export default {
       overflow:hidden;
       margin: 0 auto;
   }
-  
+
 	.pwd-box .el-input {
 		  width: 100%;
 	    height: 45Px;
@@ -269,7 +269,7 @@ export default {
 	    opacity: 0;
 	    z-index: 1;
       letter-spacing: 35Px;
-      
+
       input {
         width: 100%;
         height: 100%;
@@ -277,12 +277,12 @@ export default {
         margin: 0;
       }
   }
-  
+
   .fake-box {
     width: 270px;
     display: flex;
     justify-content: flex-start;
-  
+
     input{
         flex-grow: 1;
         width: 0;
@@ -297,10 +297,10 @@ export default {
           border:none;
         }
     }
-  
+
   }
 
-  .el-message-box { 
+  .el-message-box {
     width: 400PX;
   }
 }

@@ -13,11 +13,11 @@
       <el-form-item label="员工姓名">
         <el-input style="width: 140px" v-model="form.staffName" clearable></el-input>
       </el-form-item>
-    
+
       <el-form-item label="工号">
         <el-input style="width: 140px" v-model="form.staffJobNumber" clearable></el-input>
       </el-form-item>
-  
+
       <el-form-item label="手机号">
         <el-input style="width: 140px" v-model="form.staffMobile" clearable></el-input>
       </el-form-item>
@@ -40,7 +40,7 @@
             :picker-options="pickerOptions">
           </el-date-picker>
       </el-form-item>
-  
+
       <el-form-item label="部门">
         <el-select v-model="form.staffDepartmentName" placeholder="请选择部门" clearable style="width: 140px;">
           <el-option
@@ -51,7 +51,7 @@
           </el-option>
         </el-select>
       </el-form-item>
-    
+
       <el-form-item label="职务">
         <el-select v-model="form.staffJob" placeholder="请选择职务" clearable style="width: 140px">
           <el-option
@@ -67,7 +67,7 @@
           <el-button type="primary" @click="search()">立即查询</el-button>
           <el-button @click="downloadGrantRecordDetail()">导 出</el-button>
       </el-form-item>
-      
+
 
     </el-form>
     <div class="page-content">
@@ -167,7 +167,7 @@
           background
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
-          :current-page="1"
+          :current-page.sync="currentPage"
           :page-sizes="[10, 20, 30, 40, 50]"
           :page-size="pageSize"
           layout="sizes, prev, pager, next, jumper"
@@ -208,7 +208,7 @@ export default {
         userName:''
       },
       value: [],
-      options: { 
+      options: {
         departmentsOptions: [],
         jobsOptions: []
       },
@@ -262,10 +262,11 @@ export default {
     },
     search(opts){
       this.loading = true
-      let data = null 
+      let data = null
       if(opts){
         data = opts
       }else{
+        this.currentPage = 1
         data = { currentPage:1, pageSize:this.pageSize, grantScoreRecordId: this.grantScoreRecordId}
       }
       if(this.form.startGrantTime){
@@ -326,7 +327,7 @@ export default {
           this.$message.closeAll();
           this.$message.info(res.message);
         }else{
-          const blob = new Blob([res],{type: 'application/vnd.ms-excel'}); 
+          const blob = new Blob([res],{type: 'application/vnd.ms-excel'});
           const fileName = '发放明细导出列表.xls';
           const linkNode = document.createElement('a');
 
@@ -365,16 +366,16 @@ export default {
 }
 
 </script>
-<style lang='less'>
+<style lang='less' scope>
 .grant-detail {
   .page-content {
-    margin-top: 16px;  
+    margin-top: 16px;
 
     .pagination-box {
       text-align: right;
       margin-top: 10px;
     }
-  
+
   }
   .el-dialog__body {
     padding: 0px 16px;

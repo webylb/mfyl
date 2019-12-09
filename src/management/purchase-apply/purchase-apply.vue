@@ -38,7 +38,7 @@
           </el-option>
         </el-select>
       </el-form-item>
-  
+
       <el-form-item style='float:right;'>
         <el-button type="primary" @click="search">立即查询</el-button>
       </el-form-item>
@@ -79,7 +79,7 @@
           align="center"
           >
           <template slot-scope="scope">
-            <div v-if="scope.row.orderDetails"> 
+            <div v-if="scope.row.orderDetails">
               <span v-for="(item,index) in scope.row.orderDetails" :key="index" style="display:block;">{{item.camFaceValue}} * {{item.buyAmount}}</span>
             </div>
             <!-- <span v-if="scope.row.orderDetails.length > 0">{{scope.row.orderDetails[0].camFaceValue}} * {{scope.row.orderDetails[0].buyAmount}}</span> -->
@@ -131,7 +131,7 @@
           background
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
-          :current-page="1"
+          :current-page.sync="currentPage"
           :page-sizes="[10, 20, 30, 40, 50]"
           :page-size="10"
           layout="sizes, prev, pager, next, jumper"
@@ -139,7 +139,7 @@
         </el-pagination>
       </div>
     </div>
-    
+
     <el-dialog
       title="物流信息"
       :visible.sync="dialogInfoVisible"
@@ -312,9 +312,10 @@ export default {
     search(){
       this.loading = true
       let data = {
-        currentPage:1, 
+        currentPage:1,
         pageSize:this.pageSize
       }
+      this.currentPage = 1
       if(this.form.startTime){
         data.startTime = Number(this.form.startTime);
       }
@@ -330,7 +331,7 @@ export default {
       this.pageSize = val
       this.loading = true
       let data = {
-        currentPage:1, 
+        currentPage:1,
         pageSize: val
       }
       if(this.form.startTime){
@@ -348,7 +349,7 @@ export default {
       this.currentPage = val,
       this.loading = true
       let data = {
-        currentPage: val, 
+        currentPage: val,
         pageSize: this.pageSize
       }
       if(this.form.startTime){
@@ -389,7 +390,7 @@ export default {
         this.dialogInfoVisible = true
         this.showLogisticsPop = false
       }
-      
+
     },
     subHintInfo(){
       if(this.sendEmail){ //改变收获状态
@@ -404,7 +405,7 @@ export default {
     changeSendStatus(opts){
       core.changeSendStatus(opts).then(res => {
         if(res.code && res.code === "00"){
-          this.$message.success("操作成功");;
+          this.$message.success("操作成功");
           this.tableData[this.editIndex].orderStatus = 'SUCCESS'
           this.dialogHintVisible = false
           this.dialogInfoVisible = false
@@ -469,7 +470,7 @@ export default {
         if(res.code){
           this.$message.warning(res.message);
         }else{
-          const blob = new Blob([res],{type: 'application/vnd.ms-excel'}); 
+          const blob = new Blob([res],{type: 'application/vnd.ms-excel'});
           const fileName = '卡密列表.xls';
           const linkNode = document.createElement('a');
 
@@ -520,7 +521,7 @@ export default {
 }
 
 </script>
-<style lang='less'>
+<style lang='less' scope>
 .purchase-apply {
 
    .purchase-apply-title {
@@ -539,13 +540,13 @@ export default {
   }
 
   .page-content {
-    margin-top: 16px;  
+    margin-top: 16px;
 
     .pagination-box {
       text-align: right;
       margin-top: 10px;
     }
-  
+
   }
 
   .el-dialog__body {
@@ -554,7 +555,7 @@ export default {
   .el-form-item {
     margin-bottom: 15px;
   }
-  
+
 }
 
 </style>

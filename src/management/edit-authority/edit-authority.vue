@@ -41,7 +41,7 @@ export default {
   methods: {
     getRolePermission(opts){
       core.getRolePermission(opts).then(res => {
-        console.log(res)
+        // console.log(res)
         if(res.code && res.code == '00'){
           this.allPermission = res.data.allPermission
           this.allPermissionData = []
@@ -56,7 +56,7 @@ export default {
           for(let i=0,length = this.allPermissionData.length; i < length; i++){
 
             for(let j=0,list= this.allPermissionData[i].categoryList,length2 = list.length; j < length2; j++){
-              
+
               for(let k=0,length3 = this.rulePermission.length; k < length3; k++){
 
                 if(this.rulePermission[k].id == list[j].id){
@@ -70,7 +70,7 @@ export default {
             }
 
           }
-          
+
         }else{
           this.$message.closeAll();
           this.$message.info(res.message);
@@ -88,7 +88,7 @@ export default {
       for(let i=0,length = this.allPermissionData.length; i < length; i++){
 
         for(let j=0,list= this.allPermissionData[i].checkId, length2 = list.length; j < length2; j++){
-          
+
           permissionIds += list[j] + ","
 
         }
@@ -100,7 +100,7 @@ export default {
       core.editRolePermission({roleId: this.roleId,permissionIds: permissionIds}).then(res => {
         //console.log(res)
         if(res.code && res.code == '00'){
-this.$message.success("操作成功");
+          this.$message.success("操作成功");
         }else{
           this.$message.closeAll();
           this.$message.info(res.message);
@@ -112,12 +112,12 @@ this.$message.success("操作成功");
     }
   },
   watch: {
-    
+
   }
 }
 
 </script>
-<style lang='less'>
+<style lang='less' scope>
 .edit-authority {
 
    .edit-authority-title{
@@ -136,13 +136,13 @@ this.$message.success("操作成功");
   }
 
   .page-content {
-    margin-top: 16px;  
+    margin-top: 16px;
 
     .pagination-box {
       text-align: right;
       margin-top: 10px;
     }
-  
+
   }
   .el-dialog__body {
     padding: 0px 16px;
@@ -160,7 +160,7 @@ this.$message.success("操作成功");
     margin-bottom: 10px;
   }
 
-  .el-message-box { 
+  .el-message-box {
     width: 400PX;
   }
 }

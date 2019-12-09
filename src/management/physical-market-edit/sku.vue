@@ -12,7 +12,7 @@
         <div class="sku-item-wrap">
           <div class="sku-item-specName">
             <div class="sku-title">规格:</div>
-            <el-input clearable placeholder="请填写规格名称" style="width: 150px;margin-right: 20px;" v-model="item.specName" v-on:blur="changeContent()"></el-input> 
+            <el-input clearable placeholder="请填写规格名称" style="width: 150px;margin-right: 20px;" v-model="item.specName" v-on:blur="changeContent()"></el-input>
             <el-button type="text" @click.prevent="removeItemValue(item)" class="delete-sku-item">删除规格</el-button>
           </div>
           <div class="sku-item-specVals">
@@ -34,7 +34,7 @@
       <el-form-item v-show="skuData.specInfo.length > 0">
         <el-table :data="skuData.specInfo" border stripe>
          <el-table-column
-          v-for="(item, index) in skuData.specHeaderInfo" :key="index"     
+          v-for="(item, index) in skuData.specHeaderInfo" :key="index"
           :property="item.val"
           :label="item.label"
           align="center"
@@ -52,7 +52,7 @@
                 <el-button v-else @click="upStatus(scope.row,scope.$index,'N')" type="text" size="small">下架</el-button>
               </div>
               <div v-else>
-                {{scope.row[scope.column.property]}} 
+                {{scope.row[scope.column.property]}}
               </div>
             </template>
           </el-table-column>
@@ -99,8 +99,8 @@ export default {
       itemSkus: [],
       editIndex: null,
       dialogInfoVisible: false,
-      dialogInfoForm: { 
-        stock: "" 
+      dialogInfoForm: {
+        stock: ""
       }
     }
   },
@@ -236,7 +236,7 @@ export default {
       let data = {};
       data.itemId = this.itemId
       data.specNameAndValues = this.listValue
-     
+
       core.createPreviewSku(data).then(res => {
         if(res.code && res.code == "00"){
           //console.log(res,"create")
@@ -252,7 +252,7 @@ export default {
             this.skuData.specInfo[index].stock = '0'
             this.skuData.specInfo[index].operate = {isEnable: 'N'}
           })
-        
+
           this.skuData.specInfo = JSON.parse(JSON.stringify(this.skuData.specInfo))
           //this.skuData.specHeaderInfo = Object.keys(this.skuData.specInfo[0])
           let arr = []
@@ -338,12 +338,12 @@ export default {
     dialogClose(){
       this.dialogInfoVisible = false
       this.dialogInfoForm.stock = null
-    } 
+    }
   }
 }
 
 </script>
-<style lang='less'>
+<style lang='less' scope>
 .physical-market-sku {
 
    .physical-market-sku-title {
@@ -392,7 +392,7 @@ export default {
             margin-bottom: 10px;
           }
         }
-        
+
       }
       .sku-title {
         height: 40px;
@@ -409,8 +409,8 @@ export default {
       }
     }
   }
- 
-  
+
+
 }
 
 </style>

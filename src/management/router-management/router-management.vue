@@ -68,7 +68,7 @@
         <el-form-item label="icon:" prop="icon">
           <el-input v-model="dialogInfoForm.iconUrl" placeholder="" clearable></el-input>
         </el-form-item>
-       
+
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogInfoVisible = false">取 消</el-button>
@@ -125,7 +125,7 @@ export default {
     },
     subRouterInfo(){
       if(this.dialogInfoForm.linkUrl){
-        
+
         core.editMenu({menuId: this.editRouterId,linkUrl: this.dialogInfoForm.linkUrl,iconUrl: this.dialogInfoForm.iconUrl}).then(res => {
           if(res.code && res.code === "00"){
             //this.tableData[this.editIndex].pictureUrl = this.dialogInfoForm.icon
@@ -140,7 +140,7 @@ export default {
           this.$message.closeAll();
           this.$message.info(err);
         })
-        
+
       }else{
         this.$message.closeAll();
         this.$message.info("请确认填写信息完整");
@@ -153,14 +153,14 @@ export default {
       this.dialogInfoForm.linkUrl = row.linkUrl
       this.dialogInfoForm.iconUrl = row.iconUrl
       this.dialogInfoForm.menuName = row.menuName
-     
+
       this.dialogInfoVisible = true
     }
   }
 }
 
 </script>
-<style lang='less'>
+<style lang='less' scope>
 .router-management {
 
    .router-management-title {
@@ -192,13 +192,13 @@ export default {
 
   }
   .page-content {
-    margin-top: 16px;  
+    margin-top: 16px;
 
     .pagination-box {
       text-align: right;
       margin-top: 10px;
     }
-  
+
   }
 
   .el-dialog__body {

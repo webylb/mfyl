@@ -45,7 +45,7 @@
             :value="item.value">
           </el-option>
         </el-select>
-      </el-form-item>  
+      </el-form-item>
       <el-form-item label="商品分类*:">
         <el-select v-model="form.value" clearable placeholder="请选择一级类目" style="width: 200px;margin-right:10px;">
           <el-option
@@ -136,7 +136,7 @@
               >
               <template slot-scope="scope">
                 <el-button @click="addInventory(scope.row,1)" type="text" size="small">添加库存</el-button>
-               
+
                 <el-button @click="soldOut(scope.row)" type="text" size="small" >下架</el-button>
               </template>
             </el-table-column>
@@ -167,7 +167,7 @@
 </template>
 <script>
 ''
-import VueUeditorWrap from 'vue-ueditor-wrap' 
+import VueUeditorWrap from 'vue-ueditor-wrap'
 
 export default {
   name: 'physicalMarketEdit',
@@ -232,11 +232,11 @@ export default {
         // UEditor 资源文件的存放路径，如果你使用的是 vue-cli 生成的项目，通常不需要设置该选项，vue-ueditor-wrap 会自动处理常见的情况，如果需要特殊配置，参考下方的常见问题2
         UEDITOR_HOME_URL: '/UEditor/'
       }
-    
+
     }
   },
   created(){
-    
+
   },
   methods: {
     ready (editorInstance) {
@@ -247,7 +247,7 @@ export default {
         console.log(res)
       })
     },
- 
+
     handleRemove(file, fileList) {
       console.log(file, fileList);
     },
@@ -298,7 +298,7 @@ export default {
 }
 
 </script>
-<style lang='less'>
+<style lang='less' scope>
 .virtual-market-edit {
 
    .virtual-market-edit-title {
@@ -326,15 +326,15 @@ export default {
       color: #DCDFE6;
     }
   }
- 
+
   .page-content {
-    margin-top: 16px;  
+    margin-top: 16px;
 
     .pagination-box {
       text-align: right;
       margin-top: 10px;
     }
-  
+
   }
 
   .el-dialog__body {

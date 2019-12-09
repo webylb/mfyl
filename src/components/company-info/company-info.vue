@@ -35,12 +35,12 @@
         <div class="text-wrap">
           <p style="margin: 0"><span class="title">收货人</span><span class="content">{{ receiverName }}</span></p>
           <p style="margin: 0"><span class="title">电话号码</span><span class="content">{{ phoneNumber }}</span></p>
-          <p style="margin: 0;margin-bottom:10px;"><span class="title">地址</span><span class="content">{{ deliveryAddress }}</span></p>        
+          <p style="margin: 0;margin-bottom:10px;"><span class="title">地址</span><span class="content">{{ deliveryAddress }}</span></p>
           <p style="margin: 0"><el-button type="primary" @click="changeAddress">修改</el-button></p>
         </div>
       </el-form-item>
     </el-form>
-    
+
     <el-dialog
       title="开票信息"
       :visible.sync="dialogInfoVisible"
@@ -154,7 +154,8 @@ export default {
       bankOpeningBank: '--',//开户银行
       bankAccount: '--', //银行账号,
       taxRate: '[{"description":"信息服务费／渠道服务费等","taxRate":"0.06"},{"description":"详见清单","taxRate":"0.13"}]',//开票内容
-      deliveryId: null
+      deliveryId: null,
+      checkedTaxRate: null
     }
   },
   created(){
@@ -187,6 +188,7 @@ export default {
             JSON.parse(this.taxRate).forEach((item,index) => {
               arr.push(item.taxRate)
             })
+            this.checkedTaxRate = arr
             this.dialogInfoForm.checkedTaxRate = arr
             // this.dialogInfoForm = {
             //   invoiceCompanyName: this.invoiceCompanyName,
@@ -200,6 +202,7 @@ export default {
           }else{
             this.dialogInfoForm.invoiceCompanyName = this.invoiceCompanyName,
             this.dialogInfoForm.checkedTaxRate = ['0.06', '0.13']
+            this.checkedTaxRate = ['0.06', '0.13']
           }
         }else{
           this.loading = false
@@ -305,7 +308,7 @@ export default {
 
       core.editInvoiceInfo(data).then(res => {
         if(res.code && res.code == '00'){
-                   this.$message.success("操作成功");;
+          this.$message.success("操作成功");
 
           this.dialogInfoVisible = false
           this.getInvoiceInfo({merchantId: this.merchantId})
@@ -349,8 +352,7 @@ export default {
       data.deliveryAddress = this.dialogAddressForm.deliveryAddress
       core.editDeliveryInfo(data).then(res => {
         if(res.code && res.code == '00'){
-            this.$message.success("操作成功");;
-
+            this.$message.success("操作成功");
           this.dialogAddressVisible = false
           this.getDeliveryInfo({merchantId: this.merchantId})
         }else{
@@ -370,18 +372,19 @@ export default {
       this.dialogInfoForm.invoiceCompanyPhoneNumber = this.invoiceCompanyPhoneNumber
       this.dialogInfoForm.bankOpeningBank = this.bankOpeningBank
       this.dialogInfoForm.bankAccount = this.bankAccount
+      this.dialogInfoForm.checkedTaxRate = this.checkedTaxRate
     },
     changeAddress(){
       this.dialogAddressVisible = true
       this.dialogAddressForm.receiverName =  this.receiverName
-      this.dialogAddressForm.phoneNumber = this.phoneNumber 
+      this.dialogAddressForm.phoneNumber = this.phoneNumber
       this.dialogAddressForm.deliveryAddress = this.deliveryAddress
     }
   }
 }
 
 </script>
-<style lang='less'>
+<style lang='less' scope>
 .company-info {
 
    .company-info-title {

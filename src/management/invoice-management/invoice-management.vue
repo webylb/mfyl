@@ -25,7 +25,7 @@
           </el-option>
         </el-select>
       </el-form-item>
-  
+
       <el-form-item label="邮寄状态:">
         <el-select v-model="form.deliveryStatus" clearable placeholder="请选择" style="width: 120px">
           <el-option
@@ -36,7 +36,7 @@
           </el-option>
         </el-select>
       </el-form-item>
-       
+
       <el-form-item style='float:right;'>
         <el-button type="primary" @click="search()">立即查询</el-button>
         <el-button >导 出</el-button>
@@ -134,6 +134,7 @@
           fixed="right"
           label="操作"
           align="center"
+          min-width="120"
           >
           <template slot-scope="scope">
             <el-button @click="handleClick(scope.row,1,scope.$index)" type="primary" size="small" v-if="scope.row.deliveryStatus  == 'WAIT'">立即邮寄</el-button>
@@ -147,7 +148,7 @@
           background
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
-          :current-page="1"
+          :current-page.sync="currentPage"
           :page-sizes="[10,20, 30, 40, 50]"
           :page-size="10"
           layout="sizes, prev, pager, next, jumper"
@@ -268,7 +269,7 @@ export default {
           },
 
         ]
-      }, 
+      },
       pageSize: 10,
       currentPage: 1,
       pageTotal: 0,
@@ -306,7 +307,7 @@ export default {
       this.pageSize = val
       this.loading = true
       let data = {
-        currentPage: 1, 
+        currentPage: 1,
         pageSize: val
       }
       if(this.form.startTime){
@@ -321,14 +322,14 @@ export default {
       if(this.form.deliveryStatus){
         data.deliveryStatus = this.form.deliveryStatus;
       }
-    
+
       this.getInvoiceList(data)
     },
     handleCurrentChange(val) {
       this.currentPage = val
       this.loading = true
       let data = {
-        currentPage: val, 
+        currentPage: val,
         pageSize: this.pageSize
       }
       if(this.form.startTime){
@@ -343,15 +344,16 @@ export default {
       if(this.form.deliveryStatus){
         data.deliveryStatus = this.form.deliveryStatus;
       }
-    
+
       this.getInvoiceList(data)
     },
     search(){
       this.loading = true
       let data = {
-        currentPage:1, 
+        currentPage:1,
         pageSize:this.pageSize
       }
+      this.currentPage = 1
       if(this.form.startTime){
         data.startTime = Number(this.form.startTime);
       }
@@ -364,9 +366,9 @@ export default {
       if(this.form.deliveryStatus){
         data.deliveryStatus = this.form.deliveryStatus;
       }
-    
+
       this.getInvoiceList(data)
-      
+
     },
     handleChange(value) {
       console.log(value);
@@ -419,16 +421,16 @@ export default {
 }
 
 </script>
-<style lang='less'>
+<style lang='less' scope>
 .invoice-management{
   .page-content {
-    margin-top: 16px;  
+    margin-top: 16px;
 
     .pagination-box {
       text-align: right;
       margin-top: 10px;
     }
-  
+
   }
   .el-dialog__body {
     padding: 0px 16px;

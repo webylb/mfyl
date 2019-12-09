@@ -1,5 +1,5 @@
 <template>
-  <div class="bind-phonenum">
+  <div class="change-phonenum">
     <div class="bind-phonenum-title">
       <el-breadcrumb separator-class="el-icon-arrow-right">
         <el-breadcrumb-item>企业设置</el-breadcrumb-item>
@@ -12,7 +12,7 @@
         <div>{{ companyName }}</div>
       </el-form-item>
       <el-form-item label="账户名：">
-        <div> 
+        <div>
           {{ username }}
         </div>
       </el-form-item>
@@ -37,12 +37,12 @@
       :before-close="dialogClose"
       center>
       <div class="margin:20px auto;text-align:center;font-size;16px;">
-        <div style="text-align:center;"> 
+        <div style="text-align:center;">
           <i class="el-icon-success" style="color:#67c23a;fontSize: 80px"></i>
         </div>
         <div style="text-align:center;font-size: 18px;margin: 10px 0;">登录密码修改成功</div>
         <div style="text-align:center;margin:0 25px;">
-          
+
         </div>
       </div>
       <span slot="footer" class="dialog-footer">
@@ -150,13 +150,13 @@ export default {
           return false;
         }
       });
-    } 
+    }
   }
 }
 
 </script>
-<style lang='less'>
-.bind-phonenum {
+<style lang='less' scope>
+.change-phonenum {
 
    .bind-phonenum-title {
     margin:20px 0;
@@ -172,7 +172,7 @@ export default {
     width: 660px;
     margin-bottom: 20px;
     border-bottom: none;
-    .el-form-item__label { 
+    .el-form-item__label {
       font-size: 16px;
     }
     .el-form-item__content {

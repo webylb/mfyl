@@ -61,7 +61,7 @@
           background
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
-          :current-page="1"
+          :current-page.sync="currentPage"
           :page-sizes="[10, 20, 30, 40, 50]"
           :page-size="pageSize"
           layout="sizes, prev, pager, next, jumper"
@@ -176,7 +176,7 @@ export default {
       this.currentPage = val,
       this.loading = true
       let data = { currentPage:val, pageSize:this.pageSize }
-  
+
       this.getBannerList(data)
     },
     subBannerInfo(){
@@ -268,10 +268,10 @@ export default {
               this.$message.info(res.message)
             }
           }).catch(err => {
-            this.$message.info(err)       
+            this.$message.info(err)
           })
         }).catch(() => {
-          // this.$message.info('已取消删除');          
+          // this.$message.info('已取消删除');
         });
       }
     },
@@ -290,7 +290,7 @@ export default {
 }
 
 </script>
-<style lang='less'>
+<style lang='less' scope>
 .banner-settings {
 
    .banner-settings-title {
@@ -322,13 +322,13 @@ export default {
 
   }
   .page-content {
-    margin-top: 16px;  
+    margin-top: 16px;
 
     .pagination-box {
       text-align: right;
       margin-top: 10px;
     }
-  
+
   }
 
   .el-dialog__body {

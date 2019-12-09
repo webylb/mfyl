@@ -12,10 +12,10 @@
         <el-input v-model="form.phone" placeholder="请输入手机号" clearable></el-input>
       </el-form-item>
       <el-form-item label="验证码：" prop="code">
-        <div class="btn-group"> 
+        <div class="btn-group">
           <el-input v-model="form.code" placeholder="请输入验证码" clearable></el-input><el-button @click="getPvc">{{ btnText }}</el-button>
         </div>
-        
+
       </el-form-item>
       <el-form-item label="">
         <el-button type="primary" @click="setPhone('form')">立即绑定</el-button>
@@ -31,8 +31,8 @@
       <div class="margin:20px auto;text-align:center;font-size;16px;height:42px;" v-if="pvc">
         <img src="/pvc/generate/pvc" alt="" style="margin: 0 auto;display: block;margin-bottom: 20px;width: 100px;">
       </div>
-      <el-form ref="dialogForm" :inline="false" label-position="center" label-width="100px">
-        <el-form-item label="手机号：" prop="phone">
+      <el-form class="dialogForm" ref="dialogForm" :inline="false" label-position="center" label-width="100px">
+        <el-form-item label="验证码：" prop="phone">
           <el-input v-model="dialogForm.pvc" placeholder="请输入图形验证码" clearable></el-input>
         </el-form-item>
       </el-form>
@@ -47,12 +47,12 @@
       :before-close="dialogClose"
       center>
       <div class="margin:20px auto;text-align:center;font-size;16px;">
-        <div style="text-align:center;"> 
+        <div style="text-align:center;">
           <i class="el-icon-success" style="color:#67c23a;fontSize: 80px"></i>
         </div>
         <div style="text-align:center;font-size: 18px;margin: 10px 0;">手机号绑定成功！</div>
         <div style="text-align:center;margin:0 25px;">
-          
+
         </div>
       </div>
     </el-dialog>
@@ -111,7 +111,7 @@ export default {
     }
   },
   created(){
-    
+
   },
   methods: {
     ...mapMutations([
@@ -155,7 +155,7 @@ export default {
       this.timer = setInterval(() => {
         this.times--
         this.btnText =  this.times + "s"
-        if(this.times === 1){
+        if(this.times <= 1){
           clearInterval(this.timer)
           this.btnText = "重新获取"
         }
@@ -180,7 +180,7 @@ export default {
         this.$message.closeAll();
         this.$message.info(err);
       })
-      
+
     },
     getPvc(){
       this.pvc = false
@@ -205,7 +205,7 @@ export default {
           message: '请先输正确的手机号!',
           type: 'warning'
         });
-      }     
+      }
     },
     dialogClose(){
       this.dialogVisible = false
@@ -215,9 +215,8 @@ export default {
 }
 
 </script>
-<style lang='less'>
+<style lang='less' scope>
 .bind-phonenum {
-
    .bind-phonenum-title {
     margin:20px 0;
     width: 100%;
@@ -232,7 +231,7 @@ export default {
     width: 560px;
     margin-bottom: 20px;
     border-bottom: none;
-    .el-form-item__label { 
+    .el-form-item__label {
       font-size: 16px;
     }
     .el-form-item__content {

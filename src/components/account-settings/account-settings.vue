@@ -45,7 +45,7 @@ export default {
   name: 'accountSettings',
   data() {
     return {
-    
+
     }
   },
   created(){
@@ -96,12 +96,12 @@ export default {
         this.$router.push('/account-settings/change-paypwd')
       }
     }
-   
+
   }
 }
 
 </script>
-<style lang='less'>
+<style lang='less' scope>
 .account-settings {
 
    .account-settings-title {
@@ -131,7 +131,7 @@ export default {
     width: 660px;
     margin-bottom: 20px;
     border-bottom: 1PX solid #ccc;
-    .el-form-item__label { 
+    .el-form-item__label {
       font-size: 16px;
     }
     .el-form-item__content {

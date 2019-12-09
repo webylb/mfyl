@@ -75,7 +75,7 @@
           background
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
-          :current-page="1"
+          :current-page.sync="currentPage"
           :page-sizes="[20, 30, 40, 50]"
           :page-size="10"
           layout="sizes, prev, pager, next, jumper"
@@ -180,7 +180,7 @@ export default {
     }
   },
   created(){
-    
+
   },
   methods: {
     getData(){
@@ -238,7 +238,7 @@ export default {
         alert('已经是第一条，不可上移');
       }
     },
-  
+
     //下移
     moveDown(index,row){
       var that = this;
@@ -256,7 +256,7 @@ export default {
 }
 
 </script>
-<style lang='less'>
+<style lang='less' scope>
 .coupon-recommend {
 
    .coupon-recommend-title {
@@ -288,13 +288,13 @@ export default {
 
   }
   .page-content {
-    margin-top: 16px;  
+    margin-top: 16px;
 
     .pagination-box {
       text-align: right;
       margin-top: 10px;
     }
-  
+
   }
 
   .el-dialog__body {

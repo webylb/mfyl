@@ -40,7 +40,7 @@
     <div class="page-content">
       <el-table
         :data="tableData"
-        border
+        stripe
         style="width: 100%;border:1px solid #EBEEF5;"
         v-loading="loading">
         <el-table-column
@@ -99,7 +99,7 @@
             <el-button type="text" v-else @click="goLook(scope.row.id)">查看</el-button>
           </template>
         </el-table-column>
-        
+
         <el-table-column
           label="状态"
           align='center'
@@ -137,7 +137,7 @@
           background
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
-          :current-page="1"
+          :current-page.sync="currentPage"
           :page-sizes="[10, 20, 30, 40, 50]"
           :page-size="10"
           layout="sizes, prev, pager, next, jumper"
@@ -180,7 +180,7 @@
           <el-button @click="changeInvoiceInfo">修改信息</el-button>
           <el-button type="primary" @click="subDialogform">立即申请</el-button>
         </div>
-        <div v-else-if="invoiceStatus == 'WAIT'"> 
+        <div v-else-if="invoiceStatus == 'WAIT'">
           <el-button type="primary" disabled>发票申请中</el-button>
         </div>
       </span>
@@ -316,9 +316,10 @@ export default {
     search(){
       this.loading = true
       let data = {
-        currentPage: 1, 
+        currentPage: 1,
         pageSize: this.pageSize
       }
+      this.currentPage = 1
       if(this.form.startTime){
         data.startTime = Number(this.form.startTime);
       }
@@ -334,7 +335,7 @@ export default {
       this.pageSize = val
       this.loading = true
       let data = {
-        currentPage: 1, 
+        currentPage: 1,
         pageSize: val
       }
       if(this.form.startTime){
@@ -352,7 +353,7 @@ export default {
       this.currentPage = val
       this.loading = true
        let data = {
-        currentPage: val, 
+        currentPage: val,
         pageSize: this.pageSize
       }
       if(this.form.startTime){
@@ -493,7 +494,7 @@ export default {
 }
 
 </script>
-<style lang='less'>
+<style lang='less' scope>
 .account-recharge {
 
    .account-recharge-title{
@@ -511,13 +512,13 @@ export default {
   }
 
   .page-content {
-    // margin-top: 16px;  
+    // margin-top: 16px;
 
     .pagination-box {
       text-align: right;
       margin-top: 10px;
     }
-  
+
   }
   .el-dialog__body {
     padding: 0px 16px;
@@ -525,7 +526,7 @@ export default {
   .el-form-item {
     margin-bottom: 15px;
   }
-  .el-message-box { 
+  .el-message-box {
     width: 400PX;
   }
   .dialogRadio {
@@ -539,7 +540,7 @@ export default {
     .el-form-item__content{
       padding-top: 30px;
     }
-    
+
     p {
       margin: 0;
       height: 30px;

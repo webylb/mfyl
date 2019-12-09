@@ -36,7 +36,7 @@
           </el-option>
         </el-select>
       </el-form-item>
-  
+
       <el-form-item label="申请状态:">
         <el-select v-model="form.reviewStatus" clearable placeholder="请选择" style="width: 120px">
           <el-option
@@ -47,7 +47,7 @@
           </el-option>
         </el-select>
       </el-form-item>
-       
+
       <el-form-item style='float:right;'>
         <el-button type="primary" @click="search()">立即查询</el-button>
           <el-button @click="downloadRechargeApplyList()">导 出</el-button>
@@ -157,7 +157,7 @@
           background
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
-          :current-page="1"
+          :current-page.sync="currentPage"
           :page-sizes="[10, 20, 30, 40, 50]"
           :page-size="10"
           layout="sizes, prev, pager, next, jumper"
@@ -293,7 +293,7 @@ export default {
       this.pageSize = val
       this.loading = true
       let data = {
-        currentPage: 1, 
+        currentPage: 1,
         pageSize: val
       }
       this.search(data)
@@ -302,7 +302,7 @@ export default {
       this.currentPage = val
       this.loading = true
       let data = {
-        currentPage: val, 
+        currentPage: val,
         pageSize: this.pageSize
       }
       this.search(data)
@@ -313,6 +313,7 @@ export default {
       if(opts){
         data = opts
       }else{
+        this.currentPage = 1
         data = {currentPage:1, pageSize:this.pageSize}
       }
       if(this.form.startTime){
@@ -418,7 +419,7 @@ export default {
           this.$message.closeAll();
           this.$message.info(res.message);
         }else{
-          const blob = new Blob([res],{type: 'application/vnd.ms-excel'}); 
+          const blob = new Blob([res],{type: 'application/vnd.ms-excel'});
           const fileName = '充值申请导出列表.xls';
           const linkNode = document.createElement('a');
 
@@ -437,16 +438,16 @@ export default {
 }
 
 </script>
-<style lang='less'>
+<style lang='less' scope>
 .user-management{
   .page-content {
-    margin-top: 16px;  
+    margin-top: 16px;
 
     .pagination-box {
       text-align: right;
       margin-top: 10px;
     }
-  
+
   }
   .el-dialog__body {
     padding: 0px 16px;

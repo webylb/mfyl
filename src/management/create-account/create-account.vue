@@ -5,7 +5,7 @@
         <el-button type="primary" icon="el-icon-plus" @click="editAdmin('1')" >添加管理员账户</el-button>
       </el-col>
     </el-row>
-    
+
     <div class="page-content">
       <el-table
         :data="tableData"
@@ -45,7 +45,11 @@
           >
           <template slot-scope="scope">
             <!-- <el-button @click="editAdmin('2',scope.row.id,scope.$index)" type="text" size="small">编辑</el-button> -->
-            <el-button @click="deleteClick(scope.row.id,scope.$index)"  type="text" size="small">删除</el-button>
+            <span v-for="(item, index) in scope.row.rules" :key="index">
+              <span v-if="item.roleAlias !== 'admin'">
+                <el-button @click="deleteClick(scope.row.id,scope.$index)"  type="text" size="small">删除</el-button>
+              </span>
+            </span>
           </template>
         </el-table-column>
       </el-table>
@@ -55,7 +59,7 @@
           background
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
-          :current-page="1"
+          :current-page.sync="currentPage"
           :page-sizes="[10, 20, 30, 40, 50]"
           :page-size="10"
           layout="sizes, prev, pager, next, jumper"
@@ -80,7 +84,7 @@
                     auto-complete="off"
                     placeholder="请输入"></el-input>
         </el-form-item>
-        
+
         <el-form-item label="角色*:">
           <el-select v-model="dialogForm.roleId" multiple placeholder="请选择" style="width: 270px">
             <el-option
@@ -90,7 +94,7 @@
               :value="item.id">
             </el-option>
           </el-select>
-        </el-form-item>     
+        </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取  消</el-button>
@@ -149,7 +153,7 @@ export default {
       return tool.formatDate(val)
     },
     getAllRoleList(){
-      core.getAllRoleList().then(res => {
+      core.getAllRoleListForCreate().then(res => {
         //console.log(res)
         if(res.code && res.code == '00'){
           this.options = res.data
@@ -183,7 +187,7 @@ export default {
             this.$message.info(err);
           })
         }).catch(() => {
-          // this.$message.info('已取消删除');          
+          // this.$message.info('已取消删除');
         });
       }
     },
@@ -252,7 +256,7 @@ export default {
         //   //console.log(res)
         //   if(res.code && res.code == '00'){
         //     this.dialogVisible = false
-        //           this.$message.success("操作成功");;
+        //           this.$message.success("操作成功");
 ;
         //     this.loading = true
         //     this.getAllRoleList()
@@ -265,7 +269,7 @@ export default {
         //   this.$message.info(err);
         // })
       }
-      
+
     },
     handleSizeChange(val) {
       console.log(`每页 ${val} 条`);
@@ -277,20 +281,20 @@ export default {
       this.dialogVisible = false
     }
   }
-  
+
 }
 
 </script>
-<style lang='less'>
+<style lang='less' scope>
 .create-account {
   .page-content {
-    margin-top: 16px;  
+    margin-top: 16px;
 
     .pagination-box {
       text-align: right;
       margin-top: 10px;
     }
-  
+
   }
   .el-dialog__body {
     padding: 0px 16px;

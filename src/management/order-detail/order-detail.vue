@@ -13,7 +13,7 @@
           <div>下单时间：<span>{{ formatDate(tableData.createTime) }}</span></div>
           <div>用户id：<span>{{ tableData.userId }}</span></div>
           <div>订单状态：
-             
+
             <span v-if="tableData.payStatus == 'WAIT'">待付款</span>
             <span v-else-if="tableData.payStatus == 'SUCCESS'">
               <span v-if="tableData.shipStatus == 'WAIT'">待发货</span>
@@ -31,14 +31,14 @@
               已关闭
             </span>
           </div>
-        </div> 
+        </div>
       </el-form-item>
       <el-form-item label="收货信息">
         <div class="flex-box">
           <div>姓名：<span>{{ tableData.realname }}</span></div>
           <div>联系电话：<span>{{ tableData.mobile }}</span></div>
           <div>收货地址：<span>{{ tableData.province }} {{ tableData.city }} {{ tableData.district || ''  }} {{ tableData.town || '' }}</span></div>
-        </div> 
+        </div>
       </el-form-item>
       <el-form-item label="商品信息">
         <div class="page-content">
@@ -76,7 +76,7 @@
               align="center"
             >
             </el-table-column>
-          
+
             <el-table-column
               label="商品渠道"
               align="center"
@@ -87,7 +87,7 @@
                 <span v-else-if="scope.row.shipStatus == 'WangYIYanXuan'">网易严选</span>
               </template>
             </el-table-column>
-  
+
             <el-table-column
               prop="skuId"
               label="skuid"
@@ -121,8 +121,8 @@
         </div>
       </el-form-item>
     </el-form>
-    
-    
+
+
     <el-dialog
       title="物流信息"
       :visible.sync="dialogInfoVisible"
@@ -194,7 +194,7 @@ export default {
       return tool.formatDate(val)
     },
     formatStr(val){
-      const sku = JSON.parse(val) 
+      const sku = JSON.parse(val)
       const data = []
       for (let [k, v] of Object.entries(sku)) {
           data.push({key: k ,value: v});
@@ -211,7 +211,7 @@ export default {
 }
 
 </script>
-<style lang='less'>
+<style lang='less' scope>
 .order-dertail {
 
    .order-dertail-title {
@@ -259,7 +259,7 @@ export default {
       text-align: right;
       margin-top: 10px;
     }
-  
+
   }
   .el-form--label-top .el-form-item__label {
     font-size: 18px;

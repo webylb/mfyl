@@ -1,19 +1,19 @@
 <template>
   <div class="employees-management">
     <el-form ref="form" :model="form" :inline="true" label-position="center" label-width="80px">
-     
+
       <el-form-item label="员工姓名">
         <el-input style="width: 120px" v-model="form.staffName" clearable></el-input>
       </el-form-item>
-    
+
       <el-form-item label="工号">
         <el-input style="width: 120px" v-model="form.staffJobNumber" clearable></el-input>
       </el-form-item>
-  
+
       <el-form-item label="手机号">
         <el-input style="width: 120px" v-model="form.staffMobile" clearable></el-input>
       </el-form-item>
-    
+
       <el-form-item label="部门">
         <el-select v-model="form.staffDepartmentName" clearable placeholder="请选择部门" style="width: 120px;margin-right:10px">
           <el-option
@@ -24,7 +24,7 @@
           </el-option>
         </el-select>
       </el-form-item>
-    
+
       <el-form-item label="职务">
         <el-select v-model="form.staffJob" clearable placeholder="请选择职务" style="width: 120px">
           <el-option
@@ -40,7 +40,7 @@
         <el-button type="primary" @click="search()">立即查询</el-button>
           <el-button @click="dowloadStaffList()">导 出</el-button>
       </el-form-item>
-       
+
       <el-row type="flex">
         <el-col :span="24">
           <el-button type="primary" icon="el-icon-plus" @click="addEmployees('1')">添加员工</el-button>
@@ -120,7 +120,7 @@
           </template>
         </el-table-column>
         <el-table-column
-          prop="id"
+          prop="bindUserId"
           label="用户ID"
           align="center">
         </el-table-column>
@@ -141,7 +141,7 @@
           background
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
-          :current-page="1"
+          :current-page.sync="currentPage"
           :page-sizes="[10, 20, 30, 40, 50]"
           :page-size="10"
           layout="sizes, prev, pager, next, jumper"
@@ -171,7 +171,7 @@
                     auto-complete="off"
                     placeholder="请输入手机号"></el-input>
         </el-form-item>
-        <el-form-item label="生日:">
+        <el-form-item label="生日*:">
           <el-date-picker style="width: 300px"
             v-model="dialogForm.staffBirthday"
             type="date"
@@ -180,7 +180,7 @@
             :picker-options="pickerOptions">
           </el-date-picker>
         </el-form-item>
-        <el-form-item label="入职时间:">
+        <el-form-item label="入职时间*:">
           <el-date-picker style="width: 300px"
             v-model="dialogForm.staffEmploymentDate"
             type="date"
@@ -189,7 +189,7 @@
             :picker-options="pickerOptions">
           </el-date-picker>
         </el-form-item>
-        <el-form-item label="部门:">
+        <el-form-item label="部门*:">
           <!-- <el-select v-model="dialogForm.staffDepartmentName" placeholder="请选择部门" style="width: 300px">
             <el-option
               v-for="item in options.departmentsOptions"
@@ -202,7 +202,7 @@
                     auto-complete="off"
                     placeholder="请输入部门"></el-input>
         </el-form-item>
-        <el-form-item label="职务:">
+        <el-form-item label="职务*:">
           <!-- <el-select v-model="dialogForm.staffJob" placeholder="请选择职务" style="width: 300px">
             <el-option
               v-for="item in options.jobsOptions"
@@ -308,7 +308,7 @@ export default {
       dialogInfoForm: {
         excelFile: null
       },
-      options: { 
+      options: {
         departmentsOptions: [],
         jobsOptions: []
       },
@@ -372,7 +372,7 @@ export default {
       this.currentPage = val,
       this.loading = true
       let data = { currentPage:val, pageSize:this.pageSize }
-  
+
       this.search(data)
     },
     search(opts){
@@ -381,6 +381,7 @@ export default {
       if(opts){
         data = opts
       }else{
+        this.currentPage = 1
         data = { currentPage:1, pageSize:this.pageSize }
       }
       if(this.form.staffName){
@@ -403,6 +404,7 @@ export default {
     dialogClose(){
       this.dialogVisible = false
       this.dialogInfoVisible = false
+      this.$refs.upload.clearFiles()
       this.fileList = []
     },
     addEmployees(status,row,index){
@@ -440,7 +442,7 @@ export default {
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          let data = { 
+          let data = {
             merchantId: this.merchantId ,
           }
           if(this.addStatus != '1'){
@@ -524,10 +526,10 @@ export default {
               this.$message.info(res.message)
             }
           }).catch(err => {
-            this.$message.info(err)       
+            this.$message.info(err)
           })
         }).catch(() => {
-          // this.$message.info('已取消删除');          
+          // this.$message.info('已取消删除');
         });
       }
     },
@@ -567,6 +569,7 @@ export default {
       core.addStaffByExcel(form).then(res => {
         if(res.code && res.code === "00"){
           this.dialogInfoVisible = false
+          this.$refs.upload.clearFiles()
           this.dialogInfoForm = {
             excelFile: null
           }
@@ -577,6 +580,7 @@ export default {
           this.getStaffJobInfo()
         }else{
           this.dialogInfoVisible = false
+          this.$refs.upload.clearFiles()
           this.$message.closeAll();
           this.$message.warning(res.message);
         }
@@ -608,7 +612,7 @@ export default {
           this.$message.closeAll();
           this.$message.info(res.message);
         }else{
-          const blob = new Blob([res],{type: 'application/vnd.ms-excel'}); 
+          const blob = new Blob([res],{type: 'application/vnd.ms-excel'});
           const fileName = '员工导出列表.xls';
           const linkNode = document.createElement('a');
 
@@ -631,7 +635,7 @@ export default {
           this.$message.closeAll();
           this.$message.info(res.message);
         }else{
-          const blob = new Blob([res],{type: 'application/vnd.ms-excel'}); 
+          const blob = new Blob([res],{type: 'application/vnd.ms-excel'});
           const fileName = '员工信息模板.xls';
           const linkNode = document.createElement('a');
 
@@ -677,16 +681,16 @@ export default {
 }
 
 </script>
-<style lang='less'>
+<style lang='less' scope>
 .employees-management{
   .page-content {
-    margin-top: 16px;  
+    margin-top: 16px;
 
     .pagination-box {
       text-align: right;
       margin-top: 10px;
     }
-  
+
   }
   .el-button+.el-button {
     margin-left: 20px;

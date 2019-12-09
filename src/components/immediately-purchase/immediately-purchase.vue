@@ -17,7 +17,7 @@
           </el-option>
         </el-select>
       </el-form-item>
-    
+
       <el-form-item label="采购面值以及数量">
         <div  v-for="(item, index) in form.camInfo"
         :key="item.key" style="margin-bottom: 10px;" :data-length="form.camInfo.length">
@@ -29,7 +29,7 @@
               :value="item.value">
             </el-option>
           </el-select>
-          <el-input  placeholder="请填写采购数量" clearable style="width: 150px;margin:0 20px;" v-model="item.amount" @change="changeNeedMoney"></el-input> 
+          <el-input  placeholder="请填写采购数量" clearable style="width: 150px;margin:0 20px;" v-model="item.amount" @change="changeNeedMoney"></el-input>
           <el-button v-if="index == form.camInfo.length - 1" @click.prevent="addItemValue()">添加</el-button>
           <el-button v-else @click.prevent="removeItemValue(item)" icon="el-icon-delete"></el-button>
         </div>
@@ -44,10 +44,10 @@
           <p style="margin: 0">收货地址：{{ deliveryAddress }}</p>
           <p style="margin: 0;font-size: 12px">魔方优礼会把实体卡邮寄到您的收货地址（邮寄地址可在企业设置中修改）</p>
         </div>
-        
+
       </el-form-item>
       <el-form-item v-else label="邮箱地址">
-        <el-input clearable placeholder="请输入您有效的邮箱地址" style="width:200px" v-model="form.email"></el-input> 
+        <el-input clearable placeholder="请输入您有效的邮箱地址" style="width:200px" v-model="form.email"></el-input>
         <div>
           <p style="margin: 0;font-size: 12px;color:red">用于接收电子卡密表格（电子卡密将以邮件的方式发送）</p>
         </div>
@@ -117,7 +117,7 @@
       :before-close="dialogClose"
       center>
       <div class="margin:20px auto;text-align:center;font-size;16px;">
-        <div style="text-align:center;"> 
+        <div style="text-align:center;">
           <i class="el-icon-success" style="color: #67c23a;fontSize: 80px"></i>
         </div>
         <div style="text-align:center;margin:10px 25px;font-size:16px;">
@@ -158,7 +158,7 @@ export default {
         isVirtualOptions: [{
           value: 'N',
           label: '实体卡',
-        
+
         },
         {
           value: 'Y',
@@ -223,6 +223,9 @@ export default {
     }),
   },
   methods: {
+    ...mapMutations([
+      'UPDATA_ACCOUNT_BALANCE'
+    ]),
     getDeliveryInfo(opts){
       merchantCore.getDeliveryInfo(opts).then(res => {
         if(res.code && res.code == '00'){
@@ -244,7 +247,14 @@ export default {
       this.dialogPwdVisible = false
       this.dialogPwdNoVisible = false
       this.dialogPwdHintVisible = false
-      this.dialogPwdSuccessVisible = false;
+      this.dialogPwdSuccessVisible = false
+      this.pwd1 = ''
+      this.pwd2 = ''
+      this.pwd3 = ''
+      this.pwd4 = ''
+      this.pwd5 = ''
+      this.pwd6 = ''
+      this.form.payPassword = ''
     },
     changeNeedMoney(){
       this.needMoney = 0
@@ -313,18 +323,19 @@ export default {
       core.subCamOrder(this.form).then(res => {
         //console.log(res)
         if(res.code && res.code == '00'){
-          this.pwd1 = '',
-          this.pwd2 = '',
-          this.pwd3 = '',
-          this.pwd4 = '',
-          this.pwd5 = '',
-          this.pwd6 = '',
+          this.pwd1 = ''
+          this.pwd2 = ''
+          this.pwd3 = ''
+          this.pwd4 = ''
+          this.pwd5 = ''
+          this.pwd6 = ''
           this.form.payPassword = ''
           this.dialogPwdVisible = false
           this.dialogPwdSuccessVisible = true
-          const timer = null
+          this.getMerchantDetail()
+          let timer = null
           clearTimeout(timer)
-          timer = setTimeout(res=>{
+          timer = setTimeout(()=>{
             this.form.camInfo = [{
               amount: '',
               faceValue: ''
@@ -332,7 +343,20 @@ export default {
             this.needMoney = 0
             this.form.email = ''
             this.dialogPwdSuccessVisible = false
-          },3000)
+          }, 3000)
+        }else{
+          this.$message.closeAll();
+          this.$message.info(res.message);
+        }
+      }).catch(err => {
+        this.$message.closeAll();
+        this.$message.info(err);
+      })
+    },
+    getMerchantDetail(){
+      merchantCore.getMerchantDetail().then(res => {
+        if(res.code && res.code == '00'){
+          this.UPDATA_ACCOUNT_BALANCE(res.data.accountBalance || 0)
         }else{
           this.$message.closeAll();
           this.$message.info(res.message);
@@ -377,7 +401,7 @@ export default {
 }
 
 </script>
-<style lang='less'>
+<style lang='less' scope>
 .immediately-purchase {
 
    .immediately-purchase-title{
@@ -397,13 +421,13 @@ export default {
   }
 
   .page-content {
-    margin-top: 16px;  
+    margin-top: 16px;
 
     .pagination-box {
       text-align: right;
       margin-top: 10px;
     }
-  
+
   }
   .el-dialog__body {
     padding: 0px 16px;
@@ -420,7 +444,7 @@ export default {
       overflow:hidden;
       margin: 0 auto;
   }
-  
+
 	.pwd-box .el-input {
 		  width: 100%;
 	    height: 45Px;
@@ -433,7 +457,7 @@ export default {
 	    opacity: 0;
 	    z-index: 1;
       letter-spacing: 35Px;
-      
+
       input {
         width: 100%;
         height: 100%;
@@ -441,12 +465,12 @@ export default {
         margin: 0;
       }
   }
-  
+
   .fake-box {
     width: 270px;
     display: flex;
     justify-content: flex-start;
-  
+
     input{
         flex-grow: 1;
         width: 0;
@@ -461,10 +485,10 @@ export default {
           border:none;
         }
     }
-  
+
   }
 
-  .el-message-box { 
+  .el-message-box {
     width: 400PX;
   }
 }

@@ -38,7 +38,7 @@
         </el-select>
       </el-form-item>
 
-     
+
       <el-form-item label="上下架状态:">
         <el-select v-model="form.isEnable" clearable placeholder="请选择" style="width: 120px;">
           <el-option
@@ -49,8 +49,8 @@
           </el-option>
         </el-select>
       </el-form-item>
-      
-  
+
+
       <el-form-item style='float:right;'>
         <el-button type="primary" @click="search()">立即查询</el-button>
         <el-button @click="downloadGoodsList()">导  出</el-button>
@@ -174,7 +174,7 @@
           background
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
-          :current-page="1"
+          :current-page.sync="currentPage"
           :page-sizes="[10, 20, 30, 40, 50]"
           :page-size="10"
           layout="sizes, prev, pager, next, jumper"
@@ -301,8 +301,9 @@ export default {
       if(opts){
         data = opts
       }else{
+        this.currentPage = 1
         data = { currentPage:1, pageSize:this.pageSize }
-      } 
+      }
       if(this.form.itemName){
         data.itemName = this.form.itemName
       }
@@ -391,10 +392,10 @@ export default {
             }
           }).catch(err => {
             this.$message.closeAll();
-            this.$message.info(err)       
+            this.$message.info(err)
           })
         }).catch(() => {
-          // this.$message.info('已取消删除');          
+          // this.$message.info('已取消删除');
         });
       }
     },
@@ -425,7 +426,7 @@ export default {
           this.$message.closeAll();
           this.$message.info(res.message);
         }else{
-          const blob = new Blob([res],{type: 'application/vnd.ms-excel'}); 
+          const blob = new Blob([res],{type: 'application/vnd.ms-excel'});
           const fileName = '商品导出列表.xls';
           const linkNode = document.createElement('a');
 
@@ -444,7 +445,7 @@ export default {
 }
 
 </script>
-<style lang='less'>
+<style lang='less' scope>
 .physical-market {
 
    .physical-market-title {
@@ -476,13 +477,13 @@ export default {
 
   }
   .page-content {
-    margin-top: 16px;  
+    margin-top: 16px;
 
     .pagination-box {
       text-align: right;
       margin-top: 10px;
     }
-  
+
   }
 
   .el-dialog__body {

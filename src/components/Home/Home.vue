@@ -3,7 +3,7 @@
     <el-container>
       <el-aside style="width:auto" v-loading="loading">
         <div class="logo" @click="getMenu">
-          <span v-show="!isCollapse" class="fadeIn">魔方优礼</span>  
+          <span v-show="!isCollapse" class="fadeIn">魔方优礼</span>
           <span v-show="isCollapse" class="el-icon-s-home fadeIn"></span>
         </div>
         <el-menu
@@ -42,7 +42,7 @@
             <el-button type="primary" icon="el-icon-s-fold" v-else @click="isCollapse = !isCollapse"></el-button>
           </div>
           <span class="out-login" @click="loginOut">退出登录</span>
-          <span class="user-name">{{ companyName }} &nbsp;&nbsp;&nbsp;&nbsp; 账户余额：{{ accountBalance }}元</span>  
+          <span class="user-name">{{ companyName }} &nbsp;&nbsp;&nbsp;&nbsp; 账户余额：{{ accountBalance }}元</span>
           <!-- <el-dropdown  class="out-login" trigger="click">
            <span class="el-dropdown-link">
              <i class="iconfont icon-yonghu" style="color: #fa8c16;"></i>
@@ -93,7 +93,7 @@ export default {
   },
   created(){
     this.getMerchantDetail()
-  
+
     this.getMenu();
   },
   computed: {
@@ -120,8 +120,8 @@ export default {
   },
   methods: {
     ...mapMutations([
-      'SAVE_USER_NAME', 
-      'UPDATA_ACCOUNT_BALANCE', 
+      'SAVE_USER_NAME',
+      'UPDATA_ACCOUNT_BALANCE',
       'SAVE_MERCHANT_ID',
       'UPDATA_PAY_PASSWORD_STATUS',
       'SAVE_BIND_PHONE'
@@ -140,7 +140,7 @@ export default {
         if (res.code && res.code === '00'){
           this.$router.push({ path:'/login' })
         } else {
-          this.$message.error(data.message)
+          this.$message.error(res.message)
         }
       })
     },
@@ -180,7 +180,7 @@ export default {
 }
 
 </script>
-<style lang='less'>
+<style lang='less' scope>
 .home {
   width: 100%;
   height: 100%;
@@ -222,7 +222,7 @@ export default {
   }
   .el-menu-item.is-active {
     background-color: #1890ff !important;
-    
+
   }
   .el-submenu {
     .el-menu-item {
@@ -238,11 +238,11 @@ export default {
       font-weight: bold;
     }
   }
-  
+
   .el-menu {
     border: 0;
   }
- 
+
   .el-container {
     width: 100%;
     height: 100%;
@@ -316,26 +316,26 @@ export default {
     -webkit-animation: fadeIn 0.5s;
   }
   @keyframes fadeIn {
-    from { 
-      //width: 100px; 
-      opacity: 0.3; 
+    from {
+      //width: 100px;
+      opacity: 0.3;
       transform: scale(0.3,0.3)
     }
-    to { 
-      //width: 225px; 
+    to {
+      //width: 225px;
       opacity: 1;
       transform: scale(1,1)
     }
   }
   @-webkit-keyframes fadeIn {
-    from { 
+    from {
       //width: 100px;
-      opacity: 0.3; 
+      opacity: 0.3;
       transform: scale(0.3,0.3)
     }
-    to { 
-      //width: 225px; 
-      opacity: 1; 
+    to {
+      //width: 225px;
+      opacity: 1;
       transform: scale(1,1)
     }
   }

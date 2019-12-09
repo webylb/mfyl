@@ -41,7 +41,7 @@
           </el-option>
         </el-select>
       </el-form-item>
-  
+
       <el-form-item style='float:right;'>
         <el-button type="primary" @click="search()">立即查询</el-button>
       </el-form-item>
@@ -122,7 +122,7 @@
           background
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
-          :current-page="1"
+          :current-page.sync="currentPage"
           :page-sizes="[10,20, 30, 40, 50]"
           :page-size="10"
           layout="sizes, prev, pager, next, jumper"
@@ -130,7 +130,7 @@
         </el-pagination>
       </div>
     </div>
-    
+
     <el-dialog
       title="渠道信息"
       :visible.sync="dialogInfoVisible"
@@ -175,7 +175,7 @@
       :before-close="dialogClose"
       center>
       <div class="margin:20px auto;text-align:center;font-size;16px;">
-        <div style="text-align:center;"> 
+        <div style="text-align:center;">
           <i :class="hintIcon" :style="{color: hintIcon=='el-icon-success' ? '#67c23a' : '#f56c6c',fontSize: '80px'}"></i>
         </div>
         <div style="text-align:center;font-size: 18px;margin: 10px 0;">{{ hintTitle }}</div>
@@ -254,7 +254,7 @@ export default {
     this.getCommonChannel()
     // core.dowloadCamTemplate().then(res => {
     //   console.log(res)
-    //   const blob = new Blob([res],{type: 'application/vnd.ms-excel'}); 
+    //   const blob = new Blob([res],{type: 'application/vnd.ms-excel'});
     //   const fileName = '卡密模板.xls';
     //   const linkNode = document.createElement('a');
 
@@ -312,11 +312,12 @@ export default {
     },
     search(opts){
       this.loading = true
-      let data = null 
+      let data = null
       if(opts){
         data = opts
       }else{
-         data = {currentPage: 1, pageSize: this.pageSize}
+        this.currentPage = 1
+        data = {currentPage: 1, pageSize: this.pageSize}
       }
       if(this.form.startTime){
         data.startTime = this.form.startTime
@@ -336,7 +337,7 @@ export default {
       this.pageSize = val
       this.loading = true
       let data = {
-        currentPage: 1, 
+        currentPage: 1,
         pageSize: val
       }
       this.search(data)
@@ -345,7 +346,7 @@ export default {
       this.currentPage = val,
       this.loading = true
       let data = {
-        currentPage: val, 
+        currentPage: val,
         pageSize: this.pageSize
       }
       this.search(data)
@@ -430,7 +431,7 @@ export default {
 }
 
 </script>
-<style lang='less'>
+<style lang='less' scope>
 .use-record {
 
    .use-record-title {
@@ -462,13 +463,13 @@ export default {
 
   }
   .page-content {
-    margin-top: 16px;  
+    margin-top: 16px;
 
     .pagination-box {
       text-align: right;
       margin-top: 10px;
     }
-  
+
   }
 
   .el-dialog__body {

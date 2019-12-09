@@ -54,7 +54,7 @@
           align="center"
          >
         </el-table-column>
-        
+
         <el-table-column
           label="发放状态"
           align="center"
@@ -81,7 +81,7 @@
           background
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
-          :current-page="1"
+          :current-page.sync="currentPage"
           :page-sizes="[10, 20, 30, 40, 50]"
           :page-size="pageSize"
           layout="sizes, prev, pager, next, jumper"
@@ -159,6 +159,7 @@ export default {
     },
     search(){
       this.loading = true
+      this.currentPage = 1
       let data = { currentPage:1, pageSize:this.pageSize }
       if(this.form.startGrantTime){
         data.startGrantTime = this.form.startGrantTime
@@ -193,16 +194,16 @@ export default {
 }
 
 </script>
-<style lang='less'>
+<style lang='less' scope>
 .grant-record {
   .page-content {
-    margin-top: 16px;  
+    margin-top: 16px;
 
     .pagination-box {
       text-align: right;
       margin-top: 10px;
     }
-  
+
   }
   .el-dialog__body {
     padding: 0px 16px;
