@@ -191,7 +191,7 @@
       width="422px"
       @close="dialogClose()" center>
       <div style="margin:20px auto;text-align:center;font-size:16px;text-align:center;">
-        <img v-for="item in imgList"  :src="item.voucherPictureUrl" :key="item.id" style="display: block;margin: 0 auto;margin-bottom:5px;">
+        <img v-for="item in imgList"  :src="item.voucherPictureUrl" :key="item.id" style="display: block;margin: 0 auto;margin-bottom:5px;max-width:390px;height:auto">
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogImgVisible = false">取  消</el-button>
@@ -394,10 +394,12 @@ export default {
       this.editId = id
       this.invoiceStatus = status
       if(status == "SUCCESS"){
+        this.getTaxRateInfo()
         this.getOrderInvoiceInfo()
+      }else{
+        this.getInvoiceInfo()
+        this.getDeliveryInfo()
       }
-      this.getInvoiceInfo()
-      this.getDeliveryInfo()
       this.dialogVisible = true
     },
     getInvoiceInfo(opts){
@@ -424,14 +426,13 @@ export default {
             }
           }else{
             this.checkedTaxRateText = JSON.parse(this.taxRate)
-            his.dialogform.taxRate = null
+            this.dialogform.taxRate = null
           }
         }else{
           this.$message.closeAll();
           this.$message.info(res.message);
         }
       }).catch(err => {
-        this.loading = false
         this.$message.closeAll();
         this.$message.info(err);
       })
@@ -475,12 +476,46 @@ export default {
     changeInvoiceInfo(){
       this.$router.push('/company-info')
     },
+    getTaxRateInfo(opts){
+      merchantCore.getInvoiceInfo(opts).then(res => {
+        if(res.code && res.code == '00'){
+          if(res.data.invoiceInfo){ //没数据不存在
+            this.taxRate = res.data.invoiceInfo.taxRate
+          }
+        }else{
+          this.$message.closeAll();
+          this.$message.info(res.message);
+        }
+      }).catch(err => {
+        this.$message.closeAll();
+        this.$message.info(err);
+      })
+    },
     getOrderInvoiceInfo(){
       core.getOrderInvoiceInfo({rechargeMoneyOrderId: this.editId}).then(res => {
-        //console.log(res)
         if(res.code && res.code == '00'){
           this.expressCompany = res.data.expressCompany
           this.logisticsNumber = res.data.logisticsNumber
+          this.invoiceCompanyName = res.data.invoiceCompanyName
+          this.taxIdentificationNumber = res.data.taxIdentificationNumber
+          this.invoiceCompanyAddress = res.data.invoiceCompanyAddress
+          this.invoiceCompanyPhoneNumber = res.data.phoneNumber
+          this.bankOpeningBank = res.data.bankOpeningBank
+          this.bankAccount = res.data.bankAccount
+          this.receiverName = res.data.receiverName
+          this.phoneNumber = res.data.deliveryPhoneNumber
+          this.deliveryAddress = res.data.deliveryAddress
+
+          const arr = []
+          const arr2 = []
+          JSON.parse(this.taxRate).forEach((item,index) => {
+            if(item.taxRate == res.data.taxRate){
+              arr.push(item.taxRate)
+              arr2.push(item)
+            }
+          })
+          this.checkedTaxRateText = arr2
+          this.dialogform.taxRate = arr[0]
         }else{
           this.$message.closeAll();
           this.$message.info(res.message);

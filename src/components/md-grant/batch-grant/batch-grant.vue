@@ -220,7 +220,7 @@ import tool from '../../../utils/common'
 import { clearTimeout } from 'timers';
 export default {
   name:"batchGrant",
-  data() {
+  data(){
     return {
       loading: false,
       pageSize: 10,
@@ -385,7 +385,7 @@ export default {
             excelFile: null
           }
           this.$message.closeAll();
-          this.$message.success("操作成功");
+          this.$message.success("导入成功");
           this.$refs.upload.clearFiles()
           //this.pageTotal = res.data.amount
           this.tableData = res.data.grantScoreInfoList
@@ -436,7 +436,7 @@ export default {
       this.$router.push('/account-recharge/immediately-recharge')
     },
     inputPwd(event){
-      console.log(event)
+      // console.log(event)
     },
     subOrder(){
       if(this.form.payPassword.length < 1){
@@ -451,18 +451,18 @@ export default {
       data.payPassword = this.form.payPassword
       core.sendToStaff(data).then(res => {
         if(res.code && res.code == '00'){
-          this.pwd1 = '',
-          this.pwd2 = '',
-          this.pwd3 = '',
-          this.pwd4 = '',
-          this.pwd5 = '',
-          this.pwd6 = '',
-          this.dialogform.payPassword = ''
+          this.pwd1 = ''
+          this.pwd2 = ''
+          this.pwd3 = ''
+          this.pwd4 = ''
+          this.pwd5 = ''
+          this.pwd6 = ''
+          this.form.payPassword = ''
           this.dialogPwdVisible = false
           this.dialogPwdSuccessVisible = true
           let timer = null
           clearTimeout(timer)
-          timer = setTimeout(res => {
+          timer = setTimeout(() => {
             this.dialogPwdSuccessVisible = false
           },2000)
           this.updateBalance()

@@ -523,7 +523,7 @@ export default {
       return row.id;
     },
     inputPwd(e){
-      console.log(e)
+      // console.log(e)
     },
     //获取部门信息
     getStaffJobInfo(){
@@ -584,9 +584,6 @@ export default {
     subRecharge(){
       this.$router.push('/account-recharge/immediately-recharge')
     },
-    inputPwd(event){
-      console.log(event)
-    },
     subOrder(){
       if(this.dialogform.payPassword.length < 1){
         this.$message.warning("请输入支付密码");
@@ -607,12 +604,11 @@ export default {
           this.pwd5 = ''
           this.pwd6 = ''
           this.dialogform.payPassword = ''
-
           this.dialogPwdVisible = false
           this.dialogPwdSuccessVisible = true
           let timer = null
           clearTimeout(timer)
-          timer = setTimeout(res => {
+          timer = setTimeout(() => {
             this.dialogPwdSuccessVisible = false
           },2000)
           this.updateBalance()

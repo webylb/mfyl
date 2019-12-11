@@ -185,7 +185,7 @@
       width="422px"
       @close="dialogClose()" center>
       <div style="margin:20px auto;text-align:center;font-size:16px;text-align:center;">
-        <img v-for="item in imgList"  :src="item.voucherPictureUrl" :key="item.id" style="display: block;margin: 0 auto;margin-bottom:5px;">
+        <img v-for="item in imgList"  :src="item.voucherPictureUrl" :key="item.id" style="display: block;margin: 0 auto;margin-bottom:5px;max-width:390px;height:auto;">
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogImgVisible = false">取  消</el-button>
@@ -354,7 +354,7 @@ export default {
         core.successRechargeApply({rechargeMoneyOrderId: this.editId}).then(res => {
           //console.log(res)
           if(res.code && res.code == '00'){
-        this.$message.success("操作成功");
+            this.$message.success("操作成功");
             this.dialogVisible = false
             this.tableData[this.editIndex].reviewStatus = "SUCCESS"
           }else{
@@ -369,7 +369,7 @@ export default {
         core.failedRechargeApply({rechargeMoneyOrderId: this.editId}).then(res => {
           //console.log(res)
           if(res.code && res.code == '00'){
-        this.$message.success("操作成功");
+            this.$message.success("操作成功");
             this.dialogVisible = false
             this.tableData[this.editIndex].reviewStatus = "FAIL"
           }else{

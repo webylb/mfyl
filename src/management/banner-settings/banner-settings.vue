@@ -29,7 +29,7 @@
           align="center"
           max-width="200">
           <template slot-scope="scope">
-            <img :src="scope.row.pictureUrl" alt="" style="height:auto;width:100%;">
+            <img :src="scope.row.pictureUrl" alt="" style="height:auto;max-width:120px;">
           </template>
         </el-table-column>
         <el-table-column
@@ -188,14 +188,15 @@ export default {
             sort: this.dialogInfoForm.sort
           }).then(res => {
             if(res.code && res.code === "00"){
-              this.tableData.unshift({
-                pictureUrl: this.dialogInfoForm.icon,
-                jumpUrl: this.dialogInfoForm.link,
-                sort: this.dialogInfoForm.sort
-              })
+              // this.tableData.unshift({
+              //   pictureUrl: this.dialogInfoForm.icon,
+              //   jumpUrl: this.dialogInfoForm.link,
+              //   sort: this.dialogInfoForm.sort
+              // })
               this.dialogClose()
               this.$message.closeAll();
-          this.$message.success("操作成功");
+              this.$message.success("操作成功");
+              this.getBannerList({currentPage:this.currentPage, pageSize:this.pageSize})
             }else{
               this.$message.closeAll();
               this.$message.info(res.message);
@@ -216,7 +217,7 @@ export default {
               this.tableData[this.editIndex].sort =  this.dialogInfoForm.sort
               this.dialogClose()
               this.$message.closeAll();
-          this.$message.success("操作成功");
+              this.$message.success("操作成功");
             }else{
               this.$message.closeAll();
               this.$message.info(res.message);

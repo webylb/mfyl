@@ -237,7 +237,7 @@ export default new Router({
       {
         path: '/physical-market',
         name: 'physicalMarket',
-        meta: {title: "实物商品集市"},
+        meta: {title: "实物商品集市",keepAlive: true},
         component: () => import(/* webpackChunkName: "mallManagement" */ '../management/physical-market/physical-market.vue')
       },
       {

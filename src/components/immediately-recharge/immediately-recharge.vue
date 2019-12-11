@@ -179,7 +179,7 @@ export default {
         console.log(res)
         if(res.code && res.code == '00'){
           this.dialogSuccessVisible = true;
-          const timer = null
+          let timer = null
           clearTimeout(timer)
           timer = setTimeout(res=>{
             this.dialogSuccessVisible = false

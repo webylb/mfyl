@@ -83,9 +83,10 @@
         <el-table-column
           label="商品主图"
           align="center"
+          width="200"
          >
           <template slot-scope="scope">
-            <img :src="scope.row.itemCover" alt="" style="max-width:100%;height:auto;">
+            <img :src="scope.row.itemCover" alt="" style="width:120px;height:auto;">
           </template>
         </el-table-column>
         <el-table-column
@@ -108,15 +109,17 @@
          >
         </el-table-column>
         <el-table-column
-          prop="price"
+          prop="cashPrice"
           label="商品价格(元)"
           align="center"
+          min-width="110"
          >
         </el-table-column>
         <el-table-column
           prop="marketPrice"
           label="市场指导价(元)"
           align="center"
+          min-width="120"
          >
         </el-table-column>
         <el-table-column
@@ -134,6 +137,7 @@
         <el-table-column
           label="是否上首页"
           align="center"
+          min-width="110"
           >
           <template slot-scope="scope">
             <span v-if="scope.row.isHot === 'Y'">是</span>
@@ -244,8 +248,17 @@ export default {
     }
   },
   created(){
-    this.getGoodsList({currentPage:this.currentPage,pageSize:this.pageSize})
+    // this.getGoodsList({currentPage:this.currentPage,pageSize:this.pageSize})
     this.getFirstCategoryList()
+  },
+  activated() {
+    this.getGoodsList({currentPage:this.currentPage,pageSize:this.pageSize})
+    setTimeout(()=>{
+      document.getElementsByClassName('router-container')[0].scrollIntoView({
+        // behavior: 'smooth',    //平滑滚动，爽，其他还有 instant
+        block: 'start'  //元素到页面顶部，其他还有 end, center
+      })
+    },200)
   },
   methods: {
     getGoodsList(opts){
@@ -335,6 +348,12 @@ export default {
       this.loading = true
       let data = { currentPage:val, pageSize:this.pageSize }
       this.search(data)
+      setTimeout(()=>{
+        document.getElementsByClassName('router-container')[0].scrollIntoView({
+          // behavior: 'smooth',    //平滑滚动，爽，其他还有 instant
+          block: 'start'  //元素到页面顶部，其他还有 end, center
+        })
+      },200)
     },
     edit(row){
       this.$router.push({path:'/physical-market/edit',query:{itemId: row.id}})

@@ -83,7 +83,7 @@
         <el-input v-model="form.sort" clearable placeholder="首页排序" style="width: 200px;"></el-input>
       </el-form-item>
       <el-form-item label="商品详情*:" class="ueditor-wrap">
-        <vue-editor id="editor" useCustomImageHandler @image-added="handleImageAdded" v-model="form.itemContent" :editor-toolbar="customToolbar"/>
+        <vue-editor id="editor" :useCustomImageHandler=true @image-added="handleImageAdded" v-model="form.itemContent" :editor-toolbar="customToolbar"/>
       </el-form-item>
       <el-form-item>
         <!-- <el-button>清空</el-button> -->
@@ -116,8 +116,8 @@ export default {
         title: '', //商品名称
         subTitle: '二级标题',
         isVirtualItem: 'N',
-        price: '', //商品价格
-        marketPrice: '', //市场指导价
+        price: null, //商品价格
+        marketPrice: null, //市场指导价
         itemCover: '', //封面
         itemImages: [], //商品图片
         firstCategoryId: '', //一级分类id
@@ -154,7 +154,22 @@ export default {
       },
       firstCategoryOptions:[],
       secondCategoryOptions:[],
-      customToolbar: [],
+      customToolbar: [
+        // [{ 'font': [] }],
+        [{ 'header': [false, 1, 2, 3, 4, 5, 6, ] }],
+        // [{ 'size': ['small', false, 'large', 'huge'] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{'align': ''}, {'align': 'center'}, {'align': 'right'}, {'align': 'justify'}],
+        // [{ 'header': 1 }, { 'header': 2 }],
+        ['blockquote'],
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }, { 'list': 'check' }],
+        // [{ 'script': 'sub'}, { 'script': 'super' }],
+        [{ 'indent': '-1'}, { 'indent': '+1' }],
+        [{ 'color': [] }, { 'background': [] }],
+        ['link', 'image'],
+        [{ 'direction': 'rtl' }],
+        ['clean']
+      ],
       dialogImageUrl: '', //图片预览
       dialogVisible: false, //图片预览
       initData: null
@@ -181,10 +196,11 @@ export default {
         data: formData
       })
       .then(result => {
-        console.log(result)
         let url = result.data.data; // Get url from response
         Editor.insertEmbed(cursorLocation, "image", url);
         resetUploader();
+        var range = Editor.getSelection();
+        Editor.setSelection(cursorLocation + 1, range.length)
       })
       .catch(err => {
         console.log(err);
@@ -203,7 +219,7 @@ export default {
           this.form.itemCover = res.data.itemCover
           this.form.itemDeliveryChannel = res.data.itemDeliveryChannel
           this.form.marketPrice = res.data.marketPrice
-          this.form.price = res.data.price
+          this.form.price = res.data.cashPrice
           this.form.secondCategoryId = res.data.secondCategoryId
           this.form.title = res.data.title
           this.form.sort = res.data.sort
@@ -309,7 +325,8 @@ export default {
         core.createGoods(this.form).then(res => {
           if(res.code && res.code === "00"){
             this.loading = false
-        this.$message.success("操作成功");
+            this.$message.success("操作成功");
+            this.$router.go(-1)
           }else{
             this.loading = false
             this.$message.closeAll();
@@ -362,8 +379,7 @@ export default {
 </script>
 <style lang='less' scope>
 .physical-market-edit {
-
-   .physical-market-edit-title {
+  .physical-market-edit-title {
     margin:20px 0;
     width: 100%;
     font-size: 24px;
@@ -379,7 +395,9 @@ export default {
   .el-form-item {
     margin-bottom: 15px;
   }
-
+  #editor {
+    height: 600px;
+  }
   .ueditor-wrap {
     overflow: hidden;
     .el-form-item__content{

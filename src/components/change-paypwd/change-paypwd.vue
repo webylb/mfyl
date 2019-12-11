@@ -65,6 +65,7 @@
   </div>
 </template>
 <script>
+import { mapState, mapMutations } from 'vuex'
 import * as core from '../../api/benefit-merchant'
 import tool from '../../utils/common'
 
@@ -130,6 +131,9 @@ export default {
     this.getMerchantDetail()
   },
   methods: {
+    ...mapMutations([
+      'UPDATA_PAY_PASSWORD_STATUS'
+    ]),
     getMerchantDetail(){
       core.getMerchantDetail().then(res => {
         //console.log(res)
@@ -213,6 +217,7 @@ export default {
           core.changeNewPassword({vCode:this.form.code,newPassword:this.setForm.pass,sureNewPassword:this.setForm.checkPass}).then(res => {
           if(res.code && res.code == '00'){
               this.actived = 3
+              this.UPDATA_PAY_PASSWORD_STATUS(true)
             }else{
               this.$message.closeAll();
               this.$message.info(res.message);

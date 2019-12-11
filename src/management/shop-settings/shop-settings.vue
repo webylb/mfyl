@@ -31,7 +31,7 @@
             align="center"
             max-width="200">
             <template slot-scope="scope">
-              <img :src="scope.row.pictureUrl" alt="" style="height:auto;width:100%;">
+              <img :src="scope.row.pictureUrl" alt="" style="height:auto;width:120px;">
             </template>
           </el-table-column>
           <el-table-column
@@ -488,6 +488,8 @@ export default {
     },
     getALlSecondByFisrstCategory(){
       let id = this.form.listValue.firstCategoryId
+      this.form.listValue.secondCategoryId = null
+      this.form.listValue.goodsId = null
       core.getALlSecondByFisrstCategory({firstCategoryId: id}).then(res => {
         //console.log(res)
         if(res.code && res.code == '00'){

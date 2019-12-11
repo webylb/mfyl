@@ -36,7 +36,7 @@
           align="center"
           max-width="200">
           <template slot-scope="scope">
-            <img :src="scope.row.icon" alt="" style="height:auto;width:100%;">
+            <img :src="scope.row.icon" alt="" style="height:auto;width:120px;">
           </template>
         </el-table-column>
         <el-table-column

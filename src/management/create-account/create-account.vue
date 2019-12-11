@@ -256,8 +256,7 @@ export default {
         //   //console.log(res)
         //   if(res.code && res.code == '00'){
         //     this.dialogVisible = false
-        //           this.$message.success("操作成功");
-;
+        //     this.$message.success("操作成功");
         //     this.loading = true
         //     this.getAllRoleList()
         //   }else{

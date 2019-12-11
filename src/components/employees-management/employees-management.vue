@@ -121,7 +121,7 @@
         </el-table-column>
         <el-table-column
           prop="bindUserId"
-          label="用户ID"
+          label="员工ID"
           align="center">
         </el-table-column>
         <el-table-column

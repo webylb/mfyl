@@ -39,7 +39,7 @@
 
       <el-form-item style='float:right;'>
         <el-button type="primary" @click="search()">立即查询</el-button>
-        <el-button >导 出</el-button>
+        <el-button @click="downloadInvoiceList()">导 出</el-button>
       </el-form-item>
     </el-form>
     <div class="page-content">
@@ -415,6 +415,41 @@ export default {
       }).catch(err => {
         this.$message.closeAll();
         this.$message.info(err);
+      })
+    },
+    downloadInvoiceList(){
+      let data = { }
+      if(this.form.startTime){
+        data.startTime = Number(this.form.startTime);
+      }
+      if(this.form.companyName){
+        data.companyName = this.form.companyName;
+      }
+      if(this.form.openingBank){
+        data.openingBank = this.form.openingBank;
+      }
+      if(this.form.deliveryStatus){
+        data.deliveryStatus = this.form.deliveryStatus;
+      }
+      core.downloadInvoiceList(data).then(res => {
+        //console.log(res)
+        if(res.code){ //错误提示
+          this.$message.closeAll();
+          this.$message.info(res.message);
+        }else{
+          const blob = new Blob([res],{type: 'application/vnd.ms-excel'});
+          const fileName = '发票导出列表.xls';
+          const linkNode = document.createElement('a');
+
+          linkNode.download = fileName; //a标签的download属性规定下载文件的名称
+          linkNode.style.display = 'none';
+          linkNode.href = URL.createObjectURL(blob); //生成一个Blob URL
+          document.body.appendChild(linkNode);
+          linkNode.click();  //模拟在按钮上的一次鼠标单击
+
+          URL.revokeObjectURL(linkNode.href); // 释放URL 对象
+          document.body.removeChild(linkNode);
+        }
       })
     }
   }

@@ -151,7 +151,7 @@ export default {
       });
     },
     getCode(){
-      let times = 60
+      this.times = 60
       this.timer = setInterval(() => {
         this.times--
         this.btnText =  this.times + "s"
