@@ -115,7 +115,20 @@ export default {
     }
   },
   created(){
-    this.getGrantRecordList({pageSize: this.pageSize,currentPage: this.currentPage})
+    // this.getGrantRecordList({pageSize: this.pageSize,currentPage: this.currentPage})
+  },
+  activated() {
+    let data = {currentPage:this.currentPage, pageSize:this.pageSize}
+    if(this.form.startGrantTime){
+      data.startGrantTime = this.form.startGrantTime
+    }
+    this.getGrantRecordList(data)
+    setTimeout(()=>{
+      document.getElementsByClassName('router-container')[0].scrollIntoView({
+        // behavior: 'smooth',    //平滑滚动，爽，其他还有 instant
+        block: 'start'  //元素到页面顶部，其他还有 end, center
+      })
+    },200)
   },
   methods: {
     getGrantRecordList(opts){

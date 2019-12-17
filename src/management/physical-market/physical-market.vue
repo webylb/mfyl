@@ -72,6 +72,7 @@
           label="序号"
           type="index"
           width="80"
+          sortable
           align="center">
         </el-table-column>
         <el-table-column
@@ -111,15 +112,17 @@
         <el-table-column
           prop="cashPrice"
           label="商品价格(元)"
+          sortable
           align="center"
-          min-width="110"
+          min-width="130"
          >
         </el-table-column>
         <el-table-column
           prop="marketPrice"
           label="市场指导价(元)"
+          sortable
           align="center"
-          min-width="120"
+          min-width="140"
          >
         </el-table-column>
         <el-table-column
@@ -147,6 +150,8 @@
         <el-table-column
           prop="sort"
           label="首页排序"
+          sortable
+          min-width="110"
           align="center"
          >
         </el-table-column>
@@ -252,7 +257,23 @@ export default {
     this.getFirstCategoryList()
   },
   activated() {
-    this.getGoodsList({currentPage:this.currentPage,pageSize:this.pageSize})
+    let data = {currentPage:this.currentPage, pageSize:this.pageSize}
+    if(this.form.itemName){
+      data.itemName = this.form.itemName
+    }
+    if(this.form.firstCategoryId){
+      data.firstCategoryId = this.form.firstCategoryId
+    }
+    if(this.form.secondCategoryId){
+      data.secondCategoryId = this.form.secondCategoryId
+    }
+    if(this.form.isHot){
+      data.isHot = this.form.isHot
+    }
+    if(this.form.isEnable){
+      data.isEnable = this.form.isEnable
+    }
+    this.getGoodsList(data)
     setTimeout(()=>{
       document.getElementsByClassName('router-container')[0].scrollIntoView({
         // behavior: 'smooth',    //平滑滚动，爽，其他还有 instant

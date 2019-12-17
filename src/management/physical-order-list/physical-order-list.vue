@@ -273,7 +273,26 @@ export default {
     }
   },
   created(){
-    this.getUserOrderList({pageSize: this.pageSize,currentPage: this.currentPage,orderStatus: 'All'})
+    // this.getUserOrderList({pageSize: this.pageSize,currentPage: this.currentPage,orderStatus: 'All'})
+  },
+  activated() {
+    let data = {currentPage:this.currentPage, pageSize:this.pageSize, orderStatus: 'All'}
+    if(this.form.userId){
+      data.userId = this.form.userId
+    }
+    if(this.form.orderId){
+      data.orderId = this.form.orderId
+    }
+    if(this.form.orderStatus){
+      data.orderStatus = this.form.orderStatus
+    }
+    this.getUserOrderList(data)
+    setTimeout(()=>{
+      document.getElementsByClassName('router-container')[0].scrollIntoView({
+        // behavior: 'smooth',    //平滑滚动，爽，其他还有 instant
+        block: 'start'  //元素到页面顶部，其他还有 end, center
+      })
+    },200)
   },
   methods: {
     getUserOrderList(opts){

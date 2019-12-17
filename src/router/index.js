@@ -44,7 +44,7 @@ export default new Router({
       {
         path: '/grant-record',
         name: 'grantRecord',
-        meta: {title: "发放记录"},
+        meta: {title: "发放记录",keepAlive: true},
         component: () => import(/* webpackChunkName: "grantRecord" */ '../components/grant-record/grant-record.vue')
       },
       {
@@ -117,7 +117,7 @@ export default new Router({
       {
         path: '/merchant-management',
         name: 'merchantManagement',
-        meta: {title: "商户管理"},
+        meta: {title: "商户管理",keepAlive: true},
         component: () => import(/* webpackChunkName: "merchantManagement" */ '../management/merchant-management/merchant-management.vue')
       },
       {
@@ -249,7 +249,7 @@ export default new Router({
       {
         path: '/physical-order-list',
         name: 'physicalOrderList',
-        meta: {title: "实物订单列表"},
+        meta: {title: "实物订单列表",keepAlive: true},
         component: () => import(/* webpackChunkName: "mallManagement" */ '../management/physical-order-list/physical-order-list.vue')
       },
       {

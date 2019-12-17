@@ -233,8 +233,8 @@ export default {
           label: '导航'
         }
       ],
-      currentPage: 5,
-      pageTotal: 400,
+      currentPage: 1,
+      pageTotal: 0,
       tableData: []
     }
   },

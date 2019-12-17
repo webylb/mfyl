@@ -31,26 +31,39 @@
         <el-input v-model="form.marketPrice" clearable placeholder="请输入商品价格" style="width: 200px;"></el-input>
       </el-form-item>
       <el-form-item label="商品图片*:" class="pic-list">
-        <el-upload
-          class="avatar-uploader"
-          :action="action"
-          :show-file-list="false"
-          :on-success="handleCoverSuccess">
-          <img v-if="form.itemCover" :src="form.itemCover" class="avatar" style="width:100%;height:auto;">
-          <i v-else>主图</i>
-        </el-upload>
-        <el-upload
-          class="pic-uploader"
-          :action="action"
-          list-type="picture-card"
-          :on-success="handlePictureCardSuccess"
-          :on-remove="handlePictureCardRemove"
-          :file-list="imageList">
-          <i class="el-icon-plus"></i>
-        </el-upload>
-        <el-dialog :visible.sync="dialogVisible">
-          <img width="100%" :src="dialogImageUrl" alt="">
-        </el-dialog>
+        <div style="">
+          <div style="display:flex;flex-wrap:wrap;">
+            <el-upload
+              class="avatar-uploader"
+              :action="action"
+              :show-file-list="false"
+              :on-success="handleCoverSuccess">
+              <img v-if="form.itemCover" :src="form.itemCover" class="avatar" style="width:100%;height:auto;">
+              <i v-else>主图</i>
+            </el-upload>
+            <draggable class="list-group" tag="div" v-model="editImageList" v-bind="dragOptions" :move="onMove" @start="isDragging=true" @end="isDragging=false">
+              <transition-group type="transition" :name="'flip-list'">
+                <div class="list-group-item picture-item" v-for="element in editImageList"
+                  :key="element.url">
+                  <img width="100%" :src="element.url" alt="">
+                  <i class="el-icon-circle-close picture-remove" @click="removePic(element.url)"></i>
+                </div>
+                <el-upload
+                  key="999"
+                  style="display:inherit;"
+                  class="pic-uploader"
+                  :action="action"
+                  list-type="picture-card"
+                  :show-file-list=false
+                  :on-success="handlePictureCardSuccess"
+                  :on-remove="handlePictureCardRemove"
+                  multiple>
+                  <i class="el-icon-plus"></i>
+                </el-upload>
+              </transition-group>
+            </draggable>
+          </div>
+        </div>
       </el-form-item>
       <el-form-item label="商品类目*:">
         <el-select v-model="form.firstCategoryId" clearable @change="changefirstCategory" placeholder="请选择一级类目" style="width: 200px;margin-right:10px;">
@@ -96,12 +109,14 @@
 import CONGIF from "../../api/config"
 import * as core from "../../api/mall"
 import { VueEditor } from "vue2-editor"
+import draggable from 'vuedraggable'
 import axios from "axios"
 
 export default {
   name: 'physicalMarketEdit',
   components: {
-    VueEditor
+    VueEditor,
+    draggable
   },
   data() {
     return {
@@ -172,7 +187,18 @@ export default {
       ],
       dialogImageUrl: '', //图片预览
       dialogVisible: false, //图片预览
-      initData: null
+      initData: null,
+      isDragging: false,
+    }
+  },
+  computed: {
+    dragOptions() {
+      return {
+        animation: 0,
+        group: "description",
+        disabled: false,
+        ghostClass: "ghost"
+      };
     }
   },
   created(){
@@ -181,12 +207,31 @@ export default {
       this.getFirstCategoryList()
     }else{
       this.getFirstCategoryList()
+      if(window.localStorage && localStorage.getItem('itemDeliveryChannel')){
+        this.form.itemDeliveryChannel = localStorage.getItem('itemDeliveryChannel')
+      }
     }
   },
   mounted(){
 
   },
   methods: {
+    onMove({ relatedContext, draggedContext }) {
+      const relatedElement = relatedContext.element;
+      const draggedElement = draggedContext.element;
+      return (
+        (!relatedElement || !relatedElement.fixed) && !draggedElement.fixed
+      );
+    },
+    removePic(url){
+      if(this.editImageList && this.editImageList.length > 0){
+        for(let i = this.editImageList.length - 1; i >= 0; i--) {
+          if(this.editImageList[i].url === url) {
+            this.editImageList.splice(i, 1)
+          }
+        }
+      }
+    },
     handleImageAdded(file, Editor, cursorLocation, resetUploader) {
       var formData = new FormData();
       formData.append("image", file);
@@ -325,7 +370,8 @@ export default {
         core.createGoods(this.form).then(res => {
           if(res.code && res.code === "00"){
             this.loading = false
-            this.$message.success("操作成功");
+            this.$message.success("操作成功")
+            window.localStorage && localStorage.setItem('itemDeliveryChannel', this.form.itemDeliveryChannel)
             this.$router.go(-1)
           }else{
             this.loading = false
@@ -441,6 +487,45 @@ export default {
   }
   .edui-editor-toolbarbox {
     position: relative!important;
+  }
+  .picture-item {
+    width: 148px;
+    height: 148px;
+    margin: 0 8px 8px 0;
+    display: inline-block;
+    border-radius: 6px;
+    background-color: #fff;
+    border: 1px solid #c0ccda;
+    position: relative;
+    img {
+      width: 100%;
+      height: 100%;
+    }
+    .picture-remove {
+      position: absolute;
+      width: 25px;
+      height: 25px;
+      right: -10px;
+      top: -8px;
+      font-size: 20px;
+      color: #409EFF;
+    }
+  }
+  .flip-list-move {
+    transition: transform 0.5s;
+  }
+  .no-move {
+    transition: transform 0s;
+  }
+  .ghost {
+    opacity: 0.5;
+    background: #c8ebfb;
+  }
+  .list-group {
+    min-height: 20px;
+  }
+  .list-group-item {
+    cursor: pointer;
   }
 }
 

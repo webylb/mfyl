@@ -13,12 +13,35 @@
           <div class="sku-item-specName">
             <div class="sku-title">规格:</div>
             <el-input clearable placeholder="请填写规格名称" style="width: 150px;margin-right: 20px;" v-model="item.specName" v-on:blur="changeContent()"></el-input>
+
+            <span v-if="index === 0" style="margin-right:20px;">
+              <el-checkbox v-model="useImg" label="添加规格图片"></el-checkbox>
+            </span>
+
             <el-button type="text" @click.prevent="removeItemValue(item)" class="delete-sku-item">删除规格</el-button>
           </div>
           <div class="sku-item-specVals">
             <div class="sku-title">规格值:</div>
-            <div class="list">
-              <el-input v-for="(specVal, i) in item.specValues" :key="i" v-model="item.specValues[i]" clearable v-on:blur="changeContent()" style="width: 150px;margin-right: 20px;"></el-input>
+            <div class="list" v-if="index === 0">
+              <div class="item_sku" v-for="(specVal, i) in item.specValues" :key="i">
+                <el-input v-model="item.specValues[i]" clearable v-on:blur="changeContent()" style="width: 150px;margin-right: 20px;"></el-input>
+                <el-upload
+                  v-show="useImg"
+                  class="avatar-uploader"
+                  :action="action"
+                  :show-file-list="false"
+                  :on-success="function (res,file){return handleAvatarSuccess(res,file,item.specValues[i],item,i)}"
+                  :before-upload="beforeAvatarUpload">
+                  <img v-if="item.specValueAndImage && item.specValueAndImage.length > 0 && item.specValueAndImage[i]" :src="splitImg(item.specValueAndImage[i])" class="avatar">
+                  <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                </el-upload>
+              </div>
+              <el-button @click.prevent="addItemDetailValue(index)" icon="el-icon-plus" style="margin-bottom:10px;"></el-button>
+            </div>
+            <div class="list" v-else>
+              <div class="item_sku" v-for="(specVal, i) in item.specValues" :key="i">
+                <el-input v-model="item.specValues[i]" clearable v-on:blur="changeContent()" style="width: 150px;margin-right: 20px;"></el-input>
+              </div>
               <el-button @click.prevent="addItemDetailValue(index)" icon="el-icon-plus" style="margin-bottom:10px;"></el-button>
             </div>
           </div>
@@ -46,8 +69,11 @@
               <div v-else-if="item.val == 'marketPrice'">
                 <el-input clearable v-model="scope.row[scope.column.property]" @focus="checkFocusVal(scope.row,scope.$index,scope.row[scope.column.property],'mp')" @blur="checkBlurVal(scope.row,scope.$index,scope.row[scope.column.property],'mp')" @input="print('marketPrice',scope.$index,$event)" placeholder="" style="text-align:center;"></el-input>
               </div>
+              <div v-else-if="item.val == 'stock'">
+                <el-input clearable v-model="scope.row[scope.column.property]" @focus="checkFocusVal(scope.row,scope.$index,scope.row[scope.column.property],'st')" @blur="checkBlurVal(scope.row,scope.$index,scope.row[scope.column.property],'st')" @input="print('stock',scope.$index,$event)" placeholder="" style="text-align:center;"></el-input>
+              </div>
               <div v-else-if="item.val == 'operate'">
-                <el-button @click="addStock(scope.row,scope.$index)" type="text" size="small">添加库存</el-button>
+                <!-- <el-button @click="addStock(scope.row,scope.$index)" type="text" size="small">添加库存</el-button> -->
                 <el-button v-if="scope.row[scope.column.property].isEnable == 'N'" @click="upStatus(scope.row,scope.$index,'Y')" type="text" size="small">上架</el-button>
                 <el-button v-else @click="upStatus(scope.row,scope.$index,'N')" type="text" size="small">下架</el-button>
               </div>
@@ -81,11 +107,13 @@
   </div>
 </template>
 <script>
+import CONGIF from "../../api/config"
 import * as core from "../../api/mall"
 export default {
   name: 'physicalMarketSku',
   data() {
     return {
+      action: CONGIF.UPLOAD_IMAGE,
       loading: true,
       itemId: null,
       editSku: false,
@@ -101,7 +129,9 @@ export default {
       dialogInfoVisible: false,
       dialogInfoForm: {
         stock: ""
-      }
+      },
+      useImg: false,
+      imageUrl: ''
     }
   },
   created(){
@@ -114,7 +144,7 @@ export default {
     searchGoodsDetail(id){
       core.searchGoodsDetail({itemId: id}).then(res => {
         if(res.code && res.code === "00"){
-          //console.log(res)
+          // console.log(res)
           if(res.data.itemSkus.length > 0){
             this.editSku = true
           }
@@ -127,9 +157,14 @@ export default {
             arr[i].specName = spec1[i].specName
             arr[i].sort = i
             arr[i].specValues = []
+            arr[i].specValueAndImage = []
             for(let j=0, length2 = spec2.length; j<length2; j++){
               if(spec2[j].specId == spec1[i].id){
                 arr[i].specValues.push(spec2[j].specValue)
+                if(spec2[j].skuImage){
+                  this.useImg = true
+                  arr[i].specValueAndImage.push(spec2[j].specValue + spec2[j].skuImage)
+                }
               }
             }
           }
@@ -168,12 +203,18 @@ export default {
       this.listValue.push({
         specName: '',
         specValues: [],
-        sort: ''
+        sort: '',
+        specValueAndImage: []
       });
     },
     addItemDetailValue(index){
       this.listValue[index].specValues = this.listValue[index].specValues.filter(item => item)
       this.listValue[index].specValues.push("")
+    },
+    splitImg(val){
+      if(val){
+        return 'https' + val.split('https')[1]
+      }
     },
     print(type,index,val) {
       console.log(type,index,val);
@@ -183,8 +224,10 @@ export default {
       if(val == 0){
         if(type == 'p'){
           this.skuData.specInfo[index].price = null
-        }else{
+        }else if(type == 'mp'){
           this.skuData.specInfo[index].marketPrice = null
+        }else if(type == 'st'){
+          this.skuData.specInfo[index].stock = null
         }
       }
     },
@@ -193,8 +236,10 @@ export default {
       if(!val || val < 1){
         if(type == 'p'){
           this.skuData.specInfo[index].price = 0
-        }else{
+        }else if(type == 'mp'){
           this.skuData.specInfo[index].marketPrice = 0
+        }else if(type == 'st'){
+          this.skuData.specInfo[index].stock = 0
         }
       }
     },
@@ -247,10 +292,10 @@ export default {
           res.data.forEach((item,index) =>{
             this.specNameValueJson[index] = item.specNameValueJson
             this.skuData.specInfo[index] = JSON.parse(item.specNameValueJson)
-            this.skuData.specInfo[index].price = '0'
-            this.skuData.specInfo[index].marketPrice = '0'
-            this.skuData.specInfo[index].stock = '0'
-            this.skuData.specInfo[index].operate = {isEnable: 'N'}
+            this.skuData.specInfo[index].price = item.price || '0'
+            this.skuData.specInfo[index].marketPrice = item.marketPrice || '0'
+            this.skuData.specInfo[index].stock = item.stock || '0'
+            this.skuData.specInfo[index].operate = {isEnable: item.isEnable || 'N'}
           })
 
           this.skuData.specInfo = JSON.parse(JSON.stringify(this.skuData.specInfo))
@@ -301,7 +346,20 @@ export default {
 
       //组合sku
       let specInfo = { itemId: itemId }
-      specInfo.specNameAndValues = this.listValue
+      if(!this.useImg){
+        let list = []
+        this.listValue.forEach((item, index) => {
+          // console.log(item,index)
+          list[index] = {}
+          list[index].specName = item.specName,
+          list[index].sort = item.sort,
+          list[index].specValues = item.specValues
+        })
+        // console.log(list)
+        specInfo.specNameAndValues = list
+      }else{
+        specInfo.specNameAndValues = this.listValue
+      }
 
       //组合表格数据
       let candidateSkus = []
@@ -338,6 +396,26 @@ export default {
     dialogClose(){
       this.dialogInfoVisible = false
       this.dialogInfoForm.stock = null
+    },
+    handleAvatarSuccess(res, file, skuName, data, i) {
+      // console.log(res, file)
+      if(i === 0){
+        data.specValueAndImage = []
+        data.specValueAndImage.push(skuName + res.data)
+        this.$forceUpdate()
+      }else{
+        data.specValueAndImage[i] = skuName + res.data;
+        this.$forceUpdate()
+      }
+      // this.imageUrl = URL.createObjectURL(file.raw);
+    },
+    beforeAvatarUpload(file) {
+      const isLt3M = file.size / 1024 / 1024 < 3;
+
+      if (!isLt3M) {
+        this.$message.error('上传头像图片大小不能超过 3MB!');
+      }
+      return isLt3M;
     }
   }
 }
@@ -387,7 +465,10 @@ export default {
           display: flex;
           justify-content: flex-start;
           flex-wrap: wrap;
-
+          align-items: flex-start;
+          .item_sku {
+            display: inline-block;
+          }
           .el-input {
             margin-bottom: 10px;
           }
@@ -411,6 +492,30 @@ export default {
   }
 
 
+}
+
+.avatar-uploader .el-upload {
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.avatar-uploader .el-upload:hover {
+  border-color: #409EFF;
+}
+.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 150px;
+  height: 150px;
+  line-height: 150px;
+  text-align: center;
+}
+.avatar {
+  width: 150px;
+  height: 150px;
+  display: block;
 }
 
 </style>

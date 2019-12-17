@@ -357,7 +357,29 @@ export default {
     }
   },
   created(){
-    this.getMerchantList({currentPage: this.currentPage,pageSize: this.pageSize})
+    // this.getMerchantList({currentPage: this.currentPage,pageSize: this.pageSize})
+  },
+  activated() {
+    let data = {currentPage:this.currentPage, pageSize:this.pageSize}
+    if(this.form.merchantName){
+      data.merchantName = this.form.merchantName
+    }
+    if(this.form.bindStrategyCode){
+      data.bindStrategyCode = this.form.bindStrategyCode
+    }
+    if(this.form.purchaseMode){
+      data.purchaseMode = this.form.purchaseMode
+    }
+    if(this.form.isLock){
+      data.isLock = this.form.isLock
+    }
+    this.getMerchantList(data)
+    setTimeout(()=>{
+      document.getElementsByClassName('router-container')[0].scrollIntoView({
+        // behavior: 'smooth',    //平滑滚动，爽，其他还有 instant
+        block: 'start'  //元素到页面顶部，其他还有 end, center
+      })
+    },200)
   },
   methods: {
     getMerchantList(opts){
