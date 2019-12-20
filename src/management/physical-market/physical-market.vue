@@ -67,7 +67,8 @@
         stripe
         header-align="center"
         style="width: 100%;border:1px solid #EBEEF5;"
-        v-loading="loading">
+        v-loading="loading"
+        @sort-change="sortChange">
         <el-table-column
           label="序号"
           type="index"
@@ -249,7 +250,9 @@ export default {
       currentPage: 1,
       pageSize: 10,
       pageTotal: 0,
-      tableData: []
+      tableData: [],
+      sortByProp: 'id',
+      sortByOrder: 'DESC'
     }
   },
   created(){
@@ -257,7 +260,11 @@ export default {
     this.getFirstCategoryList()
   },
   activated() {
-    let data = {currentPage:this.currentPage, pageSize:this.pageSize}
+    let data = {
+      currentPage:this.currentPage,
+      pageSize:this.pageSize,
+      sortparam: this.sortByProp + ' ' + this.sortByOrder
+    }
     if(this.form.itemName){
       data.itemName = this.form.itemName
     }
@@ -336,7 +343,7 @@ export default {
         data = opts
       }else{
         this.currentPage = 1
-        data = { currentPage:1, pageSize:this.pageSize }
+        data = { currentPage:1, pageSize:this.pageSize, sortparam: this.sortByProp + ' ' + this.sortByOrder }
       }
       if(this.form.itemName){
         data.itemName = this.form.itemName
@@ -355,19 +362,37 @@ export default {
       }
       this.getGoodsList(data)
     },
+    sortChange(data){
+      // console.log(data)
+      if(data.order){
+        if(data.prop == 'cashPrice'){
+          this.sortByProp = 'price'
+        }else if(data.prop == 'marketPrice'){
+          this.sortByProp = 'market_price'
+        }else{
+          this.sortByProp = data.prop
+        }
+        this.sortByOrder = data.order == 'ascending' ? 'ASC' : 'DESC'
+      }else{
+        this.sortByProp = 'id'
+        this.sortByOrder = 'DESC'
+      }
+      let data2 = { currentPage:this.currentPage, pageSize:this.pageSize, sortparam: this.sortByProp + ' ' + this.sortByOrder }
+      this.search(data2)
+    },
     addGoods(){
       this.$router.push({path:'/physical-market/edit'})
     },
     handleSizeChange(val) {
       this.pageSize = val
       this.loading = true
-      let data = { currentPage:1, pageSize:val }
+      let data = { currentPage:1, pageSize:val, sortparam: this.sortByProp + ' ' + this.sortByOrder }
       this.search(data)
     },
     handleCurrentChange(val) {
       this.currentPage = val,
       this.loading = true
-      let data = { currentPage:val, pageSize:this.pageSize }
+      let data = { currentPage:val, pageSize:this.pageSize, sortparam: this.sortByProp + ' ' + this.sortByOrder }
       this.search(data)
       setTimeout(()=>{
         document.getElementsByClassName('router-container')[0].scrollIntoView({

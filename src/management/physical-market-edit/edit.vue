@@ -211,6 +211,7 @@ export default {
         this.form.itemDeliveryChannel = localStorage.getItem('itemDeliveryChannel')
       }
     }
+    this.getGoodsChannel()
   },
   mounted(){
 
@@ -310,6 +311,26 @@ export default {
       core.getSecondCategoryList({firstCategoryId: id}).then(res => {
         if(res.code && res.code === "00"){
           this.secondCategoryOptions = res.data
+        }else{
+          this.$message.closeAll();
+          this.$message.info(res.message);
+        }
+      }).catch(err => {
+        this.$message.closeAll();
+        this.$message.info(err);
+      })
+    },
+    getGoodsChannel(){
+      core.getGoodsChannel().then(res => {
+        if(res.code && res.code === "00"){
+          console.log(res)
+          let channelObj = []
+          Object.keys(res.data).forEach(function(key,i){
+              channelObj[i] = {}
+              channelObj[i].label = res.data[key]
+              channelObj[i].value = key
+          })
+          this.options.channelOptions = channelObj
         }else{
           this.$message.closeAll();
           this.$message.info(res.message);

@@ -24,7 +24,9 @@
             <div class="sku-title">规格值:</div>
             <div class="list" v-if="index === 0">
               <div class="item_sku" v-for="(specVal, i) in item.specValues" :key="i">
-                <el-input v-model="item.specValues[i]" clearable v-on:blur="changeContent()" style="width: 150px;margin-right: 20px;"></el-input>
+                <el-input v-model="item.specValues[i]" @input="changeSpecValues(item, index, i)" v-on:blur="changeContent()" style="width: 150px;margin-right: 20px;">
+                  <el-button slot="append" icon="el-icon-delete" @click="delateSpecValues(item, index, i)"></el-button>
+                </el-input>
                 <el-upload
                   v-show="useImg"
                   class="avatar-uploader"
@@ -40,7 +42,9 @@
             </div>
             <div class="list" v-else>
               <div class="item_sku" v-for="(specVal, i) in item.specValues" :key="i">
-                <el-input v-model="item.specValues[i]" clearable v-on:blur="changeContent()" style="width: 150px;margin-right: 20px;"></el-input>
+                <el-input v-model="item.specValues[i]" @input="changeDefSpecValues(item, i)" v-on:blur="changeContent()" style="width: 150px;margin-right: 20px;">
+                  <el-button slot="append" icon="el-icon-delete" @click="delateSpecValues(item, index, i)"></el-button>
+                </el-input>
               </div>
               <el-button @click.prevent="addItemDetailValue(index)" icon="el-icon-plus" style="margin-bottom:10px;"></el-button>
             </div>
@@ -134,6 +138,11 @@ export default {
       imageUrl: ''
     }
   },
+  watch: {
+    listValue(newVal){
+      // console.log("watch----" + newVal)
+    }
+  },
   created(){
     if(this.$route.query.itemId){
       this.itemId = this.$route.query.itemId
@@ -163,7 +172,7 @@ export default {
                 arr[i].specValues.push(spec2[j].specValue)
                 if(spec2[j].skuImage){
                   this.useImg = true
-                  arr[i].specValueAndImage.push(spec2[j].specValue + spec2[j].skuImage)
+                  arr[i].specValueAndImage[j] = spec2[j].specValue + spec2[j].skuImage || ''
                 }
               }
             }
@@ -215,6 +224,57 @@ export default {
       if(val){
         return 'https' + val.split('https')[1]
       }
+    },
+    checkStrLength(str) {
+       return str.replace(/[\u0391-\uFFE5]/g,"aa").length;  //先把中文替换成两个字节的英文，在计算长度
+    },
+    subStringEllipsis(str, len){
+      var regexp = /[^\x00-\xff]/g;// 正在表达式匹配中文
+      // 当字符串字节长度小于指定的字节长度时
+      if (str.replace(regexp, "aa").length <= len) {
+        return str;
+      }
+      // 假设指定长度内都是中文
+      var m = Math.floor(len/2);
+      for (var i = m, j = str.length; i < j; i++) {
+        // 当截取字符串字节长度满足指定的字节长度
+        if (str.substring(0, i).replace(regexp, "aa").length >= len) {
+          return str.substring(0, i);
+        }
+      }
+      return str;
+    },
+    changeSpecValues(data, index, i){
+      // console.log(data, index)
+      if(this.checkStrLength(data.specValues[i]) > 46){
+        let val = data.specValues[i]
+        data.specValues[i] = this.subStringEllipsis(data.specValues[i], 46)
+        // console.log(data.specValues[i])
+        this.$message.closeAll();
+        this.$message.info('字符长度已达上限');
+      }
+      this.$set(this.listValue, data, index);
+      for(let i=0, length1 = this.listValue[0].specValues.length; i<length1; i++){
+        if(this.splitImg(this.listValue[0].specValueAndImage[i])){
+          this.listValue[0].specValueAndImage[i] = this.listValue[0].specValues[i] + this.splitImg(this.listValue[0].specValueAndImage[i])
+        }else{
+          this.listValue[0].specValueAndImage[i] = null
+        }
+      }
+    },
+    changeDefSpecValues(data, index){
+      if(this.checkStrLength(data.specValues[index]) > 46){
+        let val = data.specValues[index]
+        data.specValues[index] = this.subStringEllipsis(data.specValues[i], 46)
+        // console.log(data.specValues[index])
+        this.$message.closeAll();
+        this.$message.info('字符长度已达上限');
+      }
+    },
+    delateSpecValues(item, index, i){
+      this.listValue[index].specValues.splice(i, 1)
+      this.listValue[index].specValueAndImage.splice(i, 1)
+      this.createPreviewSku()
     },
     print(type,index,val) {
       console.log(type,index,val);
@@ -358,7 +418,15 @@ export default {
         // console.log(list)
         specInfo.specNameAndValues = list
       }else{
-        specInfo.specNameAndValues = this.listValue
+        if(this.listValue && this.listValue[0].specValueAndImage && this.listValue[0].specValues){
+          if(this.listValue[0].specValueAndImage.length != this.listValue[0].specValues.length){
+            this.$message.closeAll();
+            this.$message.info('请检查对应规格值下是否存在图片');
+            return
+          }else{
+            specInfo.specNameAndValues = this.listValue
+          }
+        }
       }
 
       //组合表格数据
@@ -398,12 +466,12 @@ export default {
       this.dialogInfoForm.stock = null
     },
     handleAvatarSuccess(res, file, skuName, data, i) {
-      // console.log(res, file)
-      if(i === 0){
-        data.specValueAndImage = []
-        data.specValueAndImage.push(skuName + res.data)
+      // console.log(res, file, skuName, data, i)
+      if(data.specValueAndImage){
+        data.specValueAndImage[i] = skuName + res.data
         this.$forceUpdate()
       }else{
+        data.specValueAndImage = []
         data.specValueAndImage[i] = skuName + res.data;
         this.$forceUpdate()
       }
@@ -470,6 +538,7 @@ export default {
             display: inline-block;
           }
           .el-input {
+            display: table;
             margin-bottom: 10px;
           }
         }
@@ -492,6 +561,10 @@ export default {
   }
 
 
+}
+
+.el-input-group__append {
+  padding: 2px;
 }
 
 .avatar-uploader .el-upload {
