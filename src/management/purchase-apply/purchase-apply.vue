@@ -148,7 +148,7 @@
       center>
       <el-form ref="dialogform" :model="dialogInfoForm" label-width="100px" v-if="!showLogisticsPop">
         <el-form-item label="快递公司:">
-          <el-select v-model="dialogInfoForm.name" clearable placeholder="请选择" style="width:100%">
+          <el-select v-model="dialogInfoForm.name" filterable clearable placeholder="请选择" style="width:100%">
             <el-option
               v-for="item in options.logisticalOptions"
               :key="item.value"
@@ -238,30 +238,7 @@ export default {
           }
         ],
         logisticalOptions:[
-          {
-            value: '顺丰快速',
-            label: '顺丰快速'
-          },
-          {
-            value: '圆通快递',
-            label: '圆通快递'
-          },
-          {
-            value: '申通快速',
-            label: '申通快速'
-          },
-          {
-            value: '中通快递',
-            label: '中通快递'
-          },
-          {
-            value: '百世快递',
-            label: '百世快递'
-          },
-          {
-            value: '韵达快递',
-            label: '韵达快递'
-          }
+
         ]
       },
       form: {
@@ -287,6 +264,7 @@ export default {
   },
   created(){
     this.getCamOrderList({currentPage:this.currentPage, pageSize:this.pageSize})
+    this.getExpressList()
   },
   methods: {
     getCamOrderList(opts){
@@ -514,8 +492,22 @@ export default {
       }
       this.dialogHintVisible = true
     },
-    dowloadPwd(row){
-      console.log(row)
+    getExpressList(){
+      core.getExpressList().then(res => {
+        // console.log(res)
+        if(res.code && res.code === '00'){ //错误提示
+          let arr = []
+          res.data.forEach((item, index) => {
+            arr[index] = {}
+            arr[index].label = item.com
+            arr[index].value = item.no
+          })
+          this.options.logisticalOptions = arr
+        }else{
+          this.$message.closeAll();
+          this.$message.info(res.message);
+        }
+      })
     }
   }
 }

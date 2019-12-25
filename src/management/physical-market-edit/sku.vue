@@ -42,7 +42,7 @@
             </div>
             <div class="list" v-else>
               <div class="item_sku" v-for="(specVal, i) in item.specValues" :key="i">
-                <el-input v-model="item.specValues[i]" @input="changeDefSpecValues(item, i)" v-on:blur="changeContent()" style="width: 150px;margin-right: 20px;">
+                <el-input v-model="item.specValues[i]" @input="changeDefSpecValues(item, index, i)" v-on:blur="changeContent()" style="width: 150px;margin-right: 20px;">
                   <el-button slot="append" icon="el-icon-delete" @click="delateSpecValues(item, index, i)"></el-button>
                 </el-input>
               </div>
@@ -73,8 +73,17 @@
               <div v-else-if="item.val == 'marketPrice'">
                 <el-input clearable v-model="scope.row[scope.column.property]" @focus="checkFocusVal(scope.row,scope.$index,scope.row[scope.column.property],'mp')" @blur="checkBlurVal(scope.row,scope.$index,scope.row[scope.column.property],'mp')" @input="print('marketPrice',scope.$index,$event)" placeholder="" style="text-align:center;"></el-input>
               </div>
+              <div v-else-if="item.val == 'costPrice'">
+                <el-input clearable v-model="scope.row[scope.column.property]" @focus="checkFocusVal(scope.row,scope.$index,scope.row[scope.column.property],'cp')" @blur="checkBlurVal(scope.row,scope.$index,scope.row[scope.column.property],'cp')" @input="print('costPrice',scope.$index,$event)" placeholder="" style="text-align:center;"></el-input>
+              </div>
               <div v-else-if="item.val == 'stock'">
                 <el-input clearable v-model="scope.row[scope.column.property]" @focus="checkFocusVal(scope.row,scope.$index,scope.row[scope.column.property],'st')" @blur="checkBlurVal(scope.row,scope.$index,scope.row[scope.column.property],'st')" @input="print('stock',scope.$index,$event)" placeholder="" style="text-align:center;"></el-input>
+              </div>
+              <div v-else-if="item.val == 'barCode'">
+                <el-input clearable v-model="scope.row[scope.column.property]" @focus="checkFocusVal(scope.row,scope.$index,scope.row[scope.column.property],'bc')" @blur="checkBlurVal(scope.row,scope.$index,scope.row[scope.column.property],'bc')" @input="print('barCode',scope.$index,$event)" placeholder="" style="text-align:center;"></el-input>
+              </div>
+              <div v-else-if="item.val == 'goodSku'">
+                <el-input clearable v-model="scope.row[scope.column.property]" @focus="checkFocusVal(scope.row,scope.$index,scope.row[scope.column.property],'gs')" @blur="checkBlurVal(scope.row,scope.$index,scope.row[scope.column.property],'gs')" @input="print('goodSku',scope.$index,$event)" placeholder="" style="text-align:center;"></el-input>
               </div>
               <div v-else-if="item.val == 'operate'">
                 <!-- <el-button @click="addStock(scope.row,scope.$index)" type="text" size="small">添加库存</el-button> -->
@@ -135,7 +144,9 @@ export default {
         stock: ""
       },
       useImg: false,
-      imageUrl: ''
+      imageUrl: '',
+      editAoLinPiKe: false,
+      editZiYing: false
     }
   },
   watch: {
@@ -156,6 +167,11 @@ export default {
           // console.log(res)
           if(res.data.itemSkus.length > 0){
             this.editSku = true
+          }
+          if(res.data.itemChannel === "AoLinPiKe"){
+            this.editAoLinPiKe = true
+          }else if(res.data.itemChannel === "ZiYing"){
+            this.editZiYing = true
           }
           //组装from表单数据
           const spec1 = res.data.itemSpecNames
@@ -229,7 +245,8 @@ export default {
        return str.replace(/[\u0391-\uFFE5]/g,"aa").length;  //先把中文替换成两个字节的英文，在计算长度
     },
     subStringEllipsis(str, len){
-      var regexp = /[^\x00-\xff]/g;// 正在表达式匹配中文
+      // eslint-disable-next-line no-control-regex
+      var regexp = /[^\x00-\xff]/g // 正在表达式匹配中文
       // 当字符串字节长度小于指定的字节长度时
       if (str.replace(regexp, "aa").length <= len) {
         return str;
@@ -262,11 +279,11 @@ export default {
         }
       }
     },
-    changeDefSpecValues(data, index){
-      if(this.checkStrLength(data.specValues[index]) > 46){
-        let val = data.specValues[index]
-        data.specValues[index] = this.subStringEllipsis(data.specValues[i], 46)
-        // console.log(data.specValues[index])
+    changeDefSpecValues(data, index, i){
+      if(this.checkStrLength(data.specValues[i]) > 46){
+        let val = data.specValues[i]
+        data.specValues[i] = this.subStringEllipsis(data.specValues[i], 46)
+        // console.log(data.specValues[i])
         this.$message.closeAll();
         this.$message.info('字符长度已达上限');
       }
@@ -286,6 +303,8 @@ export default {
           this.skuData.specInfo[index].price = null
         }else if(type == 'mp'){
           this.skuData.specInfo[index].marketPrice = null
+        }else if(type == 'cp'){
+          this.skuData.specInfo[index].costPrice = null
         }else if(type == 'st'){
           this.skuData.specInfo[index].stock = null
         }
@@ -298,6 +317,8 @@ export default {
           this.skuData.specInfo[index].price = 0
         }else if(type == 'mp'){
           this.skuData.specInfo[index].marketPrice = 0
+        }else if(type == 'cp'){
+          this.skuData.specInfo[index].costPrice = 0
         }else if(type == 'st'){
           this.skuData.specInfo[index].stock = 0
         }
@@ -312,7 +333,15 @@ export default {
         this.skuData.specInfo[index] = JSON.parse(item.specNameValueJson)
         this.skuData.specInfo[index].price = this.itemSkus[index].price
         this.skuData.specInfo[index].marketPrice = this.itemSkus[index].marketPrice
+        this.skuData.specInfo[index].costPrice = this.itemSkus[index].costPrice
         this.skuData.specInfo[index].stock = this.itemSkus[index].stock
+        if(this.editAoLinPiKe){
+          this.skuData.specInfo[index].barCode = this.itemSkus[index].barCode || ''
+          this.skuData.specInfo[index].goodSku = this.itemSkus[index].goodSku || ''
+        }
+        if(this.editZiYing){
+          this.skuData.specInfo[index].goodSku = this.itemSkus[index].goodSku || ''
+        }
         this.skuData.specInfo[index].operate = {isEnable: this.itemSkus[index].isEnable}
       })
       this.skuData.specInfo = JSON.parse(JSON.stringify(this.skuData.specInfo))
@@ -324,8 +353,14 @@ export default {
           arr[index] = {label: '价格',val: item}
         }else if(item == 'marketPrice'){
           arr[index] = {label: '市场价',val: item}
+        }else if(item == 'costPrice'){
+          arr[index] = {label: '成本价',val: item}
         }else if(item == 'stock'){
           arr[index] = {label: '库存',val: item}
+        }else if(item == 'barCode'){
+          arr[index] = {label: '产品编号',val: item}
+        }else if(item == 'goodSku'){
+          arr[index] = {label: '型号',val: item}
         }else if(item == 'operate'){
           arr[index] = {label: '操作',val: item}
         }else{
@@ -344,7 +379,7 @@ export default {
 
       core.createPreviewSku(data).then(res => {
         if(res.code && res.code == "00"){
-          //console.log(res,"create")
+          // console.log(res,"create")
           this.loading = false
           this.skuData.specInfo = []
           this.skuData.specHeaderInfo = []
@@ -354,10 +389,17 @@ export default {
             this.skuData.specInfo[index] = JSON.parse(item.specNameValueJson)
             this.skuData.specInfo[index].price = item.price || '0'
             this.skuData.specInfo[index].marketPrice = item.marketPrice || '0'
+            this.skuData.specInfo[index].costPrice = item.costPrice || '0'
             this.skuData.specInfo[index].stock = item.stock || '0'
+            if(this.editAoLinPiKe){
+              this.skuData.specInfo[index].barCode = item.barCode || ''
+              this.skuData.specInfo[index].goodSku = item.goodSku || ''
+            }
+            if(this.editZiYing){
+              this.skuData.specInfo[index].goodSku = item.goodSku || ''
+            }
             this.skuData.specInfo[index].operate = {isEnable: item.isEnable || 'N'}
           })
-
           this.skuData.specInfo = JSON.parse(JSON.stringify(this.skuData.specInfo))
           //this.skuData.specHeaderInfo = Object.keys(this.skuData.specInfo[0])
           let arr = []
@@ -368,8 +410,14 @@ export default {
               arr[index] = {label: '价格',val: item}
             }else if(item == 'marketPrice'){
               arr[index] = {label: '市场价',val: item}
+            }else if(item == 'costPrice'){
+              arr[index] = {label: '成本价',val: item}
             }else if(item == 'stock'){
               arr[index] = {label: '库存',val: item}
+            }else if(item == 'barCode'){
+              arr[index] = {label: '产品编号',val: item}
+            }else if(item == 'goodSku'){
+              arr[index] = {label: '型号',val: item}
             }else if(item == 'operate'){
               arr[index] = {label: '操作',val: item}
             }else{
@@ -436,6 +484,16 @@ export default {
         candidateSkus[index] = {}
         candidateSkus[index].price = item.price
         candidateSkus[index].marketPrice = item.marketPrice
+        candidateSkus[index].costPrice = item.costPrice
+        if(this.editAoLinPiKe){
+          candidateSkus[index].barCode = item.barCode
+          candidateSkus[index].goodSku = item.goodSku
+        }
+        if(this.editZiYing){
+          candidateSkus[index].goodSku = item.goodSku
+        }
+        // candidateSkus[index].barCode = item.barCode
+        // candidateSkus[index].goodSku = item.goodSku
         candidateSkus[index].stock = item.stock
         candidateSkus[index].isEnable = item.operate.isEnable
       })

@@ -78,14 +78,15 @@
             </el-table-column>
 
             <el-table-column
+              prop="orderChannel"
               label="商品渠道"
               align="center"
             >
-              <template slot-scope="scope">
+              <!-- <template slot-scope="scope">
                 <span v-if="scope.row.orderChannel == 'ZiYing'">自营</span>
                 <span v-else-if="scope.row.shipStatus == 'WangYiKaoLao'">网易考拉</span>
                 <span v-else-if="scope.row.shipStatus == 'WangYIYanXuan'">网易严选</span>
-              </template>
+              </template> -->
             </el-table-column>
 
             <el-table-column

@@ -164,7 +164,7 @@
       @close="dialogClose()" center>
       <el-form ref="dialogform" :model="dialogInfoForm" label-width="80px" v-if="hintStatus == 1">
         <el-form-item label="快递公司:">
-          <el-select v-model="dialogInfoForm.expressCompany" clearable placeholder="请选择" style="width:100%">
+          <el-select v-model="dialogInfoForm.expressCompany" filterable clearable placeholder="请选择" style="width:100%">
             <el-option
               v-for="item in options.expressCompanyOptions"
               :key="item.value"
@@ -242,33 +242,7 @@ export default {
             label: '已邮寄'
           }
         ],
-        expressCompanyOptions: [
-          {
-            value: '顺丰快速',
-            label: '顺丰快速'
-          },
-          {
-            value: '圆通快递',
-            label: '圆通快递'
-          },
-          {
-            value: '申通快速',
-            label: '申通快速'
-          },
-          {
-            value: '中通快递',
-            label: '中通快递'
-          },
-          {
-            value: '百世快递',
-            label: '百世快递'
-          },
-          {
-            value: '韵达快递',
-            label: '韵达快递'
-          },
-
-        ]
+        expressCompanyOptions: []
       },
       pageSize: 10,
       currentPage: 1,
@@ -280,6 +254,7 @@ export default {
   },
   created(){
     this.getInvoiceList({currentPage: this.currentPage,pageSize: this.pageSize})
+    this.getExpressList()
   },
   methods: {
     getInvoiceList(opts){
@@ -449,6 +424,23 @@ export default {
 
           URL.revokeObjectURL(linkNode.href); // 释放URL 对象
           document.body.removeChild(linkNode);
+        }
+      })
+    },
+    getExpressList(){
+      core.getExpressList().then(res => {
+        // console.log(res)
+        if(res.code && res.code === '00'){ //错误提示
+          let arr = []
+          res.data.forEach((item, index) => {
+            arr[index] = {}
+            arr[index].label = item.com
+            arr[index].value = item.no
+          })
+          this.options.expressCompanyOptions = arr
+        }else{
+          this.$message.closeAll();
+          this.$message.info(res.message);
         }
       })
     }

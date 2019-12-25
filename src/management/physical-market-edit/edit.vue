@@ -9,7 +9,7 @@
     </div>
     <el-form ref="form" v-model="form" label-position="center" label-width="120px" v-loading="loading">
       <el-form-item label="商品来源*:">
-        <el-select v-model="form.itemChannel" clearable placeholder="请选择渠道来源" style="width: 200px;">
+        <el-select v-model="form.itemChannel" @change="getItemChannel" clearable placeholder="请选择渠道来源" style="width: 200px;">
           <el-option
             v-for="item in options.channelOptions"
             :key="item.value"
@@ -18,12 +18,21 @@
           </el-option>
         </el-select>
       </el-form-item>
+      <el-form-item label="品牌:" v-show="showAoLinPiKeItem">
+        <el-input v-model="form.brandName" clearable placeholder="请输入品牌" maxlength="60" style="width: 200px;"></el-input>
+      </el-form-item>
+      <el-form-item label="产品大类:" v-show="showAoLinPiKeItem">
+        <el-input v-model="form.categoryName" clearable placeholder="请输入产品大类" maxlength="60" style="width: 200px;"></el-input>
+      </el-form-item>
       <el-form-item label="发货渠道:">
         <el-input v-model="form.itemDeliveryChannel" clearable placeholder="请输入发货渠道" style="width: 200px;"></el-input>
       </el-form-item>
       <el-form-item label="商品名称*:">
         <el-input v-model="form.title" clearable placeholder="最多允许输入30个汉字" maxlength="60" style="width: 400px;"></el-input>
       </el-form-item>
+      <!-- <el-form-item label="商品编号:">
+        <el-input clearable placeholder="输入商品编号" maxlength="60" style="width: 200px;"></el-input>
+      </el-form-item> -->
       <el-form-item label="商品价格*:">
         <el-input v-model="form.price" clearable placeholder="请输入商品价格" style="width: 200px;"></el-input>
       </el-form-item>
@@ -139,7 +148,9 @@ export default {
         secondCategoryId: '', //二级分类id
         isHot: '', //是否上首页
         sort: null, //排序
-        itemContent: ''
+        itemContent: '',//富文本内容
+        brandName: '', //奥利匹克品牌
+        categoryName: '', //奥利匹克分类
       },
       options: {
         channelOptions: [
@@ -189,6 +200,7 @@ export default {
       dialogVisible: false, //图片预览
       initData: null,
       isDragging: false,
+      showAoLinPiKeItem: null
     }
   },
   computed: {
@@ -261,6 +273,13 @@ export default {
           this.form.isEnable = res.data.isEnable
           this.form.isHot = res.data.isHot
           this.form.itemChannel = res.data.itemChannel
+          if(this.form.itemChannel === 'AoLinPiKe'){
+            this.showAoLinPiKeItem = true
+            this.form.brandName = res.data.brandName
+            this.form.categoryName = res.data.categoryName
+          }else{
+            this.showAoLinPiKeItem = false
+          }
           this.form.itemContent = res.data.itemContent.content
           this.form.itemCover = res.data.itemCover
           this.form.itemDeliveryChannel = res.data.itemDeliveryChannel
@@ -323,7 +342,7 @@ export default {
     getGoodsChannel(){
       core.getGoodsChannel().then(res => {
         if(res.code && res.code === "00"){
-          console.log(res)
+          // console.log(res)
           let channelObj = []
           Object.keys(res.data).forEach(function(key,i){
               channelObj[i] = {}
@@ -339,6 +358,18 @@ export default {
         this.$message.closeAll();
         this.$message.info(err);
       })
+    },
+    getItemChannel(val){
+      // console.log(val)
+      if(val === 'AoLinPiKe'){
+        this.showAoLinPiKeItem = true
+        if(window.localStorage && localStorage.getItem('brandName') && localStorage.getItem('categoryName')){
+          this.form.brandName = localStorage.getItem('brandName')
+          this.form.categoryName = localStorage.getItem('categoryName')
+        }
+      }else{
+        this.showAoLinPiKeItem = false
+      }
     },
     handleCoverSuccess(file, fileList) {
       //console.log(file,fileList)
@@ -364,6 +395,10 @@ export default {
       this.editImageList.forEach((item,index) => {
         this.form.itemImages.push(item.url)
       })
+      if(!this.showAoLinPiKeItem){
+        delete this.form.brandName
+        delete this.form.categoryName
+      }
       if(this.$route.query.itemId){
         if(this.diff(this.form,this.initData)){
           this.$message.info('数据未改动');
@@ -375,6 +410,9 @@ export default {
           if(res.code && res.code === "00"){
             this.loading = false
             this.$message.success("操作成功");
+            window.localStorage && localStorage.setItem('itemDeliveryChannel', this.form.itemDeliveryChannel)
+            window.localStorage && localStorage.setItem('brandName', this.form.brandName)
+            window.localStorage && localStorage.setItem('categoryName', this.form.categoryName)
             this.$router.go(-1)
           }else{
             this.loading = false
@@ -393,6 +431,8 @@ export default {
             this.loading = false
             this.$message.success("操作成功")
             window.localStorage && localStorage.setItem('itemDeliveryChannel', this.form.itemDeliveryChannel)
+            window.localStorage && localStorage.setItem('brandName', this.form.brandName)
+            window.localStorage && localStorage.setItem('categoryName', this.form.categoryName)
             this.$router.go(-1)
           }else{
             this.loading = false
