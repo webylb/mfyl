@@ -37,7 +37,7 @@
         <div class="flex-box">
           <div>姓名：<span>{{ tableData.realname }}</span></div>
           <div>联系电话：<span>{{ tableData.mobile }}</span></div>
-          <div>收货地址：<span>{{ tableData.province }} {{ tableData.city }} {{ tableData.district || ''  }} {{ tableData.town || '' }}</span></div>
+          <div>收货地址：<span>{{ tableData.province }} {{ tableData.city }} {{ tableData.district || ''  }} {{ tableData.town || '' }} {{ tableData.address || '' }}</span></div>
         </div>
       </el-form-item>
       <el-form-item label="商品信息">
@@ -79,7 +79,7 @@
 
             <el-table-column
               prop="orderChannel"
-              label="商品渠道"
+              label="商品来源"
               align="center"
             >
               <!-- <template slot-scope="scope">
@@ -90,13 +90,13 @@
             </el-table-column>
 
             <el-table-column
-              prop="skuId"
-              label="skuid"
+              prop="deliveryChannel"
+              label="发货渠道"
               align="center"
               >
             </el-table-column>
             <el-table-column
-              label="商品sku"
+              label="商品规格"
               align="center"
               min-width="300"
             >
@@ -107,10 +107,13 @@
               </template>
             </el-table-column>
             <el-table-column
-              label="单价（元）"
               prop="skuPrice"
+              label="单价（元）"
               align="center"
               >
+              <!-- <template slot-scope="scope">
+                {{ formatPrice(scope.row.skuPrice / 100) }}
+              </template> -->
             </el-table-column>
             <el-table-column
               prop="num"
@@ -151,7 +154,7 @@ import * as merchantCore from '../../api/merchant'
 import tool from '../../utils/common'
 
 export default {
-  name: 'physicalOrderList',
+  name: 'physicalOrderDetail',
   data() {
     return {
       loading: true,
@@ -201,6 +204,9 @@ export default {
           data.push({key: k ,value: v});
       }
       return data
+    },
+    formatPrice(val){
+      return val.toFixed(2)
     },
     dialogClick(){
       this.dialogInfoVisible = true

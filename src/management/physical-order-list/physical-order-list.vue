@@ -23,7 +23,28 @@
           </el-option>
         </el-select>
       </el-form-item>
-
+      <el-form-item label="日期:">
+        <!-- <el-date-picker
+          v-model="form.times"
+          type="daterange"
+          align="right"
+          unlink-panels
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          value-format="timestamp"
+          :picker-options="pickerOptions">
+        </el-date-picker> -->
+        <el-date-picker
+          v-model="form.times"
+          type="datetimerange"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          value-format="timestamp"
+          :default-time="['00:00:00', '23:59:59']"
+          :picker-options="pickerOptions">
+        </el-date-picker>
+      </el-form-item>
 
       <el-form-item style='float:right;'>
         <el-button type="primary" @click="search()">立即查询</el-button>
@@ -194,6 +215,36 @@ export default {
   name: 'physicalOrderList',
   data() {
     return {
+      pickerOptions: {
+        disabledDate(time) {
+          return time.getTime() - 3600 * 1000 * 24 * 1 > Date.now();
+        },
+        // shortcuts: [{
+        //   text: '最近一周',
+        //   onClick(picker) {
+        //     const end = new Date();
+        //     const start = new Date();
+        //     start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+        //     picker.$emit('pick', [start, end]);
+        //   }
+        // }, {
+        //   text: '最近一个月',
+        //   onClick(picker) {
+        //     const end = new Date();
+        //     const start = new Date();
+        //     start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+        //     picker.$emit('pick', [start, end]);
+        //   }
+        // }, {
+        //   text: '最近三个月',
+        //   onClick(picker) {
+        //     const end = new Date();
+        //     const start = new Date();
+        //     start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+        //     picker.$emit('pick', [start, end]);
+        //   }
+        // }]
+      },
       loading: true,
       sendStatus: '1',//1 发货, 2.查看物流, 3.退款, 4.补发
       editId: null,
@@ -211,6 +262,7 @@ export default {
         orderId: '',
         userId: '',
         orderStatus: null,
+        times: ''
       },
       value: [],
       options:{
@@ -322,6 +374,10 @@ export default {
       if(this.form.orderStatus){
         data.orderStatus = this.form.orderStatus
       }
+      if(this.form.times){
+        data.startTime = this.form.times[0]
+        data.endTime = this.form.times[1]
+      }
       this.getUserOrderList(data)
     },
     dialogClose(){
@@ -413,6 +469,10 @@ export default {
       }
       if(this.form.orderStatus){
         data.orderStatus = this.form.orderStatus
+      }
+      if(this.form.times){
+        data.startTime = this.form.times[0]
+        data.endTime = this.form.times[1]
       }
       core.downloadOrderList(data).then(res => {
         //console.log(res)

@@ -50,17 +50,31 @@
         </el-select>
       </el-form-item>
 
+      <el-form-item label="商品来源:">
+        <el-select v-model="form.itemChannel" clearable placeholder="请选择" style="width: 120px;">
+          <el-option
+            v-for="item in options.channelOptions"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+          </el-option>
+        </el-select>
+      </el-form-item>
+
+      <el-form-item label="发货渠道:">
+        <el-input v-model="form.itemDeliveryChannel" clearable placeholder="" style="width: 120px;"></el-input>
+      </el-form-item>
+
+
 
       <el-form-item style='float:right;'>
         <el-button type="primary" @click="search()">立即查询</el-button>
         <el-button @click="downloadGoodsList()">导  出</el-button>
       </el-form-item>
     </el-form>
-    <el-row>
-      <el-col :span="24">
-        <el-button type="primary" icon="el-icon-plus" @click="addGoods">添加实物商品</el-button>
-      </el-col>
-    </el-row>
+    <div style="margin:10px 0;">
+      <el-button type="primary" icon="el-icon-plus" @click="addGoods">添加实物商品</el-button>
+    </div>
     <div class="page-content">
       <el-table
         :data="tableData"
@@ -207,7 +221,9 @@ export default {
         firstCategoryId: '',
         secondCategoryId: '',
         isHot: '',
-        isEnable: ''
+        isEnable: '',
+        itemChannel: null,
+        itemDeliveryChannel: null
       },
       options: {
         channelOptions: [
@@ -257,9 +273,10 @@ export default {
   },
   created(){
     // this.getGoodsList({currentPage:this.currentPage,pageSize:this.pageSize})
-    this.getFirstCategoryList()
   },
   activated() {
+    this.getFirstCategoryList()
+    this.getGoodsChannel()
     let data = {
       currentPage:this.currentPage,
       pageSize:this.pageSize,
@@ -279,6 +296,12 @@ export default {
     }
     if(this.form.isEnable){
       data.isEnable = this.form.isEnable
+    }
+    if(this.form.itemChannel){
+      data.itemChannel = this.form.itemChannel
+    }
+    if(this.form.itemDeliveryChannel){
+      data.itemDeliveryChannel = this.form.itemDeliveryChannel
     }
     this.getGoodsList(data)
     setTimeout(()=>{
@@ -336,6 +359,26 @@ export default {
         this.$message.info(err);
       })
     },
+    getGoodsChannel(){
+      core.getGoodsChannel().then(res => {
+        if(res.code && res.code === "00"){
+          // console.log(res)
+          let channelObj = []
+          Object.keys(res.data).forEach(function(key,i){
+              channelObj[i] = {}
+              channelObj[i].label = res.data[key]
+              channelObj[i].value = key
+          })
+          this.options.channelOptions = channelObj
+        }else{
+          this.$message.closeAll();
+          this.$message.info(res.message);
+        }
+      }).catch(err => {
+        this.$message.closeAll();
+        this.$message.info(err);
+      })
+    },
     search(opts){
       this.loading = true
       let data = null
@@ -359,6 +402,12 @@ export default {
       }
       if(this.form.isEnable){
         data.isEnable = this.form.isEnable
+      }
+      if(this.form.itemChannel){
+        data.itemChannel = this.form.itemChannel
+      }
+      if(this.form.itemDeliveryChannel){
+        data.itemDeliveryChannel = this.form.itemDeliveryChannel
       }
       this.getGoodsList(data)
     },
@@ -450,7 +499,7 @@ export default {
                 type: 'success',
                 message: '删除成功!'
               });
-              this.getGoodsList({currentPage:this.currentPage, pageSize:this.pageSize})
+              this.search({currentPage:this.currentPage, pageSize:this.pageSize, sortparam: this.sortByProp + ' ' + this.sortByOrder })
             }else{
               this.$message.closeAll();
               this.$message.info(res.message)
@@ -484,6 +533,12 @@ export default {
       }
       if(this.form.isEnable){
         data.isEnable = this.form.isEnable
+      }
+      if(this.form.itemChannel){
+        data.itemChannel = this.form.itemChannel
+      }
+      if(this.form.itemDeliveryChannel){
+        data.itemDeliveryChannel = this.form.itemDeliveryChannel
       }
       core.downloadGoodsList(data).then(res => {
         //console.log(res)
