@@ -47,6 +47,15 @@
          >
         </el-table-column>
         <el-table-column
+          prop="isShow"
+          label="在手机端展示"
+          align="center"
+         >
+          <template slot-scope="scope">
+            <span>{{ scope.row.isShow === 'Y' ? '是' : '否' }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
           fixed="right"
           label="操作"
           align="center"
@@ -75,10 +84,10 @@
     <el-dialog
       :title="title"
       :visible.sync="dialogInfoVisible"
-      width="420px"
+      width="450px"
       :before-close="dialogClose"
       center>
-      <el-form ref="dialogform" :model="dialogInfoForm" label-width="100px">
+      <el-form ref="dialogform" :model="dialogInfoForm" label-width="150px">
         <el-form-item label="分类名称:">
           <el-input v-model="dialogInfoForm.categoryName" placeholder="" clearable></el-input>
         </el-form-item>
@@ -93,11 +102,14 @@
             <el-button size="small" type="primary">点击上传</el-button>
           </el-upload>
         </el-form-item>
-        <el-form-item label="跳转链接:" prop="jumpUrl">
+        <!-- <el-form-item label="跳转链接:" prop="jumpUrl">
           <el-input v-model="dialogInfoForm.jumpUrl" placeholder="" clearable></el-input>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="排序:" prop="sort">
           <el-input v-model="dialogInfoForm.sort" placeholder="" clearable></el-input>
+        </el-form-item>
+        <el-form-item label="是否在手机端展示:">
+          <el-switch v-model="dialogInfoForm.isShow"></el-switch>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -133,7 +145,8 @@ export default {
         categoryName: '',
         icon: '',
         jumpUrl: '',
-        sort: ''
+        sort: '',
+        isShow: true
       },
       limit: 1,
       fileList: [],
@@ -174,7 +187,8 @@ export default {
         this.title = '添加分类'
         this.dialogInfoForm.categoryName = ''
         this.dialogInfoForm.sort = '',
-        this.dialogInfoForm.jumpUrl= ''
+        // this.dialogInfoForm.jumpUrl= ''
+        this.dialogInfoForm.isShow = true
       }else if(status == 2){
         this.title = '编辑分类'
         this.editCategoryId = row.id
@@ -182,8 +196,9 @@ export default {
         this.dialogInfoForm.categoryName = row.categoryName
         this.dialogInfoForm.icon = row.icon
         this.fileList = [{name:row.icon,url:row.icon}]
-        this.dialogInfoForm.jumpUrl = row.jumpUrl
+        // this.dialogInfoForm.jumpUrl = row.jumpUrl
         this.dialogInfoForm.sort = row.sort
+        this.dialogInfoForm.isShow = row.isShow === 'Y' ? true : false
       }
       this.dialogInfoVisible = true
     },
@@ -202,9 +217,9 @@ export default {
       this.dialogInfoVisible = false
     },
     subCategoryInfo(){
-      if(this.dialogInfoForm.categoryName && this.dialogInfoForm.icon && this.dialogInfoForm.jumpUrl){
+      if(this.dialogInfoForm.categoryName && this.dialogInfoForm.icon){
         if(this.categoryItemStatus === 1){
-          core.createSecondCategory({firstCategoryId: this.firstCategoryId,categoryName: this.dialogInfoForm.categoryName,icon:this.dialogInfoForm.icon,jumpUrl:this.dialogInfoForm.jumpUrl,sort: this.dialogInfoForm.sort}).then(res => {
+          core.createSecondCategory({firstCategoryId: this.firstCategoryId,categoryName: this.dialogInfoForm.categoryName,icon:this.dialogInfoForm.icon,sort: this.dialogInfoForm.sort, isShow: this.dialogInfoForm.isShow ? 'Y' : 'N'}).then(res => {
             if(res.code && res.code === "00"){
               // this.tableData.unshift({
               //   categoryName: this.dialogInfoForm.categoryName,
@@ -225,12 +240,13 @@ export default {
             this.$message.info(err);
           })
         }else{
-          core.editSecondCategory({secondCategoryId: this.editCategoryId,categoryName: this.dialogInfoForm.categoryName,sort:this.dialogInfoForm.sort,jumpUrl:this.dialogInfoForm.jumpUrl,icon:this.dialogInfoForm.icon}).then(res => {
+          core.editSecondCategory({secondCategoryId: this.editCategoryId,categoryName: this.dialogInfoForm.categoryName,sort:this.dialogInfoForm.sort,icon:this.dialogInfoForm.icon,isShow: this.dialogInfoForm.isShow ? 'Y' : 'N'}).then(res => {
             if(res.code && res.code === "00"){
               this.tableData[this.editIndex].categoryName = this.dialogInfoForm.categoryName
               this.tableData[this.editIndex].sort = this.dialogInfoForm.sort
-              this.tableData[this.editIndex].icon = this.dialogInfoForm.icon,
-              this.tableData[this.editIndex].jumpUrl = this.dialogInfoForm.jumpUrl
+              this.tableData[this.editIndex].icon = this.dialogInfoForm.icon
+              this.tableData[this.editIndex].isShow = this.dialogInfoForm.isShow ? 'Y' : 'N'
+              // this.tableData[this.editIndex].jumpUrl = this.dialogInfoForm.jumpUrl
               this.dialogClose()
               this.$message.closeAll();
               this.$message.success("操作成功");

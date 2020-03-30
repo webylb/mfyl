@@ -46,6 +46,7 @@
           <el-button type="primary" icon="el-icon-plus" @click="addEmployees('1')">添加员工</el-button>
           <el-button type="primary" @click="addEmployeesByExcel">批量导入</el-button>
           <el-button type="text" @click="importExamples">批量导入示例</el-button>
+          <el-button type="warning" @click="deleteBatchStaffInfo">批量删除</el-button>
         </el-col>
       </el-row>
     </el-form>
@@ -54,11 +55,20 @@
         :data="tableData"
         stripe
         style="width: 100%;border:1px solid #EBEEF5;"
+        @selection-change="handleSelectionChange"
         v-loading="loading">
+        <el-table-column
+          type="selection">
+        </el-table-column>
         <el-table-column
           label="序号"
           type="index"
-          width="80"
+          width="50"
+          align="center">
+        </el-table-column>
+        <el-table-column
+          prop="bindUserId"
+          label="员工ID"
           align="center">
         </el-table-column>
         <el-table-column
@@ -120,11 +130,6 @@
           </template>
         </el-table-column>
         <el-table-column
-          prop="bindUserId"
-          label="员工ID"
-          align="center">
-        </el-table-column>
-        <el-table-column
           fixed="right"
           label="操作"
           width="120"
@@ -153,26 +158,28 @@
     <el-dialog
       :title="title"
       :visible.sync="dialogVisible"
-      width="422px"
-      @close="dialogClose()" center>
-      <el-form :model="dialogForm" label-position="right" label-width="80px" :rules="rules" ref="dialogForm">
+      width="480px"
+      :before-close="dialogClose"
+      center>
+      <el-form class="addForm" :model="dialogForm" label-position="right" label-width="80px" :rules="rules" ref="dialogForm">
         <el-form-item label="姓名*:" prop="staffName">
-          <el-input style="width: 300px" v-model="dialogForm.staffName" clearable
+          <el-input style="width: 345px" v-model="dialogForm.staffName" clearable
                     auto-complete="off"
                     placeholder="请输入员工姓名"></el-input>
         </el-form-item>
         <el-form-item label="工号:">
-          <el-input style="width: 300px" v-model="dialogForm.staffJobNumber" clearable
+          <el-input style="width: 345px" v-model="dialogForm.staffJobNumber" clearable
                     auto-complete="off"
                     placeholder="请输入工号"></el-input>
         </el-form-item>
-        <el-form-item label="手机号:">
-          <el-input style="width: 300px" v-model="dialogForm.staffMobile" clearable
+        <el-form-item label="手机号:" style="line-height:1;">
+          <el-input style="width: 345px" v-model="dialogForm.staffMobile" clearable
                     auto-complete="off"
                     placeholder="请输入手机号"></el-input>
+          <el-link :underline="false" v-if="addStatus == '1'" type="warning">请确保手机号准确无误, 否则魔豆将无法发放到正确账户!</el-link>
         </el-form-item>
         <el-form-item label="生日*:">
-          <el-date-picker style="width: 300px"
+          <el-date-picker style="width: 345px"
             v-model="dialogForm.staffBirthday"
             type="date"
             placeholder="请选择生日日期"
@@ -181,7 +188,7 @@
           </el-date-picker>
         </el-form-item>
         <el-form-item label="入职时间*:">
-          <el-date-picker style="width: 300px"
+          <el-date-picker style="width: 345px"
             v-model="dialogForm.staffEmploymentDate"
             type="date"
             placeholder="请选择入职时间"
@@ -198,7 +205,7 @@
               :value="item">
             </el-option>
           </el-select> -->
-          <el-input style="width: 300px" v-model="dialogForm.staffDepartmentName" clearable
+          <el-input style="width: 345px" v-model="dialogForm.staffDepartmentName" clearable
                     auto-complete="off"
                     placeholder="请输入部门"></el-input>
         </el-form-item>
@@ -211,7 +218,7 @@
               :value="item">
             </el-option>
           </el-select> -->
-          <el-input style="width: 300px" v-model="dialogForm.staffJob" clearable
+          <el-input style="width: 345px" v-model="dialogForm.staffJob" clearable
                     auto-complete="off"
                     placeholder="请选择职务"></el-input>
         </el-form-item>
@@ -228,11 +235,12 @@
       width="420px"
       :before-close="dialogClose"
       center>
-      <el-form ref="dialogform" :model="dialogInfoForm"  label-width="130px">
-        <el-form-item label="员工信息Excel:">
+      <el-form ref="dialogform" :model="dialogInfoForm">
+        <el-form-item style="text-align:center;">
           <el-upload
             ref="upload"
             class="upload-demo"
+            style="text-align:center;"
             action=""
             :on-remove="handleRemove"
             :before-remove="beforeRemove"
@@ -241,12 +249,79 @@
             :on-exceed="handleExceed"
             :file-list="fileList"
             :http-request="uploadFile">
-            <el-button size="small" type="text">导入员工信息</el-button>
+            <el-button type="text">导入员工信息Excel</el-button>
           </el-upload>
+          <el-link :underline="false" type="warning">请确保手机号准确无误, 否则魔豆将无法发放到正确账户!</el-link>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" @click="subExcelInfo">立即导入</el-button>
+      </span>
+    </el-dialog>
+    <el-dialog
+      title="员工信息确认"
+      :visible.sync="dialogTableVisible"
+      :before-close="dialogClose"
+      center>
+      <p style="text-align:center;">您导入的员工列表中，与在线员工出现相同手机号情况，<br/>请确认是否需要导入。</p>
+      <el-table
+        :data="dialogTableData"
+        stripe
+        style="width: 100%;border:1px solid #EBEEF5;"
+        @selection-change="handleDialogSelectionChange"
+        >
+        <el-table-column
+          type="selection">
+        </el-table-column>
+        <el-table-column
+          label="员工姓名"
+          align="left">
+          <template slot-scope="scope">
+            <el-badge v-if="scope.row.isNew === 'Y'" value="new"/>{{ scope.row.staffName }}
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="staffJobNumber"
+          label="工号"
+          align="center">
+        </el-table-column>
+        <el-table-column
+          prop="staffMobile"
+          label="手机号"
+          width="120"
+          align="center">
+        </el-table-column>
+        <el-table-column
+          label="生日"
+          width="120"
+          align="center">
+          <template slot-scope="scope">
+            <span>{{  formatDate(scope.row.staffBirthday) }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="入职日期"
+          width="120"
+          align="center">
+          <template slot-scope="scope">
+            <span>{{  formatDate(scope.row.staffEmploymentDate) }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="staffDepartmentName"
+          label="部门"
+          align="center">
+        </el-table-column>
+        <el-table-column
+          prop="staffJob"
+          label="职务"
+          width="120"
+          align="center">
+        </el-table-column>
+      </el-table>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogClose">取消导入</el-button>
+        <el-button type="primary" @click="subTableInfo">覆盖并导入</el-button>
       </span>
     </el-dialog>
   </div>
@@ -283,6 +358,7 @@ export default {
       title: "添加员工信息",
       dialogVisible: false, //员工信息弹窗
       dialogInfoVisible: false, //导入弹窗
+      dialogTableVisible: false, //导入信息区分
       fileList:[],
       form: {
         staffName: '',
@@ -318,7 +394,8 @@ export default {
       tableData: [],
       addStatus: '1',//1为添加,2为编辑
       editIndex: null,
-      editId: null
+      editId: null,
+      dialogTableData: []
     }
   },
   computed: {
@@ -402,10 +479,15 @@ export default {
       this.getStaffList(data)
     },
     dialogClose(){
+      console.log('123213')
       this.dialogVisible = false
       this.dialogInfoVisible = false
-      this.$refs.upload.clearFiles()
+      this.dialogTableVisible = false
+      if(this.$refs.upload){
+        this.$refs.upload.clearFiles()
+      }
       this.fileList = []
+      this.dialogTableData = []
     },
     addEmployees(status,row,index){
       this.addStatus = status
@@ -471,12 +553,18 @@ export default {
           }
           if(this.addStatus == '1'){ //新增
             //console.log('新增')
-            core.addStaff(data).then(res => {
-              if(res.code && res.code == '00'){
+            core.addStaffCheck({staffs: [data]}).then(res => {
+              if(res.code && res.code === '00'){
                 this.$message.success("操作成功");
                 this.getStaffList({currentPage:this.currentPage, pageSize:this.pageSize})
                 this.dialogVisible = false
-              }else{
+              }else if(res.code && res.code === "90"){
+                this.dialogVisible = false
+                this.dialogTableVisible = true
+                this.dialogTableData = res.data
+                this.getStaffList({currentPage:1, pageSize:this.pageSize})
+                this.getStaffJobInfo()
+              } else{
                 this.$message.closeAll();
                 this.$message.info(res.message);
               }
@@ -517,20 +605,62 @@ export default {
           core.deleteStaff({staffId: id}).then(res => {
             if(res.code && res.code === "00"){
               // this.tableData.splice(index,1)
+              this.$message.closeAll();
               this.$message({
                 type: 'success',
                 message: '删除成功!'
               });
               this.search({pageSize: this.pageSize,currentPage: this.currentPage})
             }else{
+              this.$message.closeAll();
               this.$message.info(res.message)
             }
           }).catch(err => {
+            this.$message.closeAll();
             this.$message.info(err)
           })
         }).catch(() => {
           // this.$message.info('已取消删除');
         });
+      }
+    },
+    handleSelectionChange(val) {
+      // console.log(val)
+      this.batchStaffList = val;
+    },
+    deleteBatchStaffInfo(){
+      if(this.batchStaffList){
+        let arr = []
+        this.batchStaffList.forEach((item) => {
+          arr.push(item.id)
+        })
+        this.$confirm('此操作将永久删除该员工信息, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          core.deleteBatchStaff({ids: arr.join()}).then(res => {
+            if(res.code && res.code === "00"){
+              this.$message.closeAll();
+              this.$message({
+                type: 'success',
+                message: '删除成功!'
+              });
+              this.search({pageSize: this.pageSize,currentPage: this.currentPage})
+            }else{
+              this.$message.closeAll();
+              this.$message.info(res.message)
+            }
+          }).catch(err => {
+            this.$message.closeAll();
+            this.$message.info(err)
+          })
+        }).catch(() => {
+          // this.$message.info('已取消删除');
+        });
+      }else{
+        this.$message.closeAll();
+        this.$message.info("请先勾选员工信息")
       }
     },
     handleRemove(file, fileList) {
@@ -578,7 +708,17 @@ export default {
           this.$refs.upload.clearFiles()
           this.getStaffList({currentPage:1, pageSize:this.pageSize})
           this.getStaffJobInfo()
-        }else{
+        }else if(res.code && res.code === "90"){
+          this.dialogInfoVisible = false
+          this.$refs.upload.clearFiles()
+          this.dialogInfoForm = {
+            excelFile: null
+          }
+          this.dialogTableVisible = true
+          this.dialogTableData = res.data
+          this.getStaffList({currentPage:1, pageSize:this.pageSize})
+          this.getStaffJobInfo()
+        } else{
           this.dialogInfoVisible = false
           this.$refs.upload.clearFiles()
           this.$message.closeAll();
@@ -669,6 +809,29 @@ export default {
         this.$message.closeAll();
         this.$message.info(err);
       })
+    },
+    handleDialogSelectionChange(val){
+      this.checkDialogData = val
+    },
+    subTableInfo(){
+      if(this.checkDialogData){
+        core.addStaff({staffs: this.checkDialogData}).then(res => {
+          if(res.code && res.code == '00'){
+            this.$message.success("操作成功");
+            this.getStaffList({currentPage:this.currentPage, pageSize:this.pageSize})
+            this.dialogTableVisible = false
+          }else{
+            this.$message.closeAll();
+            this.$message.info(res.message);
+          }
+        }).catch(err => {
+          this.$message.closeAll();
+          this.$message.info(err);
+        })
+      }else{
+        this.$message.closeAll();
+        this.$message.info("请先勾选员工信息")
+      }
     }
   },
   watch: {
@@ -700,6 +863,10 @@ export default {
   }
   .el-form-item {
     margin-bottom: 18px;
+  }
+
+  .addForm .el-form-item__content {
+    line-height: 1;
   }
 }
 

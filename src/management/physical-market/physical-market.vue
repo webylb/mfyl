@@ -1,6 +1,10 @@
 <template>
   <div class="physical-market">
     <el-form ref="form" :model="form" :inline="true" label-position="center" label-width="100px">
+      <el-form-item label="商品ID:">
+        <el-input v-model="form.itemId" clearable placeholder="" style="width: 120px;"></el-input>
+      </el-form-item>
+
       <el-form-item label="商品名称:">
         <el-input v-model="form.itemName" clearable placeholder="" style="width: 120px;"></el-input>
       </el-form-item>
@@ -72,7 +76,7 @@
         <el-button @click="downloadGoodsList()">导  出</el-button>
       </el-form-item>
     </el-form>
-    <div style="margin:10px 0;">
+    <div>
       <el-button type="primary" icon="el-icon-plus" @click="addGoods">添加实物商品</el-button>
     </div>
     <div class="page-content">
@@ -217,6 +221,7 @@ export default {
       loading: true,
       status: 1,//1.上架 2.下架
       form: {
+        itemId: '',
         itemName: '',
         firstCategoryId: '',
         secondCategoryId: '',
@@ -281,6 +286,9 @@ export default {
       currentPage:this.currentPage,
       pageSize:this.pageSize,
       sortparam: this.sortByProp + ' ' + this.sortByOrder
+    }
+    if(this.form.itemId){
+      data.itemId = this.form.itemId
     }
     if(this.form.itemName){
       data.itemName = this.form.itemName
@@ -387,6 +395,9 @@ export default {
       }else{
         this.currentPage = 1
         data = { currentPage:1, pageSize:this.pageSize, sortparam: this.sortByProp + ' ' + this.sortByOrder }
+      }
+      if(this.form.itemId){
+        data.itemId = this.form.itemId
       }
       if(this.form.itemName){
         data.itemName = this.form.itemName
@@ -519,6 +530,9 @@ export default {
     },
     downloadGoodsList(){
       let data = { }
+      if(this.form.itemId){
+        data.itemId = this.form.itemId
+      }
       if(this.form.itemName){
         data.itemName = this.form.itemName
       }

@@ -2,13 +2,15 @@
   <div class="grant-detail">
     <el-form ref="form" :model="form" :inline="true" label-position="center" label-width="80px">
       <el-form-item label="时间">
-         <el-date-picker style="width: 140px" clearable
-            v-model="form.startGrantTime"
-            type="date"
-            placeholder="选择日期"
-            value-format="timestamp"
-            :picker-options="pickerOptions">
-          </el-date-picker>
+         <el-date-picker
+          v-model="form.grantTimes"
+          type="datetimerange"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          value-format="timestamp"
+          :default-time="['00:00:00', '23:59:59']"
+          :picker-options="pickerOptions">
+        </el-date-picker>
       </el-form-item>
       <el-form-item label="员工姓名">
         <el-input style="width: 140px" v-model="form.staffName" clearable></el-input>
@@ -22,21 +24,25 @@
         <el-input style="width: 140px" v-model="form.staffMobile" clearable></el-input>
       </el-form-item>
       <el-form-item label="生日">
-         <el-date-picker style="width: 140px" clearable
-            v-model="form.startStaffBirthday"
-            type="date"
-            placeholder="选择日期"
+          <el-date-picker
+            v-model="form.staffBirthdays"
+            type="datetimerange"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
             value-format="timestamp"
+            :default-time="['00:00:00', '23:59:59']"
             :picker-options="pickerOptions">
           </el-date-picker>
       </el-form-item>
 
       <el-form-item label="入职时间">
-         <el-date-picker style="width: 140px" clearable
-            v-model="form.startStaffEmploymentDate"
-            type="date"
-            placeholder="选择日期"
+          <el-date-picker
+            v-model="form.staffEmploymentDates"
+            type="datetimerange"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
             value-format="timestamp"
+            :default-time="['00:00:00', '23:59:59']"
             :picker-options="pickerOptions">
           </el-date-picker>
       </el-form-item>
@@ -189,17 +195,17 @@ export default {
     return {
       pickerOptions: {
         disabledDate(time) {
-          return time.getTime() > Date.now();
+          return time.getTime() - 3600 * 1000 * 24 * 1 > Date.now();
         }
       },
       loading: true,
       form: {
-        startGrantTime: null,
+        grantTimes: null,
         staffName:'', //姓名
         staffJobNumber: '',//工号
         staffMobile:'',//手机号
-        startStaffBirthday: null,//生日
-        startStaffEmploymentDate: null,//入职日期
+        staffBirthdays: null,//生日
+        staffEmploymentDates: null,//入职日期
         staffDepartmentName: '',//部门名称
         staffJob: ''//职位
       },
@@ -250,13 +256,11 @@ export default {
     },
     handleSizeChange(val) {
       this.pageSize = val
-      this.loading = true
       let data = { currentPage:1, pageSize:val, grantScoreRecordId: this.grantScoreRecordId}
       this.search(data)
     },
     handleCurrentChange(val) {
-      this.currentPage = val,
-      this.loading = true
+      this.currentPage = val
       let data = { currentPage:val, pageSize:this.pageSize, grantScoreRecordId: this.grantScoreRecordId}
       this.search(data)
     },
@@ -269,8 +273,9 @@ export default {
         this.currentPage = 1
         data = { currentPage:1, pageSize:this.pageSize, grantScoreRecordId: this.grantScoreRecordId}
       }
-      if(this.form.startGrantTime){
-        data.startGrantTime = this.form.startGrantTime
+      if(this.form.grantTimes){
+        data.startGrantTime = this.form.grantTimes[0]
+        data.endGrantTime = this.form.grantTimes[1]
       }
       if(this.form.staffName){
         data.staffName = this.form.staffName
@@ -281,11 +286,13 @@ export default {
       if(this.form.staffMobile){
         data.staffMobile = this.form.staffMobile
       }
-      if(this.form.startStaffBirthday){
-        data.startStaffBirthday = this.form.startStaffBirthday
+      if(this.form.staffBirthdays){
+        data.startStaffBirthday = this.form.staffBirthdays[0]
+        data.endStaffBirthday = this.form.staffBirthdays[1]
       }
-      if(this.form.startStaffEmploymentDate){
-        data.startStaffEmploymentDate = this.form.startStaffEmploymentDate
+      if(this.form.staffEmploymentDates){
+        data.startStaffEmploymentDate = this.form.staffEmploymentDates[0]
+        data.endStaffEmploymentDate = this.form.staffEmploymentDates[1]
       }
       if(this.form.staffDepartmentName){
         data.staffDepartmentName = this.form.staffDepartmentName

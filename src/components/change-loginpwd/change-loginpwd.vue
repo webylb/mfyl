@@ -7,7 +7,7 @@
         <el-breadcrumb-item>修改登录密码</el-breadcrumb-item>
       </el-breadcrumb>
     </div>
-    <el-form ref="form" :model="form" :inline="false" :rules="rules" label-position="center" label-width="140px">
+    <el-form ref="form" class="change-pwd" :model="form" :inline="false" :rules="rules" label-position="center" label-width="140px">
       <el-form-item label="企业名称：">
         <div>{{ companyName }}</div>
       </el-form-item>
@@ -167,7 +167,7 @@ export default {
     border-bottom: 1PX solid #EBEEF5;
   }
 
-  .el-form-item {
+  .change-pwd .el-form-item {
     padding: 20px 0 0;
     width: 660px;
     margin-bottom: 20px;

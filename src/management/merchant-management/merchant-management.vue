@@ -94,7 +94,8 @@
           >
           <template slot-scope="scope">
             <span v-if="scope.row.purchaseMode == 'YuFuKuan'">预付款</span>
-            <span v-else>后付款</span>
+            <span v-else-if="scope.row.purchaseMode == 'HouFuKuan'">后付款</span>
+            <span v-else>{{ scope.row.purchaseMode }}</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -140,6 +141,7 @@
           width="100">
           <template slot-scope="scope">
             <el-button @click="changePwd(scope.row.id,scope.$index)" type="text" size="small">修改密码</el-button> <br/>
+            <el-button @click="editMerchant(scope.row,scope.$index)" type="text" size="small">编辑</el-button><br/>
             <el-button @click="lockMerchant(scope.row.id,scope.$index)" v-if="scope.row.isLock == 'N'" type="text" size="small">冻结</el-button>
             <el-button @click="unlockMerchant(scope.row.id,scope.$index)" v-else type="text" size="small">取消冻结</el-button>
           </template>
@@ -163,9 +165,9 @@
     <el-dialog
       title="添加企业信息"
       :visible.sync="dialogVisible"
-      width="422px"
+      width="450px"
       @close="dialogClose()" center>
-      <el-form :model="dialogForm" label-position="right" label-width="120px" :rules="rules" ref="dialogForm">
+      <el-form :model="dialogForm" label-position="right" label-width="125px" :rules="rules" ref="dialogForm">
         <el-form-item label="商户名称*:" prop="companyName">
           <el-input style="width: 270px" v-model="dialogForm.companyName"
                     auto-complete="off"
@@ -224,6 +226,48 @@
         <el-button type="primary" @click="submitPwd()">确  认</el-button>
       </span>
     </el-dialog>
+    <el-dialog
+      title="编辑企业信息"
+      :visible.sync="dialogVisible3"
+      width="450px"
+      @close="dialogClose()" center>
+      <el-form :model="dialogEditForm" label-position="right" label-width="125px" :rules="rules" ref="dialogEditForm">
+        <!-- <el-form-item label="商户名称*:" prop="companyName">
+          <el-input style="width: 270px" v-model="dialogEditForm.companyName"
+                    auto-complete="off"
+                    placeholder="请输入商户名称"></el-input>
+        </el-form-item>
+        <el-form-item label="后台账户*:" prop="username">
+          <el-input style="width: 270px" v-model="dialogEditForm.username"
+                    auto-complete="off"
+                    placeholder="请输入后台账户"></el-input>
+        </el-form-item> -->
+        <el-form-item label="与员工绑定依据*:" prop="bandStrategy">
+          <el-select v-model="dialogEditForm.bandStrategy" placeholder="请选择" style="width: 270px">
+            <el-option
+              v-for="item in options.bindStrategyCodeOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="采购模式*:" prop="purchaseMode">
+          <el-select v-model="dialogEditForm.purchaseMode" placeholder="请选择" style="width: 270px">
+            <el-option
+              v-for="item in options.purchaseModeOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible3 = false">取  消</el-button>
+        <el-button type="primary" @click="submitEdit('dialogForm')">确  认</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -272,6 +316,7 @@ export default {
       loading: true,
       dialogVisible: false,
       dialogVisible2: false,
+      dialogVisible3: false,
       form: {
         merchantName: null,
         bindStrategyCode: null,
@@ -288,6 +333,11 @@ export default {
       },
       dialogForm2: {
         password: null
+      },
+      dialogEditForm: {
+        userName: null,
+        purchaseMode: null,
+        bandStrategy: null
       },
       rules: {
         username: [
@@ -309,16 +359,12 @@ export default {
       options: {
         bindStrategyCodeOptions: [
           {
-            value: 'BindForMobile',
-            label: '手机号'
-          },
-          {
-            value: 'BindForStaffJobNumber',
-            label: '工号'
-          },
-          {
             value: 'BindForStaffName',
             label: '姓名'
+          },
+          {
+            value: 'BindForStaffNameAndJobNumber',
+            label: '姓名-工号'
           },
           {
             value: 'BindForStaffNameAndDepartment',
@@ -515,6 +561,51 @@ export default {
           this.tableData[index].isLock = 'N'
           this.$message.closeAll();
           this.$message.success("操作成功");
+        }else{
+          this.$message.closeAll();
+          this.$message.info(res.message);
+        }
+      }).catch(err => {
+        this.$message.closeAll();
+        this.$message.info(err);
+      })
+    },
+    editMerchant(row,index){
+      this.activeId = row.id
+      this.activeIndex = index
+      this.dialogEditForm.userName = row.username
+      this.dialogEditForm.purchaseMode = row.purchaseMode
+      this.dialogEditForm.bandStrategy = row.bandStrategy
+      this.dialogVisible3 = true
+    },
+    submitEdit(){
+      this.editId = this.activeId
+      this.editIndex = this.activeIndex
+      let data = {}
+      data.merchantId = this.editId
+      data.userName = this.dialogEditForm.userName
+      if(!this.dialogEditForm.bandStrategy){
+        this.$message.closeAll();
+        this.$message.info('请选择绑定依据');
+        return false
+      }
+      data.bindStrategy = this.dialogEditForm.bandStrategy
+      if(!this.dialogEditForm.purchaseMode){
+        this.$message.closeAll();
+        this.$message.info('请选择采购模式');
+        return false
+      }
+      data.purchaseMode = this.dialogEditForm.purchaseMode
+      core.editMerchant(data).then(res => {
+        if(res.code && res.code == '00'){
+          this.dialogVisible3 = false
+          this.$message.closeAll();
+          this.$message.success("操作成功");
+          let opst = {
+            currentPage: this.currentPage,
+            pageSize: this.pageSize
+          }
+          this.search(opst)
         }else{
           this.$message.closeAll();
           this.$message.info(res.message);

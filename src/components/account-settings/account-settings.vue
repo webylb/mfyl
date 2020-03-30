@@ -27,7 +27,7 @@
       <el-form-item label="支付密码：">
         <div class="text-wrap">
           <p style="margin: 0">
-            <span class="title">在账户积分变动时需要输入的密码</span>
+            <span class="title">在账户支付时需要输入的密码</span>
             <span v-if="havePayPassword" class="content" @click="changePayPwd">修改</span>
             <span v-else class="content" @click="changePayPwd">去设置</span>
           </p>

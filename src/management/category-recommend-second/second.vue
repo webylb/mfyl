@@ -31,6 +31,13 @@
           >
         </el-table-column>
         <el-table-column
+          prop="subTitle"
+          label="副标题"
+          align="center"
+          width="150"
+          >
+        </el-table-column>
+        <el-table-column
           label="icon"
           align="center"
           width="100">
@@ -87,6 +94,9 @@
         <el-form-item label="名称:">
           <el-input v-model="dialogInfoForm.name" placeholder="" clearable></el-input>
         </el-form-item>
+        <el-form-item label="副标题:">
+          <el-input v-model="dialogInfoForm.subTitle" @input="changeSubTitleValues(dialogInfoForm.subTitle)" placeholder="" clearable></el-input>
+        </el-form-item>
         <el-form-item label="icon:" v-show="isShowIcon">
           <el-upload
             class=""
@@ -126,6 +136,7 @@ export default {
       title: '添加商品',
       dialogInfoForm: {
         name: '',
+        subTitle: '',
         icon: '',
         link: '',
         sort: ''
@@ -171,12 +182,40 @@ export default {
       this.fileList = []
       this.dialogInfoVisible = false
     },
+    checkStrLength(str) {
+       return str.replace(/[\u0391-\uFFE5]/g,"aa").length;  //先把中文替换成两个字节的英文，在计算长度
+    },
+    subStringEllipsis(str, len){
+      // eslint-disable-next-line no-control-regex
+      var regexp = /[^\x00-\xff]/g // 正在表达式匹配中文
+      // 当字符串字节长度小于指定的字节长度时
+      if (str.replace(regexp, "aa").length <= len) {
+        return str;
+      }
+      // 假设指定长度内都是中文
+      var m = Math.floor(len/2);
+      for (var i = m, j = str.length; i < j; i++) {
+        // 当截取字符串字节长度满足指定的字节长度
+        if (str.substring(0, i).replace(regexp, "aa").length >= len) {
+          return str.substring(0, i);
+        }
+      }
+      return str;
+    },
+    changeSubTitleValues(data){
+      if(this.checkStrLength(data) > 10){
+        this.dialogInfoForm.subTitle = this.subStringEllipsis(data, 10)
+        this.$message.closeAll();
+        this.$message.info('字符长度已达上限');
+      }
+    },
     addGoods(status,row,index){
       this.categoryItemStatus = status
       if(status == 1){
         this.isShowIcon = true
         this.title = '添加商品'
         this.dialogInfoForm.name = ''
+        this.dialogInfoForm.subTitle = ''
         this.dialogInfoForm.icon = ''
         this.dialogInfoForm.link = ''
         this.dialogInfoForm.sort = ''
@@ -188,6 +227,7 @@ export default {
         this.isShowIcon = true
         this.fileList = [{link: row.icon, name: 'icon' }]
         this.dialogInfoForm.icon = row.icon
+        this.dialogInfoForm.subTitle = row.subTitle
         this.dialogInfoForm.name = row.name
         this.dialogInfoForm.link = row.jumpUrl
         this.dialogInfoForm.sort = row.sort
@@ -198,6 +238,11 @@ export default {
       if(!this.dialogInfoForm.name){
         this.$message.closeAll();
         this.$message.info("请确认填写品类名称");
+        return false
+      }
+      if(!this.dialogInfoForm.subTitle){
+        this.$message.closeAll();
+        this.$message.info("请确认填写品类副标题");
         return false
       }
       if(!this.dialogInfoForm.icon){
@@ -213,6 +258,7 @@ export default {
       if(this.categoryItemStatus === 1){
         core.createHomeSecondIcon({
           name:this.dialogInfoForm.name,
+          subTitle:this.dialogInfoForm.subTitle,
           iconImageUrl: this.dialogInfoForm.icon,
           jumpUrl: this.dialogInfoForm.link,
           sort: this.dialogInfoForm.sort
@@ -239,6 +285,7 @@ export default {
       }else{
         core.editHomeSecondIcon({
           iconId: this.editCategoryId,
+          subTitle:this.dialogInfoForm.subTitle,
           iconImageUrl:this.dialogInfoForm.icon,
           name:this.dialogInfoForm.name,
           jumpUrl: this.dialogInfoForm.link,
@@ -246,6 +293,7 @@ export default {
         }).then(res => {
           if(res.code && res.code === "00"){
             this.tableData[this.editIndex].name = this.dialogInfoForm.name
+            this.tableData[this.editIndex].subTitle = this.dialogInfoForm.subTitle,
             this.tableData[this.editIndex].icon = this.dialogInfoForm.icon
             this.tableData[this.editIndex].jumpUrl = this.dialogInfoForm.link
             this.tableData[this.editIndex].sort =  this.dialogInfoForm.sort

@@ -62,11 +62,9 @@
         <el-button type="primary">导  出</el-button>
       </el-form-item>
     </el-form>
-    <el-row>
-      <el-col :span="24">
+    <div>
         <el-button type="primary" icon="el-icon-plus">添加虚拟商品</el-button>
-      </el-col>
-    </el-row>
+    </div>
     <div class="page-content">
       <el-table
         :data="tableData"

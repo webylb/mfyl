@@ -54,7 +54,7 @@
         <img src="/pvc/generate/pvc" alt="" style="margin: 0 auto;display: block;margin-bottom: 20px;width: 100px;">
       </div>
       <el-form ref="dialogForm" :inline="false" label-position="center" label-width="100px">
-        <el-form-item label="手机号：" prop="phone">
+        <el-form-item label="验证码：" prop="phone">
           <el-input v-model="dialogForm.pvc" placeholder="请输入图形验证码" clearable></el-input>
         </el-form-item>
       </el-form>

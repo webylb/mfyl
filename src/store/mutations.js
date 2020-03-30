@@ -18,4 +18,7 @@ export default {
   SAVE_BIND_PHONE(state,data){
     state.bindPhone = data
   },
+  SAVE_PURCHASE_MODE(state,data){
+    state.purchaseMode = data
+  }
 }

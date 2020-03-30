@@ -280,7 +280,9 @@ export default {
           }else{
             this.showAoLinPiKeItem = false
           }
-          this.form.itemContent = res.data.itemContent.content
+          if(res.data.itemContent.content){
+            this.form.itemContent =  res.data.itemContent.content.replace(/<([\/]?)(div)((:?\s*)(:?[^>]*)(:?\s*))>/g, '<$1p$3>');
+          }
           this.form.itemCover = res.data.itemCover
           this.form.itemDeliveryChannel = res.data.itemDeliveryChannel
           this.form.marketPrice = res.data.marketPrice

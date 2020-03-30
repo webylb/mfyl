@@ -277,7 +277,7 @@ export default {
       }
     },
     handleSuccess(file, fileList) {
-      console.log(file,fileList)
+      // console.log(file,fileList)
       // this.fileList = [{
       //   name: fileList.name,
       //   url: fileList.response.data

@@ -24,17 +24,6 @@
         </el-select>
       </el-form-item>
       <el-form-item label="日期:">
-        <!-- <el-date-picker
-          v-model="form.times"
-          type="daterange"
-          align="right"
-          unlink-panels
-          range-separator="至"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期"
-          value-format="timestamp"
-          :picker-options="pickerOptions">
-        </el-date-picker> -->
         <el-date-picker
           v-model="form.times"
           type="datetimerange"
@@ -129,12 +118,9 @@
                 <el-button @click="editLogistics(scope.row,1,scope.$index)" type="text" size="small">发货</el-button>
               </span>
               <div v-else>
-                <span v-if="scope.row.confirmReceiptStatus == 'WAIT'">
+                <span>
                   <el-button @click="editLogistics(scope.row,2,scope.$index)" type="text" size="small">查看物流</el-button>
                 </span>
-                <div v-else>
-                  <span>已完成</span>
-                </div>
               </div>
             </div>
             <span v-else>--</span>
@@ -277,7 +263,7 @@ export default {
           },
           {
             value: 'Shipped',
-            label: '已发货'
+            label: '待收货'
           },
           {
             value: 'Completed',
@@ -389,16 +375,19 @@ export default {
     },
     editLogistics(row, status, index){
       this.dialogInfoVisible = true
-      this.sendStatus = status
+      this.sendStatus = 1
       this.editId = row.id
       this.editIndex = index
       if(status == 1){
         this.title = '发货'
       }else{
         this.title = '查看物流'
-        this.editExpressCompany = row.expressCompany
-        this.editExpressCompanyNumber = row.expressCompanyNumber
-        this.editExpressOrderId = row.expressOrderId
+        this.dialogInfoForm.expressCompany = row.expressCompany
+        this.dialogInfoForm.expressCompanyNumber = row.expressCompanyNumber
+        this.dialogInfoForm.expressOrderId = row.expressOrderId
+        // this.editExpressCompany = row.expressCompany
+        // this.editExpressCompanyNumber = row.expressCompanyNumber
+        // this.editExpressOrderId = row.expressOrderId
       }
     },
     subLogisticsInfo(){
@@ -432,7 +421,7 @@ export default {
             this.tableData[this.editIndex].expressOrderId = data.expressOrderId
             this.tableData[this.editIndex].shipStatus = 'SUCCESS'
             this.$message.closeAll();
-        this.$message.success("操作成功");
+            this.$message.success("操作成功");
             this.dialogInfoVisible = false
           }else{
             this.$message.closeAll();
@@ -445,7 +434,44 @@ export default {
 
       }else{
         //console.log("查看物流信息")
-        this.dialogInfoVisible = false
+        const data = {
+          orderId: this.editId
+        }
+        if(!this.dialogInfoForm.expressCompanyNumber){
+          this.$message.closeAll();
+          this.$message.info('请选择快递公司');
+          return false
+        }
+        data.expressCompanyNumber = this.dialogInfoForm.expressCompanyNumber
+        this.options.expressCompanyOptions.forEach((item,index) => {
+          if(item.value == this.dialogInfoForm.expressCompanyNumber){
+             data.expressCompany = item.label
+          }
+        })
+        if(!this.dialogInfoForm.expressOrderId){
+          this.$message.closeAll();
+          this.$message.info('请填写快递单号');
+          return false
+        }
+        data.expressOrderId =  this.dialogInfoForm.expressOrderId
+        core.changeOrderDelivery(data).then(res => {
+          //console.log(res)
+          if(res.code && res.code == '00'){
+            this.tableData[this.editIndex].expressCompany = data.expressCompany
+            this.tableData[this.editIndex].expressCompanyNumber = data.expressCompanyNumber
+            this.tableData[this.editIndex].expressOrderId = data.expressOrderId
+            this.tableData[this.editIndex].shipStatus = 'SUCCESS'
+            this.$message.closeAll();
+            this.$message.success("操作成功");
+            this.dialogInfoVisible = false
+          }else{
+            this.$message.closeAll();
+            this.$message.info(res.message);
+          }
+        }).catch(err => {
+          this.$message.closeAll();
+          this.$message.info(err);
+        })
       }
     },
     refund(row){

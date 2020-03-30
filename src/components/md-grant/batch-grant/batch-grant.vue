@@ -104,11 +104,12 @@
       width="420px"
       :before-close="dialogClose"
       center>
-      <el-form ref="dialogform" :model="dialogInfoForm"  label-width="130px">
-        <el-form-item label="员工信息Excel:">
+      <el-form ref="dialogform" :model="dialogInfoForm" >
+        <el-form-item style="margin-bottom:0;text-align:center;">
           <el-upload
             ref='upload'
             class="upload-demo"
+            style="text-align:center;"
             action=""
             :on-remove="handleRemove"
             :before-remove="beforeRemove"
@@ -117,8 +118,9 @@
             :on-exceed="handleExceed"
             :file-list="fileList"
             :http-request="uploadFile">
-            <el-button size="small" type="text">导入员工信息</el-button>
+            <el-button type="text">导入员工信息Excel</el-button>
           </el-upload>
+          <el-link :underline="false" type="warning">*号列为必填项，请正确填写！</el-link>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -133,7 +135,7 @@
       :before-close="dialogClose"
       center>
       <div style="text-align: center;margin: 20px 0;">
-        本次积分共发送{{ grantStaffCount }}人，累计需扣除{{ totalGrantMoney }}元
+        本次共发送{{ grantStaffCount }}人，累计需扣除{{ totalGrantMoney }}元
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogHintVisible = false">取 消</el-button>
@@ -204,7 +206,7 @@
           <i class="el-icon-success" style="color: #67c23a;fontSize: 80px"></i>
         </div>
         <div style="text-align:center;margin:10px 25px;font-size:16px;">
-          积分发放成功！
+          发放成功！
         </div>
       </div>
       <span slot="footer" class="dialog-footer">
@@ -393,6 +395,24 @@ export default {
           this.totalGrantMoney = res.data.totalGrantMoney
           this.getMerchantDetail()
           this.loading = false
+        } else if(res.code && res.code === "90"){
+
+          this.$confirm('部分发放员工未绑定手机号，请先绑定手机号再发放魔豆。', '提示', {
+            confirmButtonText: '继续导入',
+            cancelButtonText: '取消导入',
+            type: 'warning'
+          }).then(() => {
+            this.$message({
+              type: 'success',
+              message: '符合发放条件的员工导入成功!'
+            });
+          }).catch(() => {
+            this.$message({
+              type: 'info',
+              message: '已取消删除'
+            });
+          });
+
         }else{
           this.dialogInfoVisible = false
           this.$refs.upload.clearFiles()

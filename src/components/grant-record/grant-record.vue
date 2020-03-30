@@ -2,16 +2,18 @@
   <div class="grant-record">
     <el-form ref="form" :model="form" :inline="true" label-position="center" label-width="60px">
       <el-form-item label="时间">
-         <el-date-picker style="width: 150px"
-            v-model="form.startGrantTime"
-            type="date"
-            placeholder="选择日期"
-            value-format="timestamp"
-            :picker-options="pickerOptions">
-          </el-date-picker>
+        <el-date-picker
+          v-model="form.times"
+          type="datetimerange"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          value-format="timestamp"
+          :default-time="['00:00:00', '23:59:59']"
+          :picker-options="pickerOptions">
+        </el-date-picker>
       </el-form-item>
       <el-form-item style="float:right;">
-        <el-button type="primary" @click="search">立即查询</el-button>
+        <el-button type="primary" @click="search()">立即查询</el-button>
       </el-form-item>
     </el-form>
     <div class="page-content">
@@ -101,12 +103,12 @@ export default {
     return {
       pickerOptions: {
         disabledDate(time) {
-          return time.getTime() > Date.now();
+          return time.getTime() - 3600 * 1000 * 24 * 1 > Date.now();
         }
       },
       loading: true,
       form:{
-        startGrantTime: ''
+        times: ''
       },
       pageSize: 10,
       currentPage: 1,
@@ -119,10 +121,7 @@ export default {
   },
   activated() {
     let data = {currentPage:this.currentPage, pageSize:this.pageSize}
-    if(this.form.startGrantTime){
-      data.startGrantTime = this.form.startGrantTime
-    }
-    this.getGrantRecordList(data)
+    this.search(data)
     setTimeout(()=>{
       document.getElementsByClassName('router-container')[0].scrollIntoView({
         // behavior: 'smooth',    //平滑滚动，爽，其他还有 instant
@@ -150,51 +149,35 @@ export default {
       })
     },
     formatDate(val){
-      return tool.formatDate(val,'YYYY-MM-DD')
+      return tool.formatDate(val)
     },
     handleSizeChange(val) {
       this.pageSize = val
-      this.loading = true
       let data = { currentPage:1, pageSize:val }
-      if(this.form.startGrantTime){
-        data.startGrantTime = this.form.startGrantTime
-      }
-      this.getGrantRecordList(data)
+      this.search(data)
     },
     handleCurrentChange(val) {
-      this.currentPage = val,
-      this.loading = true
+      this.currentPage = val
       let data = { currentPage:val, pageSize:this.pageSize }
-      if(this.form.startGrantTime){
-        data.startGrantTime = this.form.startGrantTime
-      }
-      this.getGrantRecordList(data)
+      this.search(data)
     },
-    search(){
+    search(opts){
       this.loading = true
-      this.currentPage = 1
-      let data = { currentPage:1, pageSize:this.pageSize }
-      if(this.form.startGrantTime){
-        data.startGrantTime = this.form.startGrantTime
+      let data = null
+      if(opts){
+        data = opts
+      }else{
+        this.currentPage = 1
+        data = { currentPage: 1, pageSize:this.pageSize }
+      }
+      if(this.form.times){
+        data.startGrantTime = this.form.times[0]
+        data.endGrantTime = this.form.times[1]
       }
       this.getGrantRecordList(data)
     },
     handleClick(row) {
-      //console.log(row);
       this.$router.push({path:"/grant-record/grant-detail",query:{id: row.id}})
-    },
-    dialogClose(){
-      this.dialogVisible = false
-    },
-    submitForm(formName) {
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          //this.$router.push('/UserManagement')
-        } else {
-          console.log('error submit!!');
-          return false;
-        }
-      });
     }
   },
   watch: {

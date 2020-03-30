@@ -2,13 +2,15 @@
   <div class="invoice-management">
     <el-form ref="form" :model="form" :inline="true" label-position="center" label-width="80px">
       <el-form-item label="创建时间:">
-         <el-date-picker style="width: 120px;padding-right:0"
-            v-model="form.startTime"
-            type="date"
-            placeholder="选择日期"
-            value-format="timestamp"
-            :picker-options="pickerOptions">
-          </el-date-picker>
+         <el-date-picker
+          v-model="form.times"
+          type="datetimerange"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          value-format="timestamp"
+          :default-time="['00:00:00', '23:59:59']"
+          :picker-options="pickerOptions">
+        </el-date-picker>
       </el-form-item>
 
       <el-form-item label="企业名称:">
@@ -207,13 +209,13 @@ export default {
     return {
       pickerOptions: {
         disabledDate(time) {
-          return time.getTime() > Date.now();
+          return time.getTime() - 3600 * 1000 * 24 * 1 > Date.now();
         }
       },
       loading: true,
       dialogVisible: false,
       form: {
-        startTime: null,
+        times: null,
         companyName: null,
         openingBank: null,
         deliveryStatus: null,
@@ -280,57 +282,32 @@ export default {
     },
     handleSizeChange(val) {
       this.pageSize = val
-      this.loading = true
       let data = {
         currentPage: 1,
         pageSize: val
       }
-      if(this.form.startTime){
-        data.startTime = Number(this.form.startTime);
-      }
-      if(this.form.companyName){
-        data.companyName = this.form.companyName;
-      }
-      if(this.form.openingBank){
-        data.openingBank = this.form.openingBank;
-      }
-      if(this.form.deliveryStatus){
-        data.deliveryStatus = this.form.deliveryStatus;
-      }
-
-      this.getInvoiceList(data)
+      this.search(data)
     },
     handleCurrentChange(val) {
       this.currentPage = val
-      this.loading = true
       let data = {
         currentPage: val,
         pageSize: this.pageSize
       }
-      if(this.form.startTime){
-        data.startTime = Number(this.form.startTime);
-      }
-      if(this.form.companyName){
-        data.companyName = this.form.companyName;
-      }
-      if(this.form.openingBank){
-        data.openingBank = this.form.openingBank;
-      }
-      if(this.form.deliveryStatus){
-        data.deliveryStatus = this.form.deliveryStatus;
-      }
-
-      this.getInvoiceList(data)
+      this.search(data)
     },
-    search(){
+    search(opts){
       this.loading = true
-      let data = {
-        currentPage:1,
-        pageSize:this.pageSize
+      let data = null
+      if(opts){
+        data = opts
+      }else{
+        this.currentPage = 1
+        data = {currentPage: 1, pageSize: this.pageSize}
       }
-      this.currentPage = 1
-      if(this.form.startTime){
-        data.startTime = Number(this.form.startTime);
+      if(this.form.times){
+        data.startTime = this.form.times[0]
+        data.endTime = this.form.times[1]
       }
       if(this.form.companyName){
         data.companyName = this.form.companyName;
@@ -341,12 +318,7 @@ export default {
       if(this.form.deliveryStatus){
         data.deliveryStatus = this.form.deliveryStatus;
       }
-
       this.getInvoiceList(data)
-
-    },
-    handleChange(value) {
-      console.log(value);
     },
     handleClick(row,status,index) {
       this.dialogVisible = true

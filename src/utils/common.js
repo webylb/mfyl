@@ -8,24 +8,28 @@ function formatNumber(n) {
   return n[1] ? n : '0' + n
 }
 
-const formatDate = function(date, type) {
-  var date = new Date(date)
-  var year = date.getFullYear()
-  var month = date.getMonth() + 1
-  var day = date.getDate()
+const formatDate = function(val, type) {
+  if(val){
+    var date = new Date(val)
+    var year = date.getFullYear()
+    var month = date.getMonth() + 1
+    var day = date.getDate()
 
-  var hour = date.getHours()
-  var minute = date.getMinutes()
-  var second = date.getSeconds()
+    var hour = date.getHours()
+    var minute = date.getMinutes()
+    var second = date.getSeconds()
 
-  if (type == 'YYYY-MM-DD') {
-      return [year, month, day].map(formatNumber).join('-')
-  }
-  if (type == 'MM-DD') {
-    return [month, day].map(formatNumber).join('-')+' '+[hour,minute].map(formatNumber).join(':')
-  }
-  else {
-      return [year, month, day].map(formatNumber).join('-') + ' ' + [hour, minute, second].map(formatNumber).join(':')
+    if (type == 'YYYY-MM-DD') {
+        return [year, month, day].map(formatNumber).join('-')
+    }
+    if (type == 'MM-DD') {
+      return [month, day].map(formatNumber).join('-')+' '+[hour,minute].map(formatNumber).join(':')
+    }
+    else {
+        return [year, month, day].map(formatNumber).join('-') + ' ' + [hour, minute, second].map(formatNumber).join(':')
+    }
+  }else{
+    return ''
   }
 }
 

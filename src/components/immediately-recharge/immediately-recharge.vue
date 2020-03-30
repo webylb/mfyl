@@ -11,22 +11,21 @@
         <el-input v-model="form.rechargeNum" clearable style="width:150px" placeholder="请输入充值金额"></el-input>
       </el-form-item>
 
-      <el-form-item label="充值渠道">
+      <el-form-item label="充值渠道" v-if="purchaseMode === 'YuFuKuan'">
           <el-radio-group v-model="form.type">
             <el-radio label="BankTransfer">银行卡</el-radio>
             <el-radio label="Alipay">支付宝</el-radio>
           </el-radio-group>
-
       </el-form-item>
-      <el-form-item label="付款信息" v-if="form.type == 'Alipay'">
+      <el-form-item label="付款信息" v-if="form.type == 'Alipay' && purchaseMode === 'YuFuKuan'">
         <div>
           <p style="margin: 0">支付宝账号：{{ AlipayInfo.alipayAccount }}</p>
           <p style="margin: 0">账户名称：{{ AlipayInfo.accountName }}</p>
-          <p style="margin: 0"><img :src="AlipayInfo.alipayQrCode" alt="" style="width:200px;height:atuo;"></p>
+          <p style="margin: 0" v-if="AlipayInfo.alipayQrCode"><img :src="AlipayInfo.alipayQrCode" alt="" style="width:200px;height:atuo;"></p>
           <p style="margin: 0;font-size: 12px;color:red">(请通过线下支付方式支付费用到该收款账号)</p>
         </div>
       </el-form-item>
-      <el-form-item label="收款方信息" v-else>
+      <el-form-item label="收款方信息" v-if="form.type == 'BankTransfer' && purchaseMode === 'YuFuKuan'">
         <div v-if="bankInfo">
           <p style="margin: 0">行联号：{{ bankInfo.bankLineNumber }}</p>
           <p style="margin: 0">开户行：{{ bankInfo.bankOpeningBank }}</p>
@@ -35,7 +34,7 @@
           <p style="margin: 0;font-size: 12px;color:red">(请通过线下支付方式支付费用到该收款账号)</p>
         </div>
       </el-form-item>
-      <el-form-item label="上传转账凭证">
+      <el-form-item label="上传转账凭证" v-if="purchaseMode === 'YuFuKuan'">
         <el-upload
           :action="action"
           list-type="picture-card"
@@ -73,15 +72,15 @@
     <el-dialog
       title=""
       :visible.sync="dialogSuccessVisible"
-      width="400px"
+      width="450px"
       :before-close="dialogClose"
       center>
       <div class="margin:20px auto;text-align:center;font-size;16px;">
         <div style="text-align:center;">
           <i class="el-icon-success" style="color: #67c23a;fontSize: 80px"></i>
         </div>
-        <div style="text-align:center;margin:10px 25px;font-size:16px;">
-          积分采购已申请，魔方优礼将在2个工作日内为您受理！
+        <div style="text-align:center;margin:10px;font-size:16px;">
+          充值申请已提交，魔方优礼将在2个工作日内为您受理。
         </div>
       </div>
       <span slot="footer" class="dialog-footer">
@@ -90,6 +89,7 @@
   </div>
 </template>
 <script>
+import { mapState } from 'vuex'
 import CONGIF from "../../api/config"
 import * as core from '../../api/benefit-recharge'
 
@@ -119,6 +119,11 @@ export default {
       AlipayInfo: null,
       receiveMoneyAccountId: null
     }
+  },
+  computed: {
+    ...mapState({
+      purchaseMode: state => state.purchaseMode
+    }),
   },
   created(){
     this.getReceiveAccountInfo()
@@ -155,7 +160,13 @@ export default {
     },
     submitForm(formName) {
       if(!this.form.rechargeNum){
+        this.$message.closeAll();
         this.$message.warning("请输入充值金额");
+        return false
+      }
+      if(this.transferVouchers && this.transferVouchers.length < 1 && this.purchaseMode === 'YuFuKuan'){
+        this.$message.closeAll();
+        this.$message.warning("您还未上传转账凭证哦");
         return false
       }
       this.dialogHintVisible = true
@@ -176,14 +187,17 @@ export default {
       }
 
       core.subRecharge(data).then(res => {
-        console.log(res)
+        // console.log(res)
         if(res.code && res.code == '00'){
           this.dialogSuccessVisible = true;
           let timer = null
           clearTimeout(timer)
           timer = setTimeout(res=>{
             this.dialogSuccessVisible = false
-          },3000)
+            if(this.$route.query.return){
+              this.$router.push(this.$route.query.return)
+            }
+          },1500)
         }else{
           this.$message.closeAll();
           this.$message.info(res.message);

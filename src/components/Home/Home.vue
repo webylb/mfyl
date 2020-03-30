@@ -124,7 +124,8 @@ export default {
       'UPDATA_ACCOUNT_BALANCE',
       'SAVE_MERCHANT_ID',
       'UPDATA_PAY_PASSWORD_STATUS',
-      'SAVE_BIND_PHONE'
+      'SAVE_BIND_PHONE',
+      'SAVE_PURCHASE_MODE'
     ]),
     handleOpen(key, keyPath) {
       //console.log(key, keyPath);
@@ -167,6 +168,7 @@ export default {
           this.SAVE_MERCHANT_ID(res.data.merchantId)
           this.UPDATA_PAY_PASSWORD_STATUS(res.data.havePayPassword)
           this.SAVE_BIND_PHONE(res.data.bindPhone || '--')
+          this.SAVE_PURCHASE_MODE(res.data.purchaseMode || '--')
         }else{
           this.$message.closeAll();
           this.$message.info(res.message);

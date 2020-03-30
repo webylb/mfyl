@@ -103,11 +103,11 @@
       :before-close="dialogClose"
       center>
       <div style="margin: 10px auto;text-align: center;">
-        您的企业账户积余额不足，请立即进行积分充值
+        您的账户余额不足，请充值
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogClose">取 消</el-button>
-        <el-button type="primary" @click="subRecharge">立即充值</el-button>
+        <el-button type="primary" @click="subRecharge()">立即充值</el-button>
       </span>
     </el-dialog>
     <el-dialog
@@ -274,24 +274,39 @@ export default {
     },
     submitForm(formName) {
       if(!this.form.isVirtual){
+        this.$message.closeAll();
         this.$message.warning("请选择充值卡密类型");
         return false;
       }
-      this.form.camInfo.forEach((item,index) => {
-        if(item.faceValue == ""){
-          this.form.camInfo.splice(index,1)
-        }
-      })
       if(this.form.camInfo.length < 1){
         this.form.camInfo.push({
           amount: '',
           faceValue: ''
         });
+        this.$message.closeAll();
         this.$message.warning("请选择充值面值及数量");
         return false;
+      }else{
+        for(let i = 0, length = this.form.camInfo.length; i<length; i++){
+          if(this.form.camInfo[i].faceValue == "" && this.form.camInfo[i].amount == "" && this.form.camInfo.length > 1){
+            this.form.camInfo.splice(i,1)
+            return false;
+          }
+          if(this.form.camInfo[i].faceValue == ""){
+            this.$message.closeAll();
+            this.$message.warning("请选择充值面值");
+            return false;
+          }
+          if(this.form.camInfo[i].amount == ""){
+            this.$message.closeAll();
+            this.$message.warning("请填写采购数量");
+            return false;
+          }
+        }
       }
       if(this.form.isVirtual == "Y"){
         if(!tool.isEmail(this.form.email)){
+          this.$message.closeAll();
           this.$message.warning("请输入您有效的邮箱地址");
           return false;
         }
@@ -313,10 +328,11 @@ export default {
       this.$router.push('/account-settings')
     },
     subRecharge(){
-      this.$router.push('/account-recharge/immediately-recharge')
+      this.$router.push({path:'/account-recharge/immediately-recharge',query:{return: '/pwd-purchase/immediately-purchase'}})
     },
     subCamOrder(){
       if(this.form.payPassword.length < 1){
+        this.$message.closeAll();
         this.$message.warning("请输入支付密码");
         return false;
       }

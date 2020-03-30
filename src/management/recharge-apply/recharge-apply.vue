@@ -2,13 +2,15 @@
   <div class="user-management">
     <el-form ref="form" :model="form" :inline="true" label-position="center" label-width="80px">
       <el-form-item label="时间:">
-         <el-date-picker style="width: 140px;padding-right:0"
-            v-model="form.startTime"
-            type="date"
-            placeholder="选择日期"
-            value-format="timestamp"
-            :picker-options="pickerOptions">
-          </el-date-picker>
+         <el-date-picker
+          v-model="form.times"
+          type="datetimerange"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          value-format="timestamp"
+          :default-time="['00:00:00', '23:59:59']"
+          :picker-options="pickerOptions">
+        </el-date-picker>
       </el-form-item>
 
       <el-form-item label="商户名称:">
@@ -185,7 +187,11 @@
       width="422px"
       @close="dialogClose()" center>
       <div style="margin:20px auto;text-align:center;font-size:16px;text-align:center;">
-        <img v-for="item in imgList"  :src="item.voucherPictureUrl" :key="item.id" style="display: block;margin: 0 auto;margin-bottom:5px;max-width:390px;height:auto;">
+        <el-image v-for="item in imgList" :src="item.voucherPictureUrl" :key="item.id" style="display: block;margin: 0 auto;margin-bottom:5px;max-width:390px;height:auto">
+          <div slot="placeholder" class="image-slot">
+            加载中<span class="dot">...</span>
+          </div>
+        </el-image>
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogImgVisible = false">取  消</el-button>
@@ -204,14 +210,14 @@ export default {
     return {
       pickerOptions: {
         disabledDate(time) {
-          return time.getTime() > Date.now();
+          return time.getTime() - 3600 * 1000 * 24 * 1 > Date.now();
         }
       },
       loading: true,
       dialogVisible: false,
       dialogImgVisible: false,
       form: {
-        startTime: null,
+        times: null,
         merchantName: null,
         rechargeType: null,
         purchaseMode: null,
@@ -245,7 +251,7 @@ export default {
         reviewStatusOptions: [
           {
             value: 'WAIT',
-            label: '未审核'
+            label: '申请中'
           },
           {
             value: 'SUCCESS',
@@ -265,7 +271,7 @@ export default {
     }
   },
   created(){
-    this.getRechargeOrderList({pageSize: this.pageSize,currentPage: this.currentPage})
+    this.search({pageSize: this.pageSize,currentPage: this.currentPage})
   },
   methods: {
     getRechargeOrderList(opts){
@@ -291,7 +297,6 @@ export default {
     },
     handleSizeChange(val) {
       this.pageSize = val
-      this.loading = true
       let data = {
         currentPage: 1,
         pageSize: val
@@ -300,7 +305,6 @@ export default {
     },
     handleCurrentChange(val) {
       this.currentPage = val
-      this.loading = true
       let data = {
         currentPage: val,
         pageSize: this.pageSize
@@ -316,8 +320,9 @@ export default {
         this.currentPage = 1
         data = {currentPage:1, pageSize:this.pageSize}
       }
-      if(this.form.startTime){
-        data.startTime = Number(this.form.startTime);
+      if(this.form.times){
+        data.startTime = this.form.times[0]
+        data.endTime = this.form.times[1]
       }
       if(this.form.merchantName){
         data.merchantName = this.form.merchantName;

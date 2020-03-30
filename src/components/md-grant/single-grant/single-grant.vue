@@ -18,23 +18,6 @@
           <el-form-item label="手机号">
             <el-input style="width: 120px" v-model="form.staffMobile" clearable></el-input>
           </el-form-item>
-          <el-form-item label="生日">
-            <el-date-picker style="width: 140px" v-model="form.startStaffBirthday" clearable
-              type="date"
-              placeholder="选择时间"
-              value-format="timestamp"
-              :picker-options="pickerOptions">
-            </el-date-picker>
-          </el-form-item>
-
-          <el-form-item label="入职时间">
-            <el-date-picker style="width: 140px" v-model="form.startStaffEmploymentDate" clearable
-              type="date"
-              placeholder="选择时间"
-              value-format="timestamp"
-              :picker-options="pickerOptions">
-            </el-date-picker>
-          </el-form-item>
 
           <el-form-item label="部门">
             <el-select v-model="form.staffDepartmentName" clearable placeholder="请选择部门" style="width: 120px">
@@ -58,8 +41,34 @@
             </el-select>
           </el-form-item>
           <el-form-item style="float:right;">
-            <el-button type="primary" @click="search">立即查询</el-button>
+            <el-button type="primary" @click="search()">立即查询</el-button>
           </el-form-item>
+
+          <el-form-item label="生日">
+            <el-date-picker
+              v-model="form.birthdayTimes"
+              type="datetimerange"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+              value-format="timestamp"
+              :default-time="['00:00:00', '23:59:59']"
+              :picker-options="pickerOptions">
+            </el-date-picker>
+          </el-form-item>
+
+          <el-form-item label="入职时间">
+            <el-date-picker
+              v-model="form.staffEmploymentTimes"
+              type="datetimerange"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+              value-format="timestamp"
+              :default-time="['00:00:00', '23:59:59']"
+              :picker-options="pickerOptions">
+            </el-date-picker>
+          </el-form-item>
+
+
 
         </el-form>
       </div>
@@ -84,11 +93,6 @@
             type="index"
             label="序号"
             width="80"
-            align="center">
-          </el-table-column>
-          <el-table-column
-            prop="id"
-            label="用户ID"
             align="center">
           </el-table-column>
           <el-table-column
@@ -122,12 +126,6 @@
             <template slot-scope="scope">
               <span>{{ formatDate(scope.row.staffEmploymentDate) }}</span>
             </template>
-          </el-table-column>
-          <el-table-column
-            prop="merchantCompanyName"
-            label="公司名"
-            align="center"
-            min-width="120">
           </el-table-column>
           <el-table-column
             prop="staffDepartmentName"
@@ -245,7 +243,7 @@
       :before-close="dialogClose"
       center>
       <div style="text-align: center;margin: 20px 0;">
-        本次积分共发送{{ grantStaffCount }}人，累计需扣除{{ totalGrantMoney }}元
+        本次共发送{{ grantStaffCount }}人，累计需扣除{{ totalGrantMoney }}元
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogHintVisible = false">取 消</el-button>
@@ -316,7 +314,7 @@
           <i class="el-icon-success" style="color: #67c23a;fontSize: 80px"></i>
         </div>
         <div style="text-align:center;margin:10px 25px;font-size:16px;">
-          积分发放成功！
+          发放成功！
         </div>
       </div>
       <span slot="footer" class="dialog-footer">
@@ -336,7 +334,7 @@ export default {
     return {
       pickerOptions: {
         disabledDate(time) {
-          return time.getTime() > Date.now();
+          return time.getTime() - 3600 * 1000 * 24 * 1 > Date.now();
         }
       },
       loading: false,
@@ -345,8 +343,8 @@ export default {
         staffName:'', //姓名
         staffJobNumber: '',//工号
         staffMobile:'',//手机号
-        startStaffBirthday: '',//生日
-        startStaffEmploymentDate:'',//入职日期
+        birthdayTimes: '',//生日
+        staffEmploymentTimes:'',//入职日期
         staffDepartmentName: '',//部门名称
         staffJob: ''//职位
       },
@@ -464,12 +462,17 @@ export default {
       if(this.form.staffMobile){
         data.staffMobile = this.form.staffMobile
       }
-      if(this.form.startStaffBirthday){
-        data.startStaffBirthday = this.form.startStaffBirthday
+
+      if(this.form.birthdayTimes){
+        data.startStaffBirthday = this.form.birthdayTimes[0]
+        data.endStaffBirthday = this.form.birthdayTimes[1]
       }
-      if(this.form.startStaffEmploymentDate){
-        data.startStaffEmploymentDate = this.form.startStaffEmploymentDate
+
+      if(this.form.staffEmploymentTimes){
+        data.startStaffEmploymentDate = this.form.staffEmploymentTimes[0]
+        data.endStaffEmploymentDate = this.form.staffEmploymentTimes[1]
       }
+
       if(this.form.staffDepartmentName){
         data.staffDepartmentName = this.form.staffDepartmentName
       }

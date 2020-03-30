@@ -38,6 +38,15 @@
          >
         </el-table-column>
         <el-table-column
+          prop="isShow"
+          label="在手机端展示"
+          align="center"
+         >
+          <template slot-scope="scope">
+            <span>{{ scope.row.isShow === 'Y' ? '是' : '否' }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
           label="详情"
           align="center"
           >
@@ -74,15 +83,18 @@
     <el-dialog
       :title="title"
       :visible.sync="dialogInfoVisible"
-      width="420px"
+      width="450px"
       :before-close="dialogClose"
       center>
-      <el-form ref="dialogform" :model="dialogInfoForm" label-width="100px">
+      <el-form ref="dialogform" :model="dialogInfoForm" label-width="150px">
         <el-form-item label="分类名称:">
           <el-input v-model="dialogInfoForm.categoryName" placeholder="" clearable></el-input>
         </el-form-item>
         <el-form-item label="排序:" prop="sort">
           <el-input v-model="dialogInfoForm.sort" placeholder="" clearable></el-input>
+        </el-form-item>
+        <el-form-item label="是否在手机端展示:">
+          <el-switch v-model="dialogInfoForm.isShow"></el-switch>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -111,7 +123,8 @@ export default {
       categoryItemStatus: 1,//1为新增,2为编辑
       dialogInfoForm: {
         categoryName: '',
-        sort: ''
+        sort: '',
+        isShow: true
       },
       dialogInfoVisible: false,
       editCategoryId: null,
@@ -149,12 +162,14 @@ export default {
         this.title = '添加一级分类'
         this.dialogInfoForm.categoryName = ''
         this.dialogInfoForm.sort = ''
+        this.dialogInfoForm.isShow = true
       }else if(status == 2){
         this.title = '编辑一级分类'
         this.editCategoryId = row.id
         this.editIndex = index
         this.dialogInfoForm.categoryName = row.categoryName
         this.dialogInfoForm.sort = row.sort
+        this.dialogInfoForm.isShow = row.isShow === 'Y' ? true : false
       }
       this.dialogInfoVisible = true
     },
@@ -174,7 +189,7 @@ export default {
     subCategoryInfo(){
       if(this.dialogInfoForm.categoryName){
         if(this.categoryItemStatus === 1){
-          core.createFirstCategory({categoryName: this.dialogInfoForm.categoryName,sort: this.dialogInfoForm.sort}).then(res => {
+          core.createFirstCategory({categoryName: this.dialogInfoForm.categoryName,sort: this.dialogInfoForm.sort, isShow: this.dialogInfoForm.isShow ? 'Y' : 'N'}).then(res => {
             if(res.code && res.code === "00"){
               // this.tableData.unshift({
               //   categoryName: this.dialogInfoForm.categoryName,
@@ -193,10 +208,11 @@ export default {
             this.$message.info(err);
           })
         }else{
-          core.editFirstCategory({firstCategoryId: this.editCategoryId,categoryName: this.dialogInfoForm.categoryName,sort:this.dialogInfoForm.sort}).then(res => {
+          core.editFirstCategory({firstCategoryId: this.editCategoryId,categoryName: this.dialogInfoForm.categoryName,sort:this.dialogInfoForm.sort, isShow: this.dialogInfoForm.isShow ? 'Y' : 'N'}).then(res => {
             if(res.code && res.code === "00"){
               this.tableData[this.editIndex].categoryName = this.dialogInfoForm.categoryName
               this.tableData[this.editIndex].sort = this.dialogInfoForm.sort
+              this.tableData[this.editIndex].isShow = this.dialogInfoForm.isShow ? 'Y' : 'N'
               this.dialogClose()
               this.$message.closeAll();
               this.$message.success("操作成功");
@@ -240,7 +256,6 @@ export default {
       }
     },
     goDetail(row){
-      //console.log(row)
       this.$router.push({path:'/category-settings/child', query:{firstCategoryId: row.id, firstCategoryName: row.categoryName}})
     }
   }

@@ -55,9 +55,11 @@
       <div class="margin:20px auto;text-align:center;font-size;16px;height:42px;" v-if="pvc">
         <img src="/pvc/generate/pvc" alt="" style="margin: 0 auto;display: block;margin-bottom: 20px;width: 100px;">
       </div>
-      <el-form ref="dialogForm" :inline="false" label-position="center" label-width="100px">
-        <el-form-item label="手机号：" prop="phone">
-          <el-input v-model="dialogForm.pvc" placeholder="请输入图形验证码" clearable></el-input>
+      <el-form class="dialogForm" ref="dialogForm" :inline="false" label-position="center" label-width="100px">
+        <el-form-item label="验证码: " prop="code">
+          <div class="btn-group">
+            <el-input v-model="dialogForm.pvc" placeholder="请输入验证码" clearable></el-input>
+          </div>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -265,7 +267,7 @@ export default {
 }
 
 </script>
-<style lang='less'>
+<style lang='less' scope>
 .change-phonenum {
 
    .change-phonenum-title {

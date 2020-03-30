@@ -8,13 +8,15 @@
     </div>
     <el-form ref="form" :model="form" :inline="true" label-position="center" label-width="80px">
       <el-form-item label="创建时间:" class="form-date">
-         <el-date-picker style="width: 140px;padding-right:0"
-            v-model="form.startTime"
-            type="date"
-            placeholder="选择日期"
-            value-format="timestamp"
-            :picker-options="pickerOptions">
-          </el-date-picker>
+         <el-date-picker
+          v-model="form.times"
+          type="datetimerange"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          value-format="timestamp"
+          :default-time="['00:00:00', '23:59:59']"
+          :picker-options="pickerOptions">
+        </el-date-picker>
       </el-form-item>
 
       <el-form-item label="卡密类型:">
@@ -39,8 +41,22 @@
         </el-select>
       </el-form-item>
 
+      <el-form-item label="商户名称:">
+        <!-- <el-input style="width: 120px" v-model="form.merchantName" placeholder="请输入" clearable></el-input> -->
+        <el-autocomplete
+          class="inline-input"
+          style="width: 180px"
+          v-model="form.merchantName"
+          :fetch-suggestions="querySearch"
+          placeholder="请输入商户名称"
+          :trigger-on-focus="false"
+          @select="handleSelect"
+          clearable
+        ></el-autocomplete>
+      </el-form-item>
+
       <el-form-item style='float:right;'>
-        <el-button type="primary" @click="search">立即查询</el-button>
+        <el-button type="primary" @click="search()">立即查询</el-button>
       </el-form-item>
     </el-form>
     <div class="page-content">
@@ -59,11 +75,18 @@
         <el-table-column
           label="创建时间"
           align="center"
+          width="140"
           >
           <template slot-scope="scope">
-            <span v-if="scope.row.createTime">{{ formatDate(scope.row.createTime) }}</span>
+            <span v-if="scope.row.createTime" style="font-size:12px;">{{ formatDate(scope.row.createTime) }}</span>
             <span v-else>0*0</span>
           </template>
+        </el-table-column>
+        <el-table-column
+          prop="merchantCompanyName"
+          label="商户名称"
+          align="center"
+          width="200">
         </el-table-column>
         <el-table-column
           label="卡密类型"
@@ -193,6 +216,7 @@
 </template>
 <script>
 import * as core from '../../api/cam'
+import * as merchantCore from '../../api/merchant'
 import tool from '../../utils/common'
 
 export default {
@@ -208,7 +232,7 @@ export default {
     return {
       pickerOptions: {
         disabledDate(time) {
-          return time.getTime() > Date.now();
+          return time.getTime() - 3600 * 1000 * 24 * 1 > Date.now();
         }
       },
       loading: true,
@@ -242,9 +266,10 @@ export default {
         ]
       },
       form: {
-        startTime: null,
+        times: null,
         isVirtual: '',
-        orderStatus: ''
+        orderStatus: '',
+        merchantName: ''
       },
       isVirtual: '',
       editIndex: null,
@@ -259,12 +284,14 @@ export default {
       currentPage: 1,
       pageSize: 10,
       pageTotal: 0,
-      tableData: []
+      tableData: [],
+      restaurants: []
     }
   },
   created(){
     this.getCamOrderList({currentPage:this.currentPage, pageSize:this.pageSize})
     this.getExpressList()
+    this.getMerchantList()
   },
   methods: {
     getCamOrderList(opts){
@@ -287,59 +314,45 @@ export default {
     formatDate(val){
       return tool.formatDate(val)
     },
-    search(){
+    search(opts){
       this.loading = true
-      let data = {
-        currentPage:1,
-        pageSize:this.pageSize
+      let data = null
+      if(opts){
+        data = opts
+      }else{
+        this.currentPage = 1
+        data = { currentPage:1, pageSize:this.pageSize }
       }
-      this.currentPage = 1
-      if(this.form.startTime){
-        data.startTime = Number(this.form.startTime);
+      if(this.form.times){
+        data.startTime = this.form.times[0]
+        data.endTime = this.form.times[1]
       }
       if(this.form.isVirtual){
         data.isVirtual = this.form.isVirtual;
       }
       if(this.form.orderStatus){
         data.orderStatus = this.form.orderStatus;
+      }
+      if(this.form.merchantName){
+        data.merchantCompanyName = this.form.merchantName;
       }
       this.getCamOrderList(data)
     },
     handleSizeChange(val) {
       this.pageSize = val
-      this.loading = true
       let data = {
         currentPage:1,
         pageSize: val
       }
-      if(this.form.startTime){
-        data.startTime = Number(this.form.startTime);
-      }
-      if(this.form.isVirtual){
-        data.isVirtual = this.form.isVirtual;
-      }
-      if(this.form.orderStatus){
-        data.orderStatus = this.form.orderStatus;
-      }
-      this.getCamOrderList(data)
+      this.search(data)
     },
     handleCurrentChange(val) {
-      this.currentPage = val,
-      this.loading = true
+      this.currentPage = val
       let data = {
         currentPage: val,
         pageSize: this.pageSize
       }
-      if(this.form.startTime){
-        data.startTime = Number(this.form.startTime);
-      }
-      if(this.form.isVirtual){
-        data.isVirtual = this.form.isVirtual;
-      }
-      if(this.form.orderStatus){
-        data.orderStatus = this.form.orderStatus;
-      }
-      this.getCamOrderList(data)
+      this.search(data)
     },
     createdCam(id,camType,index){
       this.editIndex = index
@@ -508,6 +521,39 @@ export default {
           this.$message.info(res.message);
         }
       })
+    },
+    getMerchantList(){
+      merchantCore.getMerchantList({currentPage:1, pageSize:99999}).then(res => {
+        console.log(res)
+        if(res.code && res.code === '00'){ //错误提示
+          if(res.data.data && res.data.data.length > 0){
+            let arr = []
+            res.data.data.forEach((item, index) => {
+              arr[index] = {}
+              arr[index].label = item.companyName
+              arr[index].value = item.companyName
+            })
+            this.restaurants = arr
+          }
+        }else{
+          this.$message.closeAll();
+          this.$message.info(res.message);
+        }
+      })
+    },
+    querySearch(queryString, cb) {
+      let restaurants = this.restaurants;
+      let results = queryString ? restaurants.filter(this.createFilter(queryString)) : restaurants;
+      // 调用 callback 返回建议列表的数据
+      cb(results);
+    },
+    createFilter(queryString) {
+      return (restaurant) => {
+        return (restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+      };
+    },
+    handleSelect(item) {
+      console.log(item);
     }
   }
 }
