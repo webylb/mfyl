@@ -277,11 +277,53 @@ export default new Router({
         component: () => import(/* webpackChunkName: "mallManagement" */ '../management/physical-market-edit/sku.vue')
       },
       {
-        path: '/virtual-market/edit',
-        name: 'virtualMarketEdit',
-        meta: {title: "虚拟商品集市编辑"},
-        component: () => import(/* webpackChunkName: "mallManagement" */ '../management/virtual-market-edit/edit.vue')
+        path: '/sync-goods-detail',
+        name: 'syncGoodsDetail',
+        meta: {title: "商品信息同步"},
+        component: () => import(/* webpackChunkName: "mallManagement" */ '../management/sync-goods-detail/sync-goods-detail.vue')
       },
+      {
+        path: '/market-management',
+        name: 'marketManagement',
+        meta: {title: "商城管理"},
+        component: () => import(/* webpackChunkName: "mallManagement" */ '../management/market-management/market-management.vue')
+      },
+      {
+        path: '/supplier-management',
+        name: 'supplierManagement',
+        meta: {title: "供应商管理"},
+        component: () => import(/* webpackChunkName: "couponManagement" */ '../management/coupon-supplier-management/supplier-management.vue')
+      },
+      {
+        path: '/brand-management',
+        name: 'brandManagement',
+        meta: {title: "品牌管理"},
+        component: () => import(/* webpackChunkName: "couponManagement" */ '../management/coupon-brand-management/brand-management.vue')
+      },
+      {
+        path: '/coupon-market-management',
+        name: 'couponMarketManagement',
+        meta: {title: "卡券商品管理"},
+        component: () => import(/* webpackChunkName: "couponManagement" */ '../management/coupon-market-management/coupon-market-management.vue')
+      },
+      {
+        path: '/coupon-stock-management',
+        name: 'couponStockManagement',
+        meta: {title: "卡券库存管理"},
+        component: () => import(/* webpackChunkName: "couponManagement" */ '../management/coupon-stock-management/coupon-stock-management.vue')
+      },
+      {
+        path: '/coupon-market-edit',
+        name: 'couponMarketEdit',
+        meta: {title: "卡券编辑"},
+        component: () => import(/* webpackChunkName: "couponManagement" */ '../management/coupon-market-edit/edit.vue')
+      },
+      {
+        path: '/coupon-order-management',
+        name: 'couponOrderManagement',
+        meta: {title: "卡券订单管理"},
+        component: () => import(/* webpackChunkName: "couponManagement" */ '../management/coupon-order-management/coupon-order-management.vue')
+      }
       ]
     }
   ]

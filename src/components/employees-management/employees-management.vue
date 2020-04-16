@@ -479,7 +479,6 @@ export default {
       this.getStaffList(data)
     },
     dialogClose(){
-      console.log('123213')
       this.dialogVisible = false
       this.dialogInfoVisible = false
       this.dialogTableVisible = false

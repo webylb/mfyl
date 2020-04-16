@@ -8,7 +8,6 @@
           start-placeholder="开始日期"
           end-placeholder="结束日期"
           value-format="timestamp"
-          :default-time="['00:00:00', '23:59:59']"
           :picker-options="pickerOptions">
         </el-date-picker>
       </el-form-item>
@@ -30,7 +29,6 @@
             start-placeholder="开始日期"
             end-placeholder="结束日期"
             value-format="timestamp"
-            :default-time="['00:00:00', '23:59:59']"
             :picker-options="pickerOptions">
           </el-date-picker>
       </el-form-item>
@@ -42,7 +40,6 @@
             start-placeholder="开始日期"
             end-placeholder="结束日期"
             value-format="timestamp"
-            :default-time="['00:00:00', '23:59:59']"
             :picker-options="pickerOptions">
           </el-date-picker>
       </el-form-item>

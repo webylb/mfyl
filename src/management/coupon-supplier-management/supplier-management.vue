@@ -2,36 +2,14 @@
   <div class="merchant-management">
     <el-form ref="form" :model="form" :inline="true" label-position="center" label-width="120px">
 
-      <el-form-item label="商户名称:">
+      <el-form-item label="供应商名称:">
         <el-input style="width: 120px" v-model="form.merchantName" clearable></el-input>
-      </el-form-item>
-
-      <el-form-item label="与员工绑定字段:">
-        <el-select v-model="form.bindStrategyCode" clearable placeholder="请选择" style="width: 145px;margin-right:10px">
-          <el-option
-            v-for="item in options.bindStrategyCodeOptions"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value">
-          </el-option>
-        </el-select>
       </el-form-item>
 
       <el-form-item label="采购模式:">
         <el-select v-model="form.purchaseMode" clearable placeholder="请选择" style="width: 120px;margin-right:10px">
           <el-option
             v-for="item in options.purchaseModeOptions"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value">
-          </el-option>
-        </el-select>
-      </el-form-item>
-
-      <el-form-item label="商户状态:">
-        <el-select v-model="form.isLock" clearable placeholder="请选择" style="width: 120px">
-          <el-option
-            v-for="item in options.isLockOptions"
             :key="item.value"
             :label="item.label"
             :value="item.value">
@@ -46,7 +24,7 @@
 
       <el-row type="flex">
         <el-col :span="24">
-          <el-button type="primary" icon="el-icon-plus" @click="addMerchant()" >添加企业</el-button>
+          <el-button type="primary" icon="el-icon-plus" @click="addSupplier()" >添加供应商</el-button>
         </el-col>
       </el-row>
     </el-form>
@@ -65,27 +43,21 @@
         </el-table-column>
         <el-table-column
           prop="companyName"
-          label="商户名称"
+          label="供应商名称"
           align="center"
-          width="150">
+          >
         </el-table-column>
         <el-table-column
           prop="username"
-          label="账户"
+          label="联系电话"
           align="center"
-           width="120">
+          >
         </el-table-column>
         <el-table-column
           prop="bandStrategyName"
-          label="与员工绑定字段"
+          label="发货标识"
           align="center"
-          width="150">
-        </el-table-column>
-        <el-table-column
-          prop="boundStaffCount"
-          label="已绑定员工数"
-          align="center"
-          width="150">
+          >
         </el-table-column>
         <el-table-column
           prop="purchaseMode"
@@ -99,63 +71,25 @@
           </template>
         </el-table-column>
         <el-table-column
-          prop="purchaseMode"
-          label="电子卡券服务费"
-          align="center"
-          width="80"
-          >
-          <template slot-scope="scope">
-            <span v-if="scope.row.purchaseMode == 'YuFuKuan'">企业付</span>
-            <span v-else-if="scope.row.purchaseMode == 'HouFuKuan'">员工付</span>
-            <span v-else>{{ scope.row.purchaseMode }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column
-          prop="zip"
-          label="商城配置"
-          align="center"
-          >
-          <template slot-scope="scope">
-            <el-button @click="goSettings(scope.row.id)" type="text" size="small">配置</el-button>
-          </template>
-        </el-table-column>
-        <el-table-column
-          prop="zip"
-          label="开票信息"
-          align="center"
-          >
-          <template slot-scope="scope">
-            <el-button @click="goDetails(scope.row.id)" type="text" size="small">详情</el-button>
-          </template>
-        </el-table-column>
-        <el-table-column
-          prop="rechargeMoneyAmount"
-          label="累计充值金额（元）"
-          align="center"
-          width="150">
-        </el-table-column>
-        <el-table-column
-          prop="grantScoreMoneyAmount"
-          label="累计发放金额（元）"
-          align="center"
-          width="150">
-        </el-table-column>
-        <el-table-column
           prop="accountBalance"
           label="账户余额（元）"
           align="center"
           width="150">
         </el-table-column>
         <el-table-column
+          prop="bandStrategyName"
+          label="创建时间"
+          align="center"
+          >
+        </el-table-column>
+        <el-table-column
           fixed="right"
           label="操作"
           align="center"
-          width="100">
+          width="120">
           <template slot-scope="scope">
-            <el-button @click="changePwd(scope.row.id,scope.$index)" type="text" size="small">修改密码</el-button> <br/>
-            <el-button @click="editMerchant(scope.row,scope.$index)" type="text" size="small">编辑</el-button><br/>
-            <el-button @click="lockMerchant(scope.row.id,scope.$index)" v-if="scope.row.isLock == 'N'" type="text" size="small">冻结</el-button>
-            <el-button @click="unlockMerchant(scope.row.id,scope.$index)" v-else type="text" size="small">取消冻结</el-button>
+            <el-button @click="editSupplier(scope.row,scope.$index)" type="text" size="small">编辑</el-button>
+            <el-button @click="deleteSupplier(scope.row.id,scope.$index)" type="text" size="small">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -175,35 +109,20 @@
     </div>
 
     <el-dialog
-      title="添加企业信息"
+      title="添加供应商信息"
       :visible.sync="dialogVisible"
       width="450px"
       @close="dialogClose()" center>
       <el-form :model="dialogForm" label-position="right" label-width="125px" :rules="rules" ref="dialogForm">
-        <el-form-item label="商户名称*:" prop="companyName">
+        <el-form-item label="供应商名称*:" prop="companyName">
           <el-input style="width: 270px" v-model="dialogForm.companyName"
                     auto-complete="off"
-                    placeholder="请输入商户名称"></el-input>
+                    placeholder="请输入供应商名称"></el-input>
         </el-form-item>
-        <el-form-item label="后台账户*:" prop="username">
+        <el-form-item label="联系电话*:" prop="username">
           <el-input style="width: 270px" v-model="dialogForm.username"
                     auto-complete="off"
-                    placeholder="请输入后台账户"></el-input>
-        </el-form-item>
-        <el-form-item label="后台密码*:" prop="password">
-          <el-input style="width: 270px" v-model="dialogForm.password" show-password
-                    auto-complete="off"
-                    placeholder="请输入后台登录密码"></el-input>
-        </el-form-item>
-        <el-form-item label="与员工绑定依据*:" prop="bandStrategy">
-          <el-select v-model="dialogForm.bandStrategy" placeholder="请选择" style="width: 270px">
-            <el-option
-              v-for="item in options.bindStrategyCodeOptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value">
-            </el-option>
-          </el-select>
+                    placeholder="请输入联系电话"></el-input>
         </el-form-item>
         <el-form-item label="采购模式*:" prop="purchaseMode">
           <el-select v-model="dialogForm.purchaseMode" placeholder="请选择" style="width: 270px">
@@ -215,6 +134,26 @@
             </el-option>
           </el-select>
         </el-form-item>
+        <el-form-item label="发货标识*:" prop="password">
+          <el-input style="width: 270px" v-model="dialogForm.password"
+                    auto-complete="off"
+                    placeholder="请输入发货标识"></el-input>
+        </el-form-item>
+        <el-form-item label="剩余金额*:" prop="password">
+          <el-input style="width: 270px" v-model="dialogForm.password"
+                    auto-complete="off"
+                    placeholder="请输入当前帐户剩余金额"></el-input>
+        </el-form-item>
+        <el-form-item label="预警金额*:" prop="password">
+          <el-input style="width: 270px" v-model="dialogForm.password"
+                    auto-complete="off"
+                    placeholder="请输入当前帐户预警金额"></el-input>
+        </el-form-item>
+        <el-form-item label="预警号码*:" prop="password">
+          <el-input style="width: 270px" v-model="dialogForm.password"
+                    auto-complete="off"
+                    placeholder="请输入当前帐户预警号码"></el-input>
+        </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取  消</el-button>
@@ -222,50 +161,23 @@
       </span>
     </el-dialog>
     <el-dialog
-      title="修改商户密码"
-      :visible.sync="dialogVisible2"
-      width="422px"
-      @close="dialogClose()" center>
-      <el-form :model="dialogForm2" label-position="right" label-width="120px" ref="dialogForm">
-        <el-form-item label="新密码*:" prop="password">
-          <el-input style="width: 270px" v-model="dialogForm2.password"
-                    auto-complete="off"
-                    placeholder="请输入新密码"></el-input>
-        </el-form-item>
-      </el-form>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible2 = false">取  消</el-button>
-        <el-button type="primary" @click="submitPwd()">确  认</el-button>
-      </span>
-    </el-dialog>
-    <el-dialog
-      title="编辑企业信息"
+      title="编辑供应商息"
       :visible.sync="dialogVisible3"
       width="450px"
       @close="dialogClose()" center>
       <el-form :model="dialogEditForm" label-position="right" label-width="125px" :rules="rules" ref="dialogEditForm">
-        <!-- <el-form-item label="商户名称*:" prop="companyName">
-          <el-input style="width: 270px" v-model="dialogEditForm.companyName"
+        <el-form-item label="供应商名称*:" prop="companyName">
+          <el-input style="width: 270px" v-model="dialogForm.companyName"
                     auto-complete="off"
-                    placeholder="请输入商户名称"></el-input>
+                    placeholder="请输入供应商名称"></el-input>
         </el-form-item>
-        <el-form-item label="后台账户*:" prop="username">
-          <el-input style="width: 270px" v-model="dialogEditForm.username"
+        <el-form-item label="联系电话*:" prop="username">
+          <el-input style="width: 270px" v-model="dialogForm.username"
                     auto-complete="off"
-                    placeholder="请输入后台账户"></el-input>
-        </el-form-item> -->
-        <el-form-item label="与员工绑定依据*:" prop="bandStrategy">
-          <el-select v-model="dialogEditForm.bandStrategy" placeholder="请选择" style="width: 270px">
-            <el-option
-              v-for="item in options.bindStrategyCodeOptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value">
-            </el-option>
-          </el-select>
+                    placeholder="请输入联系电话"></el-input>
         </el-form-item>
         <el-form-item label="采购模式*:" prop="purchaseMode">
-          <el-select v-model="dialogEditForm.purchaseMode" placeholder="请选择" style="width: 270px">
+          <el-select v-model="dialogForm.purchaseMode" placeholder="请选择" style="width: 270px">
             <el-option
               v-for="item in options.purchaseModeOptions"
               :key="item.value"
@@ -274,15 +186,25 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="电子卡券服务费*:" prop="purchaseMode">
-          <el-select v-model="dialogEditForm.purchaseMode" placeholder="请选择" style="width: 270px">
-            <el-option
-              v-for="item in options.serviceCharge"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value">
-            </el-option>
-          </el-select>
+        <el-form-item label="发货标识*:" prop="password">
+          <el-input style="width: 270px" v-model="dialogForm.password"
+                    auto-complete="off"
+                    placeholder="请输入发货标识"></el-input>
+        </el-form-item>
+        <el-form-item label="剩余金额*:" prop="password">
+          <el-input style="width: 270px" v-model="dialogForm.password"
+                    auto-complete="off"
+                    placeholder="请输入当前帐户剩余金额"></el-input>
+        </el-form-item>
+        <el-form-item label="预警金额*:" prop="password">
+          <el-input style="width: 270px" v-model="dialogForm.password"
+                    auto-complete="off"
+                    placeholder="请输入当前帐户预警金额"></el-input>
+        </el-form-item>
+        <el-form-item label="预警号码*:" prop="password">
+          <el-input style="width: 270px" v-model="dialogForm.password"
+                    auto-complete="off"
+                    placeholder="请输入当前帐户预警号码"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -297,25 +219,25 @@ import * as core from '../../api/merchant'
 import tool from '../../utils/common'
 
 export default {
-  name: 'merchantManagement',
+  name: 'supplierManagement',
   data() {
     let validateCompanyName = (rule, value, callback) => {
       if (!value) {
-        callback(new Error('请输入商户名称'));
+        callback(new Error('请输入供应商名称'));
       } else {
         callback();
       }
     }
     let validateUsername = (rule, value, callback) => {
       if (!value) {
-        callback(new Error('请输入后台账户名称'));
+        callback(new Error('请输入联系电话'));
       } else {
         callback();
       }
     }
     let validatePassword = (rule, value, callback) => {
       if (!value) {
-        callback(new Error('请输入后台密码'));
+        callback(new Error('请输入发货标识'));
       } else {
         callback();
       }
@@ -337,7 +259,6 @@ export default {
     return {
       loading: true,
       dialogVisible: false,
-      dialogVisible2: false,
       dialogVisible3: false,
       form: {
         merchantName: null,
@@ -352,9 +273,6 @@ export default {
         password: null,
         purchaseMode: null,
         bandStrategy: null
-      },
-      dialogForm2: {
-        password: null
       },
       dialogEditForm: {
         userName: null,
@@ -407,16 +325,6 @@ export default {
             label: '后付款'
           }
         ],
-        serviceCharge: [
-          {
-            value: 'YuFuKuan',
-            label: '企业付'
-          },
-          {
-            value: 'HouFuKuan',
-            label: '员工付'
-          }
-        ],
         isLockOptions: [
           {
             value: 'N',
@@ -435,7 +343,7 @@ export default {
     }
   },
   created(){
-    // this.getMerchantList({currentPage: this.currentPage,pageSize: this.pageSize})
+    this.getMerchantList({currentPage: this.currentPage,pageSize: this.pageSize})
   },
   activated() {
     let data = {currentPage:this.currentPage, pageSize:this.pageSize}
@@ -535,18 +443,6 @@ export default {
         }
       });
     },
-    changePwd(id){
-      this.editId = id
-      this.dialogVisible2 = true
-    },
-    submitPwd() {
-      if(this.dialogForm2.password && this.dialogForm2.password.length > 5) {
-        this.changeMerchantPassword({merchantId: this.editId, newPasswd: this.dialogForm2.password})
-      }else{
-        this.$message.closeAll();
-        this.$message.info('密码长度最小为6位');
-      }
-    },
     registerMerchant(opts){
       core.registerMerchant(opts).then(res => {
         if(res.code && res.code == '00'){
@@ -564,45 +460,39 @@ export default {
         this.$message.info(err);
       })
     },
-    addMerchant() {
+    addSupplier() {
       this.editForm = false
       this.dialogVisible = true
     },
-    lockMerchant(id,index){
+    deleteSupplier(id,index){
       this.editId = id
       this.editIndex = index
-      core.lockMerchant({merchantId: id}).then(res => {
-        if(res.code && res.code == '00'){
-          this.tableData[index].isLock = 'Y'
+      this.$confirm('此操作将永久删除供应商，是否继续？', '提示', {
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        core.lockMerchant({merchantId: id}).then(res => {
+          if(res.code && res.code == '00'){
+            this.tableData[index].isLock = 'Y'
+            this.$message.closeAll();
+            this.$message.success("操作成功");
+          }else{
+            this.$message.closeAll();
+            this.$message.info(res.message);
+          }
+        }).catch(err => {
           this.$message.closeAll();
-          this.$message.success("操作成功");
-        }else{
-          this.$message.closeAll();
-          this.$message.info(res.message);
-        }
-      }).catch(err => {
-        this.$message.closeAll();
-        this.$message.info(err);
-      })
+          this.$message.info(err);
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消'
+        });
+      });
     },
-    unlockMerchant(id,index){
-      this.editId = id
-      this.editIndex = index
-      core.unlockMerchant({merchantId: id}).then(res => {
-        if(res.code && res.code == '00'){
-          this.tableData[index].isLock = 'N'
-          this.$message.closeAll();
-          this.$message.success("操作成功");
-        }else{
-          this.$message.closeAll();
-          this.$message.info(res.message);
-        }
-      }).catch(err => {
-        this.$message.closeAll();
-        this.$message.info(err);
-      })
-    },
-    editMerchant(row,index){
+    editSupplier(row,index){
       this.activeId = row.id
       this.activeIndex = index
       this.dialogEditForm.userName = row.username
@@ -670,8 +560,6 @@ export default {
     },
     dialogClose(){
       this.dialogVisible = false
-      this.dialogVisible2 = false
-      this.dialogForm2.password = null
       this.editId = null
     },
     downloadMerchantList(){

@@ -3,13 +3,13 @@
     <div class="physical-market-edit-title">
       <el-breadcrumb separator-class="el-icon-arrow-right">
         <el-breadcrumb-item>商城配置</el-breadcrumb-item>
-        <el-breadcrumb-item :to="{ path:'/physical-market' }">实物商品集市</el-breadcrumb-item>
+        <el-breadcrumb-item :to="{ path:'/coupon-market-management' }">卡券商品管理</el-breadcrumb-item>
         <el-breadcrumb-item>{{ pageName }}</el-breadcrumb-item>
       </el-breadcrumb>
     </div>
     <el-form ref="form" v-model="form" label-position="center" label-width="120px" v-loading="loading">
-      <el-form-item label="商品来源*:">
-        <el-select v-model="form.itemChannel" @change="getItemChannel" clearable placeholder="请选择渠道来源" style="width: 200px;">
+      <el-form-item label="供应商*:">
+        <el-select v-model="form.itemChannel" @change="getItemChannel" clearable placeholder="请选择供应商" style="width: 200px;">
           <el-option
             v-for="item in options.channelOptions"
             :key="item.value"
@@ -18,26 +18,34 @@
           </el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="品牌:" v-show="showAoLinPiKeItem">
-        <el-input v-model="form.brandName" clearable placeholder="请输入品牌" maxlength="60" style="width: 200px;"></el-input>
+      <el-form-item label="品牌*:">
+        <el-select v-model="form.itemChannel" @change="getItemChannel" clearable placeholder="请选择品牌" style="width: 200px;">
+          <el-option
+            v-for="item in options.channelOptions"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+          </el-option>
+        </el-select>
       </el-form-item>
-      <el-form-item label="产品大类:" v-show="showAoLinPiKeItem">
-        <el-input v-model="form.categoryName" clearable placeholder="请输入产品大类" maxlength="60" style="width: 200px;"></el-input>
+      <el-form-item label="权益类型*:">
+        <el-select v-model="form.itemChannel" @change="getItemChannel" clearable placeholder="请选择品牌" style="width: 200px;">
+          <el-option
+            v-for="item in options.channelOptions"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+          </el-option>
+        </el-select>
       </el-form-item>
-      <el-form-item label="发货渠道:">
-        <el-input v-model="form.itemDeliveryChannel" clearable placeholder="请输入发货渠道" style="width: 200px;"></el-input>
+      <el-form-item label="提示文案*:">
+        <el-input v-model="form.categoryName" clearable placeholder="请输入提示文案" maxlength="60" style="width: 200px;"></el-input>
+      </el-form-item>
+      <el-form-item label="供应商商品ID:">
+        <el-input v-model="form.categoryName" clearable placeholder="请输入提示文案" maxlength="60" style="width: 200px;"></el-input>
       </el-form-item>
       <el-form-item label="商品名称*:">
         <el-input v-model="form.title" clearable placeholder="最多允许输入30个汉字" maxlength="60" style="width: 400px;"></el-input>
-      </el-form-item>
-      <!-- <el-form-item label="商品编号:">
-        <el-input clearable placeholder="输入商品编号" maxlength="60" style="width: 200px;"></el-input>
-      </el-form-item> -->
-      <el-form-item label="商品价格*:">
-        <el-input v-model="form.price" clearable placeholder="请输入商品价格" style="width: 200px;"></el-input>
-      </el-form-item>
-      <el-form-item label="市场指导价*:">
-        <el-input v-model="form.marketPrice" clearable placeholder="请输入商品价格" style="width: 200px;"></el-input>
       </el-form-item>
       <el-form-item label="商品图片*:" class="pic-list">
         <div style="">
@@ -74,7 +82,30 @@
           </div>
         </div>
       </el-form-item>
-      <el-form-item label="商品类目*:">
+      <el-form-item label="排序:">
+        <el-input clearable placeholder="" maxlength="60" style="width: 200px;"></el-input>
+      </el-form-item>
+      <el-form-item label="商品售价*:">
+        <el-input v-model="form.price" clearable placeholder="请输入商品售价" style="width: 200px;"></el-input>
+      </el-form-item>
+      <el-form-item label="商品成本价*:">
+        <el-input v-model="form.marketPrice" clearable placeholder="请输入商品成本价" style="width: 200px;"></el-input>
+      </el-form-item>
+      <el-form-item label="服务费:">
+        <el-input v-model="form.marketPrice" clearable placeholder="请输入服务费，百分比" style="width: 200px;">
+          <template slot="append">%</template>
+        </el-input>
+      </el-form-item>
+      <el-form-item label="使用期限*:">
+        <el-input v-model="form.marketPrice" clearable placeholder="请输入使用期限" style="width: 200px;"></el-input>
+      </el-form-item>
+      <el-form-item label="预警库存:">
+        <el-input v-model="form.marketPrice" clearable placeholder="请输入预警库存" style="width: 200px;"></el-input>
+      </el-form-item>
+      <el-form-item label="预警号码:">
+        <el-input v-model="form.marketPrice" clearable placeholder="请输入预警提醒手机号码" style="width: 200px;"></el-input>
+      </el-form-item>
+      <!-- <el-form-item label="商品类目*:">
         <el-select v-model="form.firstCategoryId" clearable @change="changefirstCategory" placeholder="请选择一级类目" style="width: 200px;margin-right:10px;">
           <el-option
             v-for="item in firstCategoryOptions"
@@ -92,8 +123,8 @@
             :value="item.id">
           </el-option>
         </el-select>
-      </el-form-item>
-      <el-form-item label="是否上首页*:">
+      </el-form-item> -->
+      <!-- <el-form-item label="是否上首页*:">
         <el-select v-model="form.isHot" clearable placeholder="请选择" style="width: 200px;margin-right:10px;">
           <el-option
             v-for="item in options.isHotOptions"
@@ -103,12 +134,11 @@
           </el-option>
         </el-select>
         <el-input v-model="form.sort" clearable placeholder="首页排序" style="width: 200px;"></el-input>
-      </el-form-item>
+      </el-form-item> -->
       <el-form-item label="商品详情*:" class="ueditor-wrap">
         <vue-editor id="editor" :useCustomImageHandler=true @image-added="handleImageAdded" v-model="form.itemContent" :editor-toolbar="customToolbar"/>
       </el-form-item>
       <el-form-item>
-        <!-- <el-button>清空</el-button> -->
         <el-button type="primary" @click="subGoodsInfo">保存</el-button>
       </el-form-item>
     </el-form>
@@ -122,7 +152,7 @@ import draggable from 'vuedraggable'
 import axios from "axios"
 
 export default {
-  name: 'physicalMarketEdit',
+  name: 'couponMarketEdit',
   components: {
     VueEditor,
     draggable
@@ -215,7 +245,7 @@ export default {
   },
   created(){
     if(this.$route.query.itemId){
-      this.pageName = '编辑商品'
+      this.pageName = "编辑商品"
       this.searchGoodsDetail(this.$route.query.itemId)
       this.getFirstCategoryList()
     }else{

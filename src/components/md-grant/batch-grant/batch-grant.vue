@@ -22,10 +22,11 @@
           >
         </el-table-column>
         <el-table-column
-          prop="staffName"
           label="员工姓名"
-          align="center"
-          >
+          align="left">
+          <template slot-scope="scope">
+            <el-badge v-if="scope.row.isNew === 'Y'" value="new"/>{{ scope.row.staffName }}
+          </template>
         </el-table-column>
         <el-table-column
           prop="staffJobNumber"
@@ -124,7 +125,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="subExcelInfo">立即导入</el-button>
+        <el-button type="primary" @click="subExcelInfo()">立即导入</el-button>
       </span>
     </el-dialog>
     <!-- 确认信息弹窗 -->
@@ -212,6 +213,72 @@
       <span slot="footer" class="dialog-footer">
       </span>
     </el-dialog>
+    <el-dialog
+      title="员工信息确认"
+      :visible.sync="dialogTableVisible"
+      :before-close="dialogClose"
+      center>
+      <p style="text-align:center;">您导入的员工列表中，与在线员工出现相同手机号情况，<br/>请确认是否需要导入。</p>
+      <el-table
+        :data="dialogTableData"
+        stripe
+        style="width: 100%;border:1px solid #EBEEF5;"
+        @selection-change="handleDialogSelectionChange"
+        >
+        <el-table-column
+          type="selection">
+        </el-table-column>
+        <el-table-column
+          label="员工姓名"
+          align="left">
+          <template slot-scope="scope">
+            <el-badge v-if="scope.row.isNew === 'Y'" value="new"/>{{ scope.row.staffName }}
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="staffJobNumber"
+          label="工号"
+          align="center">
+        </el-table-column>
+        <el-table-column
+          prop="staffMobile"
+          label="手机号"
+          width="120"
+          align="center">
+        </el-table-column>
+        <el-table-column
+          label="生日"
+          width="120"
+          align="center">
+          <template slot-scope="scope">
+            <span>{{  formatDate(scope.row.staffBirthday) }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="入职日期"
+          width="120"
+          align="center">
+          <template slot-scope="scope">
+            <span>{{  formatDate(scope.row.staffEmploymentDate) }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="staffDepartmentName"
+          label="部门"
+          align="center">
+        </el-table-column>
+        <el-table-column
+          prop="staffJob"
+          label="职务"
+          width="120"
+          align="center">
+        </el-table-column>
+      </el-table>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogClose">取消导入</el-button>
+        <el-button type="primary" @click="subTableInfo">覆盖并导入</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -234,6 +301,7 @@ export default {
       dialogPwdVisible: false, //密码
       dialogPwdHintVisible: false, //积分不足
       dialogPwdSuccessVisible: false, //充值成功
+      dialogTableVisible: false, //导入信息区分
       form: {
         payPassword: ''
       },
@@ -253,7 +321,9 @@ export default {
       pwd3: '',
       pwd4: '',
       pwd5: '',
-      pwd6: ''
+      pwd6: '',
+      checkDialogData: [],
+      dialogTableData: []
     }
   },
   created(){
@@ -372,12 +442,17 @@ export default {
       this.dialogInfoForm.excelFile = form
     },
     //导入员工
-    subExcelInfo(){
+    subExcelInfo(isContinue){
       if(!this.dialogInfoForm.excelFile){
         this.$message.warning("请导入Excel文件")
         return false
       }
       const form = this.dialogInfoForm.excelFile
+      if(isContinue){
+        form.set("isContinue", Number(isContinue))
+      }else{
+        form.append('isContinue', 0)
+      }
       this.loading = true
       core.uploadGrantInfo(form).then(res => {
         if(res.code && res.code === "00"){
@@ -395,24 +470,109 @@ export default {
           this.totalGrantMoney = res.data.totalGrantMoney
           this.getMerchantDetail()
           this.loading = false
-        } else if(res.code && res.code === "90"){
-
+        } else if(res.code && res.code === "80"){
+          this.dialogInfoVisible = false
+          this.$refs.upload.clearFiles()
+          this.dialogInfoForm = {
+            excelFile: null
+          }
+          this.dialogTableVisible = true
+          this.dialogTableData = res.data
+        }else if(res.code && res.code === "empty_mobile"){
           this.$confirm('部分发放员工未绑定手机号，请先绑定手机号再发放魔豆。', '提示', {
             confirmButtonText: '继续导入',
             cancelButtonText: '取消导入',
             type: 'warning'
           }).then(() => {
-            this.$message({
-              type: 'success',
-              message: '符合发放条件的员工导入成功!'
-            });
+            this.subExcelInfo(1)
           }).catch(() => {
             this.$message({
               type: 'info',
-              message: '已取消删除'
+              message: '已取消导入'
             });
+            this.dialogInfoVisible = false
+            this.$refs.upload.clearFiles()
+            this.dialogInfoForm = {
+              excelFile: null
+            }
+            this.loading = false
           });
-
+        }else if(res.code && res.code === "empty_money"){
+          this.$confirm('部分发放员工金额不能为空，请填写发放金额。', '提示', {
+            confirmButtonText: '继续导入',
+            cancelButtonText: '取消导入',
+            type: 'warning'
+          }).then(() => {
+            this.subExcelInfo(1)
+          }).catch(() => {
+            this.$message({
+              type: 'info',
+              message: '已取消导入'
+            });
+            this.dialogInfoVisible = false
+            this.$refs.upload.clearFiles()
+            this.dialogInfoForm = {
+              excelFile: null
+            }
+            this.loading = false
+          });
+        }else if(res.code && res.code === "err_format_mobile"){
+          this.$confirm('部分发放员工手机号格式不正确。', '提示', {
+            confirmButtonText: '继续导入',
+            cancelButtonText: '取消导入',
+            type: 'warning'
+          }).then(() => {
+            this.subExcelInfo(1)
+          }).catch(() => {
+            this.$message({
+              type: 'info',
+              message: '已取消导入'
+            });
+            this.dialogInfoVisible = false
+            this.$refs.upload.clearFiles()
+            this.dialogInfoForm = {
+              excelFile: null
+            }
+            this.loading = false
+          });
+        }else if(res.code && res.code === "band_strategy_is_empty"){
+          this.$confirm('部分发放员工绑定依据为空。', '提示', {
+            confirmButtonText: '继续导入',
+            cancelButtonText: '取消导入',
+            type: 'warning'
+          }).then(() => {
+            this.subExcelInfo(1)
+          }).catch(() => {
+            this.$message({
+              type: 'info',
+              message: '已取消导入'
+            });
+            this.dialogInfoVisible = false
+            this.$refs.upload.clearFiles()
+            this.dialogInfoForm = {
+              excelFile: null
+            }
+            this.loading = false
+          });
+        }else if(res.code && res.code === "err_mobile_money"){
+          this.$confirm('请输入正确的手机号与发放金额', '提示', {
+            confirmButtonText: '继续导入',
+            cancelButtonText: '取消导入',
+            type: 'warning'
+          }).then(() => {
+            this.subExcelInfo(1)
+          }).catch(() => {
+            this.$message({
+              type: 'info',
+              message: '已取消导入'
+            });
+            this.dialogInfoVisible = false
+            this.$refs.upload.clearFiles()
+            this.dialogInfoForm = {
+              excelFile: null
+            }
+            this.loading = false
+          });
         }else{
           this.dialogInfoVisible = false
           this.$refs.upload.clearFiles()
@@ -425,6 +585,29 @@ export default {
         this.$message.info(err);
         this.loading = false
       })
+    },
+    handleDialogSelectionChange(val){
+      this.checkDialogData = val
+    },
+    subTableInfo(){
+      if(this.checkDialogData){
+        // core.addStaff({staffs: this.checkDialogData}).then(res => {
+        //   if(res.code && res.code == '00'){
+        //     this.$message.success("操作成功");
+        //     this.getStaffList({currentPage:this.currentPage, pageSize:this.pageSize})
+        //     this.dialogTableVisible = false
+        //   }else{
+        //     this.$message.closeAll();
+        //     this.$message.info(res.message);
+        //   }
+        // }).catch(err => {
+        //   this.$message.closeAll();
+        //   this.$message.info(err);
+        // })
+      }else{
+        this.$message.closeAll();
+        this.$message.info("请先勾选员工信息")
+      }
     },
     //下载模板
     importExamples(){
