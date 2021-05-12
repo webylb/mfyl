@@ -30,7 +30,7 @@
     "eslint-plugin-vue": "^5.0.0",
     "less": "^3.9.0",
     "less-loader": "^5.0.0",
-    "postcss": "^7.0.16",
+    "postcss": "^8.2.10",
     "postcss-loader": "^3.0.0",
     "style-resources-loader": "^1.2.1",
     "uglifyjs-webpack-plugin": "^2.1.3",
